@@ -44,7 +44,7 @@ export function Dashboard({ profile, onNavigate }: DashboardProps) {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-2xl text-primary">NutriVoyage</h1>
+          <h1 className="font-display text-2xl text-primary">Nutrifuel</h1>
           <p className="text-sm text-muted-foreground">
             Welcome back, {profile.name || "Traveler"}
           </p>
