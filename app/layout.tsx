@@ -16,7 +16,7 @@ const pacifico = Pacifico({
 })
 
 export const metadata: Metadata = {
-  title: 'NutriVoyage - Nutrition for Travelers',
+  title: 'NutriFuel - Nourish Your Journey',
   description:
     'Maintain your nutritional goals while traveling. AI-powered meal planning, local cuisine discovery, and real-time dietary tracking.',
   generator: 'v0.app',

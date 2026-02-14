@@ -25,6 +25,7 @@ import {
   X,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import Image from "next/image"
 
 const ALLERGY_OPTIONS = [
   "Gluten",
@@ -130,8 +131,8 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     <div className="flex min-h-screen flex-col bg-background">
       {/* Header */}
       <div className="flex flex-col items-center gap-4 px-6 pt-12 pb-6">
-        <h1 className="font-display text-3xl text-primary">NutriVoyage</h1>
-        <p className="text-sm text-muted-foreground">
+        <Image src="/logo.png" alt="NutriFuel" width={180} height={180} priority />
+        <p className="text-sm text-muted-foreground mt-2">
           Let{"'"}s set up your nutrition profile
         </p>
 
