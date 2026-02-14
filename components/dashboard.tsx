@@ -8,6 +8,7 @@ import type { UserProfile } from "@/lib/types"
 import type { PageId } from "@/components/bottom-nav"
 import { Droplets, Footprints, Flame, TrendingUp } from "lucide-react"
 import { cn } from "@/lib/utils"
+import Image from "next/image"
 
 interface DashboardProps {
   profile: UserProfile
@@ -43,12 +44,13 @@ export function Dashboard({ profile, onNavigate }: DashboardProps) {
     <div className="flex flex-col gap-6 px-4 pb-24 pt-4">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
+        <div className="flex items-center gap-2">
+          <Image src="/logo.png" alt="NutriFuel" width={32} height={32} />
           <h1 className="font-display text-2xl text-primary">Nutrifuel</h1>
-          <p className="text-sm text-muted-foreground">
-            Welcome back, {profile.name || "Traveler"}
-          </p>
         </div>
+        <p className="text-sm text-muted-foreground">
+          Welcome back, {profile.name || "Traveler"}
+        </p>
         {activeTrip && (
           <div className="rounded-full bg-accent px-3 py-1">
             <span className="text-xs font-medium text-accent-foreground">
