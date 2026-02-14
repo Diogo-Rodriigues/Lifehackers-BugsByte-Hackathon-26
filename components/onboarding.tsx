@@ -196,13 +196,14 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                       type="number"
                       min={10}
                       max={100}
-                      value={profile.age}
-                      onChange={(e) =>
+                      value={profile.age ?? ""}
+                      onChange={(e) => {
+                        const val = e.target.value
                         setProfile({
                           ...profile,
-                          age: parseInt(e.target.value) || 25,
+                          age: val === "" ? undefined : parseInt(val),
                         })
-                      }
+                      }}
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
@@ -235,13 +236,14 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                       type="number"
                       min={100}
                       max={250}
-                      value={profile.height}
-                      onChange={(e) =>
+                      value={profile.height ?? ""}
+                      onChange={(e) => {
+                        const val = e.target.value
                         setProfile({
                           ...profile,
-                          height: parseInt(e.target.value) || 170,
+                          height: val === "" ? undefined : parseInt(val),
                         })
-                      }
+                      }}
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
@@ -251,13 +253,14 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                       type="number"
                       min={30}
                       max={300}
-                      value={profile.weight}
-                      onChange={(e) =>
+                      value={profile.weight ?? ""}
+                      onChange={(e) => {
+                        const val = e.target.value
                         setProfile({
                           ...profile,
-                          weight: parseInt(e.target.value) || 70,
+                          weight: val === "" ? undefined : parseInt(val),
                         })
-                      }
+                      }}
                     />
                   </div>
                 </div>
