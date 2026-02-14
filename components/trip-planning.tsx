@@ -11,9 +11,11 @@ import {
     CalendarDays,
     Plane,
 } from "lucide-react"
+import { getLanguage, t } from "@/lib/language"
 
 export function TripPlanning() {
     const existingTrip = getActiveTrip()
+    const lang = getLanguage()
 
     if (!existingTrip) {
         return (
@@ -22,10 +24,10 @@ export function TripPlanning() {
                     <Plane className="h-10 w-10 text-muted-foreground" />
                 </div>
                 <h3 className="mb-2 text-xl font-semibold text-foreground">
-                    No Trip Planned Yet
+                    {t('noTripPlanned', lang)}
                 </h3>
                 <p className="max-w-xs text-sm text-muted-foreground">
-                    Complete your profile setup to start planning your culinary adventure.
+                    {t('noTripDesc', lang)}
                 </p>
             </div>
         )
@@ -34,9 +36,9 @@ export function TripPlanning() {
     return (
         <div className="flex flex-col gap-6 px-4 pb-24 pt-4">
             <div className="flex items-center justify-between">
-                <h1 className="font-display text-2xl text-primary">Your Trip</h1>
+                <h1 className="font-display text-2xl text-primary">{t('yourTrip', lang)}</h1>
                 <Badge variant="outline" className="border-primary/20 bg-primary/5 text-primary">
-                    Active
+                    {t('activeBadge', lang)}
                 </Badge>
             </div>
 
@@ -60,7 +62,7 @@ export function TripPlanning() {
                         <div className="flex flex-col gap-1 rounded-lg bg-muted/50 p-3">
                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
                                 <MapPin className="h-3.5 w-3.5" />
-                                Origin
+                                {t('origin', lang)}
                             </div>
                             <span className="font-medium text-foreground">
                                 {existingTrip.departureCity}
@@ -69,7 +71,7 @@ export function TripPlanning() {
                         <div className="flex flex-col gap-1 rounded-lg bg-muted/50 p-3">
                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
                                 <Clock className="h-3.5 w-3.5" />
-                                Timezone
+                                {t('timezone', lang)}
                             </div>
                             <span className="font-medium text-foreground">
                                 {existingTrip.timezoneShift > 0 ? "+" : ""}
@@ -81,7 +83,7 @@ export function TripPlanning() {
                     <div className="mb-6">
                         <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground">
                             <Utensils className="h-4 w-4 text-primary" />
-                            Must-Try Dishes
+                            {t('mustTryDishes', lang)}
                         </h3>
                         {existingTrip.selectedDishes?.length > 0 ? (
                             <div className="flex flex-wrap gap-2">
@@ -97,7 +99,7 @@ export function TripPlanning() {
                             </div>
                         ) : (
                             <p className="text-sm text-muted-foreground italic">
-                                No dishes selected yet.
+                                {t('noDishesSelected', lang)}
                             </p>
                         )}
                     </div>
@@ -107,7 +109,7 @@ export function TripPlanning() {
                             <div className="mb-3 flex items-center justify-between">
                                 <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
                                     <ShieldCheck className="h-4 w-4 text-primary" />
-                                    Daily Meal Plan
+                                    {t('dailyMealPlan', lang)}
                                 </h3>
                                 <Badge variant="outline" className="text-[10px] capitalize text-primary border-primary/20">
                                     {existingTrip.mealPlan.status.replace("-", " ")}

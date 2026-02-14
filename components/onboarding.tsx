@@ -27,7 +27,7 @@ import {
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 import { DESTINATIONS, TIMEZONE_OFFSETS } from "@/lib/constants"
-import { generateId, saveTrip, setActiveTrip, saveApiKey, getApiKey } from "@/lib/store"
+import { generateId, saveTrip, setActiveTrip, saveApiKey, getApiKey, getAllergyOptions, saveAllergyOptions, getDietOptions, saveDietOptions } from "@/lib/store"
 import { apiFetch } from "@/lib/api"
 import type { Trip, LocalDish, MealPlan } from "@/lib/types"
 import { getLanguage, setLanguage, t, type Language, LANGUAGES } from "@/lib/language"
@@ -54,6 +54,7 @@ const ALLERGY_OPTIONS = [
   "Shellfish",
   "Wheat",
   "Sesame",
+  "Not Know",
 ]
 
 const DIET_OPTIONS = [
@@ -76,6 +77,13 @@ interface OnboardingProps {
 export function Onboarding({ onComplete }: OnboardingProps) {
   const [step, setStep] = useState(0)
   const [language, setLanguageState] = useState<Language>('en')
+  const [apiKey, setApiKey] = useState("")
+  const [allergyOptions, setAllergyOptions] = useState(ALLERGY_OPTIONS)
+  const [dietOptions, setDietOptions] = useState(DIET_OPTIONS)
+  const [customAllergy, setCustomAllergy] = useState("")
+  const [customDietPreference, setCustomDietPreference] = useState("")
+  const [customAllergyError, setCustomAllergyError] = useState("")
+  const [customDietError, setCustomDietError] = useState("")
   const [profile, setProfile] = useState<Partial<UserProfile>>({
     name: "",
     age: 25,
@@ -95,6 +103,8 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     departureCity: "",
     departureDate: "",
     arrivalDate: "",
+    departureTime: "",
+    arrivalTime: "",
     layovers: [],
     selectedDishes: [],
   })
@@ -102,7 +112,19 @@ export function Onboarding({ onComplete }: OnboardingProps) {
   const [loadingDishes, setLoadingDishes] = useState(false)
   const [mealPlan, setMealPlan] = useState<MealPlan | null>(null)
   const [loadingPlan, setLoadingPlan] = useState(false)
-  const [apiKey, setApiKey] = useState("")
+
+  useEffect(() => {
+    setAllergyOptions(getAllergyOptions(ALLERGY_OPTIONS))
+    setDietOptions(getDietOptions(DIET_OPTIONS))
+  }, [])
+
+  useEffect(() => {
+    saveAllergyOptions(allergyOptions)
+  }, [allergyOptions])
+
+  useEffect(() => {
+    saveDietOptions(dietOptions)
+  }, [dietOptions])
 
   // Load existing API key if available
   useEffect(() => {
@@ -119,6 +141,39 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     { title: t('localCuisine', language), icon: Utensils },
     { title: t('mealPlan', language), icon: ShieldCheck },
   ]
+
+  function getAllergyLabel(allergy: string): string {
+    const map: Record<string, string> = {
+      "Gluten": t('gluten', language),
+      "Dairy": t('dairy', language),
+      "Eggs": t('eggs', language),
+      "Peanuts": t('peanuts', language),
+      "Tree Nuts": t('treeNuts', language),
+      "Soy": t('soy', language),
+      "Fish": t('fish', language),
+      "Shellfish": t('shellfish', language),
+      "Wheat": t('wheat', language),
+      "Sesame": t('sesame', language),
+      "Not Know": t('notKnow', language),
+    }
+    return map[allergy] || allergy
+  }
+
+  function getDietLabel(diet: string): string {
+    const map: Record<string, string> = {
+      "Vegetarian": t('vegetarian', language),
+      "Vegan": t('vegan', language),
+      "Keto": t('keto', language),
+      "Paleo": t('paleo', language),
+      "Mediterranean": t('mediterranean', language),
+      "Low Carb": t('lowCarb', language),
+      "Low Fat": t('lowFat', language),
+      "Halal": t('halal', language),
+      "Kosher": t('kosher', language),
+      "No Preference": t('noPreference', language),
+    }
+    return map[diet] || diet
+  }
 
   async function fetchLocalDishes() {
     if (!trip.destination) return
@@ -144,18 +199,52 @@ export function Onboarding({ onComplete }: OnboardingProps) {
   async function generateMealPlan() {
     setLoadingPlan(true)
     try {
+      // Ensure we have required trip data
+      if (!trip.destination || !trip.departureDate || !trip.arrivalDate) {
+        toast.error("Please complete trip details first")
+        setLoadingPlan(false)
+        return
+      }
+
       const res = await apiFetch("/api/meal-plan", {
-        trip,
+        trip: {
+          ...trip,
+          id: trip.id || generateId(),
+          timezoneShift: TIMEZONE_OFFSETS[trip.destination] || 0,
+        },
         profile,
-        selectedDishes: trip.selectedDishes,
+        selectedDishes: trip.selectedDishes || [],
       })
-      if (!res.ok) throw new Error("Failed to generate plan")
+      
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}))
+        console.error("Meal plan API error:", errorData)
+        throw new Error(errorData.error || "Failed to generate plan")
+      }
+      
       const data = await res.json()
+      if (!data.plan) {
+        throw new Error("No plan returned from API")
+      }
       setMealPlan(data.plan)
-    } catch {
-      toast.error("Could not generate meal plan. Using offline template.")
+    } catch (error) {
+      console.error("Generate meal plan error:", error)
+      toast.error(t('couldNotGeneratePlan', language) || "Could not generate meal plan. Using offline template.")
       // Cast trip to Trip since we know required fields are set by this step
-      setMealPlan(getDefaultMealPlan(trip as Trip))
+      const tempTrip: Trip = {
+        id: trip.id || generateId(),
+        destination: trip.destination || "",
+        departureCity: trip.departureCity || "Home",
+        departureDate: trip.departureDate || new Date().toISOString().split("T")[0],
+        departureTime: trip.departureTime || "12:00",
+        arrivalDate: trip.arrivalDate || new Date().toISOString().split("T")[0],
+        arrivalTime: trip.arrivalTime || "12:00",
+        timezoneShift: TIMEZONE_OFFSETS[trip.destination || ""] || 0,
+        layovers: trip.layovers || [],
+        selectedDishes: trip.selectedDishes || [],
+        mealPlan: null,
+      }
+      setMealPlan(getDefaultMealPlan(tempTrip))
     } finally {
       setLoadingPlan(false)
     }
@@ -164,12 +253,19 @@ export function Onboarding({ onComplete }: OnboardingProps) {
   function toggleDish(dish: LocalDish) {
     const selected = trip.selectedDishes || []
     const exists = selected.find((d) => d.name === dish.name)
+    const newSelectedDishes = exists
+      ? selected.filter((d) => d.name !== dish.name)
+      : [...selected, dish]
+    
     setTrip({
       ...trip,
-      selectedDishes: exists
-        ? selected.filter((d) => d.name !== dish.name)
-        : [...selected, dish],
+      selectedDishes: newSelectedDishes,
     })
+    
+    // Visual feedback
+    if (!exists) {
+      toast.success(`${dish.name} ${t('added', language) || 'added'}`, { duration: 1000 })
+    }
   }
 
   function handleComplete() {
@@ -198,9 +294,9 @@ export function Onboarding({ onComplete }: OnboardingProps) {
         destination: trip.destination,
         departureCity: trip.departureCity || "Home",
         departureDate: trip.departureDate || new Date().toISOString().split("T")[0],
-        departureTime: "12:00",
+        departureTime: trip.departureTime || "12:00",
         arrivalDate: trip.arrivalDate || new Date().toISOString().split("T")[0],
-        arrivalTime: "12:00",
+        arrivalTime: trip.arrivalTime || "12:00",
         timezoneShift: TIMEZONE_OFFSETS[trip.destination] || 0,
         layovers: trip.layovers || [],
         selectedDishes: trip.selectedDishes || [],
@@ -218,12 +314,79 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     item: string
   ) {
     const list = (profile[field] as string[]) || []
+    const isExclusiveAllergy = field === "allergies" && item === "Not Know"
+    const isExclusiveDiet =
+      field === "dietaryPreferences" && item === "No Preference"
+    const exclusiveValue = isExclusiveAllergy
+      ? "Not Know"
+      : isExclusiveDiet
+      ? "No Preference"
+      : null
+
+    if (exclusiveValue) {
+      setProfile({
+        ...profile,
+        [field]: list.includes(exclusiveValue) ? [] : [exclusiveValue],
+      })
+      return
+    }
+
+    const cleanedList = list.filter(
+      (i) => i !== "Not Know" && i !== "No Preference"
+    )
     setProfile({
       ...profile,
-      [field]: list.includes(item)
-        ? list.filter((i) => i !== item)
-        : [...list, item],
+      [field]: cleanedList.includes(item)
+        ? cleanedList.filter((i) => i !== item)
+        : [...cleanedList, item],
     })
+  }
+
+  function addCustomItem(
+    field: "allergies" | "dietaryPreferences",
+    rawValue: string
+  ) {
+    const value = rawValue.trim()
+    if (!value) return
+    const list = (profile[field] as string[]) || []
+    const normalized = value.toLowerCase()
+    const options = field === "allergies" ? allergyOptions : dietOptions
+    const existsInOptions = options.some(
+      (item) => item.toLowerCase() === normalized
+    )
+    const existsInSelection = list.some(
+      (item) => item.toLowerCase() === normalized
+    )
+
+    if (existsInSelection) {
+      if (field === "allergies") {
+        setCustomAllergyError(t('alreadyAdded', language))
+      } else {
+        setCustomDietError(t('alreadyAdded', language))
+      }
+      return
+    }
+
+    if (!existsInOptions) {
+      if (field === "allergies") {
+        setAllergyOptions((prev) => [...prev, value])
+      } else {
+        setDietOptions((prev) => [...prev, value])
+      }
+    }
+
+    const cleanedList = list.filter(
+      (i) => i !== "Not Know" && i !== "No Preference"
+    )
+    setProfile({
+      ...profile,
+      [field]: [...cleanedList, value],
+    })
+    if (field === "allergies") {
+      setCustomAllergyError("")
+    } else {
+      setCustomDietError("")
+    }
   }
 
   function updateCaloriesFromGoal(goal: "lose" | "maintain" | "gain") {
@@ -252,7 +415,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
             setLanguageState(value as Language)
           }}
         >
-          <SelectTrigger className="w-[70px] h-8 text-xs border-0 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm font-semibold">
+          <SelectTrigger className="w-[90px] h-8 text-xs border-0 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm font-semibold">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -529,7 +692,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                   {t('selectAllergiesDesc', language)}
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {ALLERGY_OPTIONS.map((allergy) => {
+                  {allergyOptions.map((allergy) => {
                     const selected = profile.allergies?.includes(allergy)
                     return (
                       <button
@@ -542,13 +705,45 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                             : "border-border bg-card text-foreground hover:border-destructive/50"
                         )}
                       >
-                        {allergy}
+                        {getAllergyLabel(allergy)}
                         {selected && <X className="h-3 w-3" />}
                       </button>
                     )
                   })}
                 </div>
-                {(profile.allergies?.length ?? 0) > 0 && (
+                <div className="flex items-center gap-2">
+                  <Input
+                    placeholder={t('addAllergy', language)}
+                    value={customAllergy}
+                    onChange={(e) => {
+                      setCustomAllergy(e.target.value)
+                      if (customAllergyError) setCustomAllergyError("")
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault()
+                        addCustomItem("allergies", customAllergy)
+                        setCustomAllergy("")
+                      }
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      addCustomItem("allergies", customAllergy)
+                      setCustomAllergy("")
+                    }}
+                  >
+                    {t('add', language)}
+                  </Button>
+                </div>
+                {customAllergyError && (
+                  <p className="text-xs text-destructive">
+                    {customAllergyError}
+                  </p>
+                )}
+                {(profile.allergies?.length ?? 0) > 0 && !profile.allergies?.includes("Not Know") && (
                   <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3">
                     <p className="text-xs font-medium text-destructive">
                       {t('safetyGuardrail', language)}
@@ -569,7 +764,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                   {t('selectPreferencesDesc', language)}
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {DIET_OPTIONS.map((diet) => {
+                  {dietOptions.map((diet) => {
                     const selected =
                       profile.dietaryPreferences?.includes(diet)
                     return (
@@ -586,11 +781,49 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                           toggleItem("dietaryPreferences", diet)
                         }
                       >
-                        {diet}
+                        {getDietLabel(diet)}
                       </Badge>
                     )
                   })}
                 </div>
+                <div className="flex items-center gap-2">
+                  <Input
+                    placeholder={t('addPreference', language)}
+                    value={customDietPreference}
+                    onChange={(e) => {
+                      setCustomDietPreference(e.target.value)
+                      if (customDietError) setCustomDietError("")
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault()
+                        addCustomItem(
+                          "dietaryPreferences",
+                          customDietPreference
+                        )
+                        setCustomDietPreference("")
+                      }
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      addCustomItem(
+                        "dietaryPreferences",
+                        customDietPreference
+                      )
+                      setCustomDietPreference("")
+                    }}
+                  >
+                    {t('add', language)}
+                  </Button>
+                </div>
+                {customDietError && (
+                  <p className="text-xs text-destructive">
+                    {customDietError}
+                  </p>
+                )}
               </div>
             )}
 
@@ -598,10 +831,10 @@ export function Onboarding({ onComplete }: OnboardingProps) {
             {step === 4 && (
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="departure-city">Departure City</Label>
+                  <Label htmlFor="departure-city">{t('departureCity', language)}</Label>
                   <Input
                     id="departure-city"
-                    placeholder="e.g. New York"
+                    placeholder={t('departureCityPlaceholder', language)}
                     value={trip.departureCity}
                     onChange={(e) =>
                       setTrip({ ...trip, departureCity: e.target.value })
@@ -609,7 +842,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="destination">Destination Country</Label>
+                  <Label htmlFor="destination">{t('destinationCountry', language)}</Label>
                   <Select
                     value={trip.destination}
                     onValueChange={(v) =>
@@ -617,7 +850,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                     }
                   >
                     <SelectTrigger id="destination">
-                      <SelectValue placeholder="Select destination" />
+                      <SelectValue placeholder={t('selectDestination', language)} />
                     </SelectTrigger>
                     <SelectContent>
                       {DESTINATIONS.map((d) => (
@@ -630,7 +863,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="dep-date">Departure</Label>
+                    <Label htmlFor="dep-date">{t('departure', language)}</Label>
                     <Input
                       id="dep-date"
                       type="date"
@@ -641,13 +874,37 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="arr-date">Arrival</Label>
+                    <Label htmlFor="dep-time">{t('departureTime', language)}</Label>
+                    <Input
+                      id="dep-time"
+                      type="time"
+                      value={trip.departureTime}
+                      onChange={(e) =>
+                        setTrip({ ...trip, departureTime: e.target.value })
+                      }
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="arr-date">{t('arrival', language)}</Label>
                     <Input
                       id="arr-date"
                       type="date"
                       value={trip.arrivalDate}
                       onChange={(e) =>
                         setTrip({ ...trip, arrivalDate: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="arr-time">{t('arrivalTime', language)}</Label>
+                    <Input
+                      id="arr-time"
+                      type="time"
+                      value={trip.arrivalTime}
+                      onChange={(e) =>
+                        setTrip({ ...trip, arrivalTime: e.target.value })
                       }
                     />
                   </div>
@@ -658,13 +915,12 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                       <Clock className="h-5 w-5 text-secondary" />
                       <div>
                         <p className="text-sm font-medium text-foreground">
-                          Timezone Shift
+                          {t('timezoneShift', language)}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {trip.destination} is UTC
+                          {trip.destination} {t('timezoneDesc', language)}
                           {TIMEZONE_OFFSETS[trip.destination] > 0 ? "+" : ""}
-                          {TIMEZONE_OFFSETS[trip.destination]}. Meal times will be
-                          adjusted.
+                          {TIMEZONE_OFFSETS[trip.destination]}{t('mealTimesAdjusted', language)}
                         </p>
                       </div>
                     </CardContent>
@@ -678,10 +934,10 @@ export function Onboarding({ onComplete }: OnboardingProps) {
               <div className="flex flex-col gap-4">
                 <div className="flex items-center justify-between">
                   <p className="text-sm text-muted-foreground">
-                    Select dishes you{"'"}d like to try in {trip.destination}.
+                    {t('selectDishes', language)} {trip.destination}.
                   </p>
                   <span className="text-xs font-medium bg-primary/10 text-primary px-2 py-1 rounded-full">
-                    {trip.selectedDishes?.length || 0} selected
+                    {trip.selectedDishes?.length || 0} {t('selected', language)}
                   </span>
                 </div>
 
@@ -689,7 +945,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                   <div className="flex flex-col items-center gap-3 py-12">
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
                     <p className="text-sm text-muted-foreground">
-                      Discovering local cuisine...
+                      {t('discoveringCuisine', language)}
                     </p>
                   </div>
                 ) : (
@@ -709,24 +965,27 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                               const isSelected = trip.selectedDishes?.some(
                                 (d) => d.name === dish.name
                               )
+                              // Filter out "Not Know" from allergies for conflict checking
+                              const realAllergies = profile.allergies?.filter(a => a !== "Not Know") || []
+                              const hasNotKnow = profile.allergies?.includes("Not Know")
                               const hasAllergenConflict = dish.allergens.some(
-                                (a) => profile.allergies?.includes(a)
+                                (a) => realAllergies.includes(a)
                               )
                               return (
                                 <Card
                                   key={dish.name}
                                   className={cn(
-                                    "cursor-pointer border transition-colors",
+                                    "cursor-pointer border-2 transition-all duration-200",
                                     isSelected
-                                      ? "border-primary bg-primary/5"
-                                      : "border-border bg-card",
+                                      ? "border-primary bg-primary/10 shadow-md ring-2 ring-primary/20"
+                                      : "border-border bg-card hover:border-primary/30",
                                     hasAllergenConflict &&
                                     "border-destructive/50 opacity-60"
                                   )}
                                   onClick={() => {
                                     if (hasAllergenConflict) {
                                       toast.error(
-                                        `Contains: ${dish.allergens.join(", ")}`
+                                        `${t('contains', language) || 'Contains'}: ${dish.allergens.join(", ")}`
                                       )
                                       return
                                     }
@@ -747,11 +1006,18 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                                         {dish.description}
                                       </span>
                                       <span className="text-xs text-muted-foreground">
-                                        ~{dish.estimatedCalories} kcal
+                                        ~{dish.estimatedCalories} {t('calories', language)}
                                       </span>
+                                      {dish.allergens.length > 0 && (
+                                        <span className="text-[10px] text-muted-foreground">
+                                          {t('allergens', language) || 'Allergens'}: {dish.allergens.join(", ")}
+                                        </span>
+                                      )}
                                     </div>
                                     {isSelected && (
-                                      <Check className="h-5 w-5 text-primary" />
+                                      <div className="rounded-full bg-primary p-1">
+                                        <Check className="h-4 w-4 text-primary-foreground" />
+                                      </div>
                                     )}
                                   </CardContent>
                                 </Card>
@@ -773,7 +1039,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                   <div className="flex flex-col items-center gap-3 py-12">
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
                     <p className="text-sm text-muted-foreground">
-                      AI is crafting your personalized meal plan...
+                      {t('aiCrafting', language)}
                     </p>
                   </div>
                 ) : mealPlan ? (

@@ -70,7 +70,8 @@ export function SettingsPage() {
     setLanguageState(lang)
     const messages: Record<Language, string> = {
       en: 'Language updated',
-      pt: 'Idioma atualizado',
+      'pt-PT': 'Idioma atualizado',
+      'pt-BR': 'Idioma atualizado',
       es: 'Idioma actualizado',
       fr: 'Langue mise à jour',
       de: 'Sprache aktualisiert',
@@ -102,7 +103,7 @@ export function SettingsPage() {
   function handleClearData() {
     if (typeof window !== "undefined") {
       localStorage.clear()
-      toast.success("All data cleared. Refreshing...")
+      toast.success(t('allDataCleared', language))
       setTimeout(() => window.location.reload(), 1000)
     }
   }
@@ -123,8 +124,7 @@ export function SettingsPage() {
             </h2>
           </div>
           <p className="text-xs text-muted-foreground">
-            Required for meal photo analysis, local dish discovery, and AI meal
-            planning. Your key is stored locally in your browser.
+            {t('apiKeyDescLong', language)}
           </p>
           <div className="flex gap-2">
             <div className="relative flex-1">
@@ -159,7 +159,7 @@ export function SettingsPage() {
             <div className="flex items-center gap-1">
               <div className="h-2 w-2 rounded-full bg-green-500" />
               <span className="text-xs text-muted-foreground">
-                Key configured
+                {t('keyConfigured', language)}
               </span>
             </div>
           )}
@@ -171,12 +171,12 @@ export function SettingsPage() {
         <CardContent className="flex flex-col gap-4 p-5">
           <div className="flex items-center gap-2">
             <User className="h-5 w-5 text-primary" />
-            <h2 className="text-base font-semibold text-foreground">Profile</h2>
+            <h2 className="text-base font-semibold text-foreground">{t('profile', language)}</h2>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1">
               <Label htmlFor="s-name" className="text-xs">
-                Name
+                {t('name', language)}
               </Label>
               <Input
                 id="s-name"
@@ -188,7 +188,7 @@ export function SettingsPage() {
             </div>
             <div className="flex flex-col gap-1">
               <Label htmlFor="s-age" className="text-xs">
-                Age
+                {t('age', language)}
               </Label>
               <Input
                 id="s-age"
@@ -206,7 +206,7 @@ export function SettingsPage() {
           <div className="grid grid-cols-3 gap-3">
             <div className="flex flex-col gap-1">
               <Label htmlFor="s-height" className="text-xs">
-                Height (cm)
+                {t('height', language)}
               </Label>
               <Input
                 id="s-height"
@@ -222,7 +222,7 @@ export function SettingsPage() {
             </div>
             <div className="flex flex-col gap-1">
               <Label htmlFor="s-weight" className="text-xs">
-                Weight (kg)
+                {t('weight', language)}
               </Label>
               <Input
                 id="s-weight"
@@ -238,7 +238,7 @@ export function SettingsPage() {
             </div>
             <div className="flex flex-col gap-1">
               <Label htmlFor="s-cals" className="text-xs">
-                Cal Target
+                {t('calTarget', language)}
               </Label>
               <Input
                 id="s-cals"
@@ -254,7 +254,7 @@ export function SettingsPage() {
             </div>
           </div>
           <div className="flex flex-col gap-1">
-            <Label className="text-xs">Goal</Label>
+            <Label className="text-xs">{t('goal', language)}</Label>
             <Select
               value={profile.goal}
               onValueChange={(v) =>
@@ -268,9 +268,9 @@ export function SettingsPage() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="lose">Lose Weight</SelectItem>
-                <SelectItem value="maintain">Maintain</SelectItem>
-                <SelectItem value="gain">Gain Muscle</SelectItem>
+                <SelectItem value="lose">{t('loseWeight', language)}</SelectItem>
+                <SelectItem value="maintain">{t('maintain', language)}</SelectItem>
+                <SelectItem value="gain">{t('gainMuscle', language)}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -279,7 +279,7 @@ export function SettingsPage() {
             className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
             <Save className="mr-2 h-4 w-4" />
-            Save Profile
+            {t('saveProfile', language)}
           </Button>
         </CardContent>
       </Card>
@@ -290,7 +290,7 @@ export function SettingsPage() {
           <div className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-destructive" />
             <h2 className="text-base font-semibold text-foreground">
-              Allergies & Intolerances
+              {t('allergies', language)}
             </h2>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -319,7 +319,7 @@ export function SettingsPage() {
             size="sm"
             className="self-start"
           >
-            Save Allergies
+            {t('saveAllergies', language)}
           </Button>
         </CardContent>
       </Card>
@@ -328,10 +328,10 @@ export function SettingsPage() {
       <Card className="border border-destructive/30 bg-card shadow-none hover:border-destructive/50 transition-all duration-200">
         <CardContent className="flex flex-col gap-4 p-5">
           <h2 className="text-sm font-semibold text-destructive">
-            Danger Zone
+            {t('dangerZone', language)}
           </h2>
           <p className="text-xs text-muted-foreground">
-            Clear all local data including profile, trips, and meal logs.
+            {t('dangerZoneDescription', language)}
           </p>
           <Button
             onClick={handleClearData}
@@ -340,7 +340,7 @@ export function SettingsPage() {
             className="self-start"
           >
             <Trash2 className="mr-2 h-4 w-4" />
-            Clear All Data
+            {t('clearAllData', language)}
           </Button>
         </CardContent>
       </Card>
@@ -386,13 +386,15 @@ export function SettingsPage() {
             {t('languageDescription', language)}
           </p>
           <Select value={language} onValueChange={(value) => handleLanguageChange(value as Language)}>
-            <SelectTrigger className="w-[80px] h-9 text-sm transition-all duration-200 shadow-sm hover:shadow border-0 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold">
-              <SelectValue />
+            <SelectTrigger className="w-full h-9 text-sm transition-all duration-200 shadow-sm hover:shadow border-0 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold">
+              <SelectValue>
+                {LANGUAGES.find(l => l.code === language)?.flag} {LANGUAGES.find(l => l.code === language)?.name}
+              </SelectValue>
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="min-w-[200px]">
               {LANGUAGES.map((lang) => (
                 <SelectItem key={lang.code} value={lang.code} className="cursor-pointer text-sm">
-                  {lang.code.toUpperCase()}
+                  {lang.flag} {lang.name}
                 </SelectItem>
               ))}
             </SelectContent>

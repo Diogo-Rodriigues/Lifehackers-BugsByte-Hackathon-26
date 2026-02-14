@@ -33,10 +33,12 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
+import { getLanguage, t } from "@/lib/language"
 
 export function MealLogger() {
   const today = todayString()
   const profile = getProfile()
+  const lang = getLanguage()
   const [dailyLog, setDailyLog] = useState<DailyLog>(getDailyLog(today))
   const [showMealForm, setShowMealForm] = useState(false)
   const [mealForm, setMealForm] = useState({
@@ -56,7 +58,7 @@ export function MealLogger() {
 
   function handleAddMeal() {
     if (!mealForm.name) {
-      toast.error("Please enter a meal name")
+      toast.error(t('pleaseEnterMealName', lang))
       return
     }
     const now = new Date()
@@ -90,7 +92,7 @@ export function MealLogger() {
       notes: "",
     })
     setShowMealForm(false)
-    toast.success("Meal logged!")
+    toast.success(t('mealLogged', lang))
   }
 
   function removeMeal(mealId: string) {
@@ -100,7 +102,7 @@ export function MealLogger() {
     }
     saveDailyLog(updated)
     setDailyLog(updated)
-    toast.success("Meal removed")
+    toast.success(t('mealRemoved', lang))
   }
 
   function updateWater(amount: number) {
@@ -147,13 +149,13 @@ export function MealLogger() {
 
   return (
     <div className="flex flex-col gap-6 px-4 pb-24 pt-4">
-      <h1 className="font-display text-2xl text-primary">Daily Log</h1>
+      <h1 className="font-display text-2xl text-primary">{t('dailyLog', lang)}</h1>
 
       <Tabs defaultValue="meals" className="w-full">
         <TabsList className="grid w-full grid-cols-3 bg-muted">
-          <TabsTrigger value="meals" className="data-[state=active]:bg-card data-[state=active]:text-foreground">Meals</TabsTrigger>
-          <TabsTrigger value="water" className="data-[state=active]:bg-card data-[state=active]:text-foreground">Water</TabsTrigger>
-          <TabsTrigger value="activity" className="data-[state=active]:bg-card data-[state=active]:text-foreground">Activity</TabsTrigger>
+          <TabsTrigger value="meals" className="data-[state=active]:bg-card data-[state=active]:text-foreground">{t('meals', lang)}</TabsTrigger>
+          <TabsTrigger value="water" className="data-[state=active]:bg-card data-[state=active]:text-foreground">{t('water', lang)}</TabsTrigger>
+          <TabsTrigger value="activity" className="data-[state=active]:bg-card data-[state=active]:text-foreground">{t('activity', lang)}</TabsTrigger>
         </TabsList>
 
         {/* Meals Tab */}
@@ -194,10 +196,10 @@ export function MealLogger() {
             <Card className="border border-primary/20 bg-card shadow-sm">
               <CardContent className="flex flex-col gap-3 p-4">
                 <h3 className="text-sm font-semibold text-foreground">
-                  Add Manual Meal
+                  {t('addManualMeal', lang)}
                 </h3>
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="meal-name">Meal Name</Label>
+                  <Label htmlFor="meal-name">{t('mealName', lang)}</Label>
                   <Input
                     id="meal-name"
                     placeholder="e.g. Grilled Chicken Salad"
@@ -208,7 +210,7 @@ export function MealLogger() {
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <Label>Meal Type</Label>
+                  <Label>{t('mealType', lang)}</Label>
                   <Select
                     value={mealForm.type}
                     onValueChange={(v) =>
@@ -222,16 +224,16 @@ export function MealLogger() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="breakfast">Breakfast</SelectItem>
-                      <SelectItem value="lunch">Lunch</SelectItem>
-                      <SelectItem value="dinner">Dinner</SelectItem>
-                      <SelectItem value="snack">Snack</SelectItem>
+                      <SelectItem value="breakfast">{t('breakfast', lang)}</SelectItem>
+                      <SelectItem value="lunch">{t('lunch', lang)}</SelectItem>
+                      <SelectItem value="dinner">{t('dinner', lang)}</SelectItem>
+                      <SelectItem value="snack">{t('snack', lang)}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="meal-cal">Calories</Label>
+                    <Label htmlFor="meal-cal">{t('calories', lang)}</Label>
                     <Input
                       id="meal-cal"
                       type="number"
@@ -243,7 +245,7 @@ export function MealLogger() {
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="meal-prot">Protein (g)</Label>
+                    <Label htmlFor="meal-prot">{t('protein', lang)} (g)</Label>
                     <Input
                       id="meal-prot"
                       type="number"
@@ -257,7 +259,7 @@ export function MealLogger() {
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="meal-carbs">Carbs (g)</Label>
+                    <Label htmlFor="meal-carbs">{t('carbs', lang)} (g)</Label>
                     <Input
                       id="meal-carbs"
                       type="number"
@@ -269,7 +271,7 @@ export function MealLogger() {
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="meal-fat">Fat (g)</Label>
+                    <Label htmlFor="meal-fat">{t('fat', lang)} (g)</Label>
                     <Input
                       id="meal-fat"
                       type="number"
@@ -282,7 +284,7 @@ export function MealLogger() {
                   </div>
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="meal-notes">Notes</Label>
+                  <Label htmlFor="meal-notes">{t('notes', lang)}</Label>
                   <Textarea
                     id="meal-notes"
                     placeholder="Any notes about this meal"
@@ -299,13 +301,13 @@ export function MealLogger() {
                     onClick={() => setShowMealForm(false)}
                     className="flex-1"
                   >
-                    Cancel
+                    {t('cancel', lang)}
                   </Button>
                   <Button
                     onClick={handleAddMeal}
                     className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
                   >
-                    Add Meal
+                    {t('addMeal', lang)}
                   </Button>
                 </div>
               </CardContent>
@@ -317,7 +319,7 @@ export function MealLogger() {
               className="border-dashed border-primary/30 text-primary hover:bg-primary/5"
             >
               <Plus className="mr-2 h-4 w-4" />
-              Add Meal Manually
+              {t('addMealManually', lang)}
             </Button>
           )}
         </TabsContent>
@@ -335,7 +337,7 @@ export function MealLogger() {
                   </span>
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  of {profile?.waterTarget || 2500}ml target
+                  {t('water', lang)}: {profile?.waterTarget || 2500}ml {t('ofTarget', lang)}
                 </p>
               </div>
               {/* Progress bar */}
@@ -385,7 +387,7 @@ export function MealLogger() {
                   <Footprints className="h-5 w-5 text-primary" />
                 </div>
                 <div className="flex-1">
-                  <Label htmlFor="steps">Step Count</Label>
+                  <Label htmlFor="steps">{t('stepCount', lang)}</Label>
                   <Input
                     id="steps"
                     type="number"
@@ -397,29 +399,28 @@ export function MealLogger() {
               </div>
 
               <div>
-                <Label className="mb-2 block">Activity Level</Label>
+                <Label className="mb-2 block">{t('activityLevel', lang)}</Label>
                 <div className="grid grid-cols-2 gap-2">
-                  {(
-                    [
+                  {([
                       {
                         key: "sedentary",
-                        label: "Sedentary",
-                        desc: "Desk work",
+                        label: t('sedentary', lang),
+                        desc: t('deskWork', lang),
                       },
                       {
                         key: "light",
-                        label: "Light",
-                        desc: "Walking tours",
+                        label: t('lightActivity', lang),
+                        desc: t('walkingTours', lang),
                       },
                       {
                         key: "moderate",
-                        label: "Moderate",
-                        desc: "Hiking, cycling",
+                        label: t('moderate', lang),
+                        desc: t('hikingCycling', lang),
                       },
                       {
                         key: "active",
-                        label: "Active",
-                        desc: "Sports, intense",
+                        label: t('activeLevel', lang),
+                        desc: t('sportsIntense', lang),
                       },
                     ] as const
                   ).map((level) => (
@@ -443,7 +444,7 @@ export function MealLogger() {
               </div>
 
               <div className="flex flex-col gap-1.5">
-                <Label htmlFor="activity-notes">Activity Notes</Label>
+                <Label htmlFor="activity-notes">{t('activityNotes', lang)}</Label>
                 <Textarea
                   id="activity-notes"
                   placeholder="Walked around the temple district..."

@@ -24,6 +24,7 @@ import {
   ImageIcon,
 } from "lucide-react"
 import { toast } from "sonner"
+import { getLanguage, t } from "@/lib/language"
 
 export function MealAnalysis() {
   const [imagePreview, setImagePreview] = useState<string | null>(null)
@@ -35,6 +36,7 @@ export function MealAnalysis() {
   >("lunch")
   const fileInputRef = useRef<HTMLInputElement>(null)
   const profile = getProfile()
+  const lang = getLanguage()
 
   function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -67,12 +69,12 @@ export function MealAnalysis() {
       // Check allergen warnings
       if (data.analysis.allergenWarnings?.length > 0) {
         toast.warning(
-          `Allergen detected: ${data.analysis.allergenWarnings.join(", ")}`
+          `${t('allergenDetected', lang)}: ${data.analysis.allergenWarnings.join(", ")}`
         )
       }
     } catch {
       toast.error(
-        "Could not analyze photo. Check your API key in Settings."
+        t('couldNotAnalyze', lang)
       )
     } finally {
       setAnalyzing(false)
@@ -102,7 +104,7 @@ export function MealAnalysis() {
       isOffPlan: false,
     }
     addMealToLog(todayString(), meal)
-    toast.success("Meal logged successfully!")
+    toast.success(t('mealLoggedSuccess', lang))
     // Reset
     setImagePreview(null)
     setImageBase64(null)
@@ -111,9 +113,9 @@ export function MealAnalysis() {
 
   return (
     <div className="flex flex-col gap-6 px-4 pb-24 pt-4">
-      <h1 className="font-display text-2xl text-primary">Analyze Meal</h1>
+      <h1 className="font-display text-2xl text-primary">{t('analyzeMeal', lang)}</h1>
       <p className="text-sm text-muted-foreground">
-        Take a photo of your meal for AI-powered nutritional analysis
+        {t('analyzeDesc', lang)}
       </p>
 
       {/* Photo Upload Area */}
@@ -124,7 +126,7 @@ export function MealAnalysis() {
               <ImageIcon className="h-8 w-8 text-primary" />
             </div>
             <p className="text-center text-sm text-muted-foreground">
-              Capture or upload a meal photo
+              {t('captureOrUpload', lang)}
             </p>
             <div className="flex gap-3">
               <Button
@@ -132,7 +134,7 @@ export function MealAnalysis() {
                 className="bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 <Camera className="mr-2 h-4 w-4" />
-                Camera
+                {t('camera', lang)}
               </Button>
               <Button
                 variant="outline"
@@ -140,7 +142,7 @@ export function MealAnalysis() {
                 className="border-primary text-primary hover:bg-primary/5"
               >
                 <Upload className="mr-2 h-4 w-4" />
-                Upload
+                {t('uploadPhoto', lang)}
               </Button>
             </div>
             <input
@@ -177,7 +179,7 @@ export function MealAnalysis() {
               }}
               className="flex-1"
             >
-              Retake
+              {t('retake', lang)}
             </Button>
             <Button
               onClick={analyzePhoto}
@@ -187,10 +189,10 @@ export function MealAnalysis() {
               {analyzing ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Analyzing...
+                  {t('analyzing', lang)}
                 </>
               ) : (
-                "Analyze Meal"
+                t('analyzeMeal', lang)
               )}
             </Button>
           </div>
@@ -211,11 +213,11 @@ export function MealAnalysis() {
                 <div className="flex items-center gap-2">
                   <AlertTriangle className="h-4 w-4 text-destructive" />
                   <span className="text-xs font-medium text-destructive">
-                    Allergen Warning
+                    {t('allergenWarning', lang)}
                   </span>
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Contains: {result.allergenWarnings.join(", ")}
+                  {t('contains', lang)}: {result.allergenWarnings.join(", ")}
                 </p>
               </div>
             )}
@@ -232,19 +234,19 @@ export function MealAnalysis() {
                 <p className="text-lg font-bold text-foreground">
                   {result.protein}g
                 </p>
-                <p className="text-[10px] text-muted-foreground">protein</p>
+                <p className="text-[10px] text-muted-foreground">{t('protein', lang)}</p>
               </div>
               <div className="rounded-lg bg-muted p-2.5 text-center">
                 <p className="text-lg font-bold text-foreground">
                   {result.carbs}g
                 </p>
-                <p className="text-[10px] text-muted-foreground">carbs</p>
+                <p className="text-[10px] text-muted-foreground">{t('carbs', lang)}</p>
               </div>
               <div className="rounded-lg bg-muted p-2.5 text-center">
                 <p className="text-lg font-bold text-foreground">
                   {result.fat}g
                 </p>
-                <p className="text-[10px] text-muted-foreground">fat</p>
+                <p className="text-[10px] text-muted-foreground">{t('fat', lang)}</p>
               </div>
             </div>
 
@@ -252,7 +254,7 @@ export function MealAnalysis() {
             {result.ingredients.length > 0 && (
               <div className="mb-4">
                 <p className="mb-1.5 text-xs font-medium text-muted-foreground">
-                  Detected Ingredients
+                  {t('detectedIngredients', lang)}
                 </p>
                 <div className="flex flex-wrap gap-1">
                   {result.ingredients.map((ing) => (
@@ -276,23 +278,23 @@ export function MealAnalysis() {
                 />
               </div>
               <span className="text-xs text-muted-foreground">
-                {Math.round((result.confidence || 0.8) * 100)}% confidence
+                {Math.round((result.confidence || 0.8) * 100)}% {t('confidence', lang)}
               </span>
             </div>
 
             {/* Log Action */}
             <div className="flex flex-col gap-3">
               <div className="flex flex-col gap-1.5">
-                <Label>Meal Type</Label>
+                <Label>{t('mealType', lang)}</Label>
                 <Select value={mealType} onValueChange={(v) => setMealType(v as typeof mealType)}>
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="breakfast">Breakfast</SelectItem>
-                    <SelectItem value="lunch">Lunch</SelectItem>
-                    <SelectItem value="dinner">Dinner</SelectItem>
-                    <SelectItem value="snack">Snack</SelectItem>
+                    <SelectItem value="breakfast">{t('breakfast', lang)}</SelectItem>
+                    <SelectItem value="lunch">{t('lunch', lang)}</SelectItem>
+                    <SelectItem value="dinner">{t('dinner', lang)}</SelectItem>
+                    <SelectItem value="snack">{t('snack', lang)}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -301,7 +303,7 @@ export function MealAnalysis() {
                 className="bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 <Plus className="mr-2 h-4 w-4" />
-                Log This Meal
+                {t('logThisMeal', lang)}
               </Button>
             </div>
           </CardContent>

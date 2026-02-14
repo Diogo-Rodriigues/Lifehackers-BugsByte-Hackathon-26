@@ -9,6 +9,25 @@ import type { PageId } from "@/components/bottom-nav"
 import { Droplets, Footprints, Flame, TrendingUp } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
+import { getLanguage, t } from "@/lib/language"
+
+const DESTINATION_FLAGS: Record<string, string> = {
+  Japan: "🇯🇵",
+  Thailand: "🇹🇭",
+  Mexico: "🇲🇽",
+  Italy: "🇮🇹",
+  India: "🇮🇳",
+  France: "🇫🇷",
+  Morocco: "🇲🇦",
+  Peru: "🇵🇪",
+  "South Korea": "🇰🇷",
+  Spain: "🇪🇸",
+  Turkey: "🇹🇷",
+  Vietnam: "🇻🇳",
+  Greece: "🇬🇷",
+  Brazil: "🇧🇷",
+  Colombia: "🇨🇴",
+}
 
 interface DashboardProps {
   profile: UserProfile
@@ -19,6 +38,7 @@ export function Dashboard({ profile, onNavigate }: DashboardProps) {
   const today = todayString()
   const dailyLog = getDailyLog(today)
   const activeTrip = getActiveTrip()
+  const lang = getLanguage()
 
   const totals = useMemo(() => {
     return dailyLog.meals.reduce(
@@ -43,21 +63,21 @@ export function Dashboard({ profile, onNavigate }: DashboardProps) {
   return (
     <div className="flex flex-col gap-6 px-4 pb-24 pt-4">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col items-center gap-3">
         <div className="flex items-center gap-2">
           <Image src="/logo.png" alt="NutriFuel" width={32} height={32} />
           <h1 className="font-display text-2xl text-primary">Nutrifuel</h1>
         </div>
-        <p className="text-sm text-muted-foreground">
-          Welcome back, {profile.name || "Traveler"}
-        </p>
         {activeTrip && (
-          <div className="rounded-full bg-accent px-3 py-1">
-            <span className="text-xs font-medium text-accent-foreground">
-              {activeTrip.destination}
+          <div className="rounded-full bg-accent px-4 py-1.5">
+            <span className="text-sm font-medium text-accent-foreground">
+              {DESTINATION_FLAGS[activeTrip.destination] || "🌍"} {activeTrip.destination}
             </span>
           </div>
         )}
+        <p className="text-sm text-muted-foreground">
+          {t('welcomeBack', lang)} {profile.name || t('traveler', lang)}
+        </p>
       </div>
 
       {/* Main Calorie Ring */}
@@ -75,7 +95,7 @@ export function Dashboard({ profile, onNavigate }: DashboardProps) {
           <div className="flex items-center gap-2 text-sm">
             <Flame className="h-4 w-4 text-primary" />
             <span className="text-muted-foreground">
-              {caloriesRemaining} kcal remaining
+              {caloriesRemaining} {t('kcalRemaining', lang)}
             </span>
           </div>
         </CardContent>
@@ -84,21 +104,21 @@ export function Dashboard({ profile, onNavigate }: DashboardProps) {
       {/* Macro Progress */}
       <div className="grid grid-cols-3 gap-3">
         <MacroCard
-          label="Protein"
+          label={t('protein', lang)}
           value={totals.protein}
           max={profile.macros.protein}
           color="hsl(var(--chart-1))"
           unit="g"
         />
         <MacroCard
-          label="Carbs"
+          label={t('carbs', lang)}
           value={totals.carbs}
           max={profile.macros.carbs}
           color="hsl(var(--chart-2))"
           unit="g"
         />
         <MacroCard
-          label="Fat"
+          label={t('fat', lang)}
           value={totals.fat}
           max={profile.macros.fat}
           color="hsl(var(--chart-3))"
@@ -114,7 +134,7 @@ export function Dashboard({ profile, onNavigate }: DashboardProps) {
               <Droplets className="h-5 w-5 text-secondary" />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Water</p>
+              <p className="text-xs text-muted-foreground">{t('water', lang)}</p>
               <p className="text-lg font-semibold text-foreground">
                 {dailyLog.waterIntake}
                 <span className="text-xs text-muted-foreground font-normal">
@@ -130,7 +150,7 @@ export function Dashboard({ profile, onNavigate }: DashboardProps) {
               <Footprints className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Steps</p>
+              <p className="text-xs text-muted-foreground">{t('steps', lang)}</p>
               <p className="text-lg font-semibold text-foreground">
                 {dailyLog.steps.toLocaleString()}
               </p>
@@ -143,23 +163,23 @@ export function Dashboard({ profile, onNavigate }: DashboardProps) {
       <div>
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-base font-semibold text-foreground">
-            Today{"'"}s Meals
+            {t('todaysMeals', lang)}
           </h2>
           <span className="text-xs text-muted-foreground">
-            {mealCount} logged
+            {mealCount} {t('logged', lang)}
           </span>
         </div>
         {mealCount === 0 ? (
           <Card className="border border-dashed border-primary/30 bg-card shadow-none">
             <CardContent className="flex flex-col items-center gap-2 p-6">
               <p className="text-sm text-muted-foreground">
-                No meals logged yet today
+                {t('noMealsYet', lang)}
               </p>
               <button
                 onClick={() => onNavigate("log")}
                 className="rounded-full bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
               >
-                Log Your First Meal
+                {t('logFirstMeal', lang)}
               </button>
             </CardContent>
           </Card>
@@ -181,7 +201,7 @@ export function Dashboard({ profile, onNavigate }: DashboardProps) {
                       </span>
                       {meal.isOffPlan && (
                         <span className="rounded-full bg-destructive/10 px-2 py-0.5 text-[10px] font-medium text-destructive">
-                          Off-plan
+                          {t('offPlan', lang)}
                         </span>
                       )}
                     </div>
@@ -206,11 +226,10 @@ export function Dashboard({ profile, onNavigate }: DashboardProps) {
             <TrendingUp className="mt-0.5 h-5 w-5 shrink-0 text-secondary" />
             <div>
               <p className="text-sm font-medium text-foreground">
-                Plan Adjusted
+                {t('planAdjusted', lang)}
               </p>
               <p className="mt-0.5 text-xs text-muted-foreground">
-                You had an off-plan meal. Your remaining meals have been
-                recalculated to keep you on track.
+                {t('planAdjustedDesc', lang)}
               </p>
             </div>
           </CardContent>

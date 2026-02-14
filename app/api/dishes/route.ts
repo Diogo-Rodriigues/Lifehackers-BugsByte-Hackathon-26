@@ -22,12 +22,12 @@ export async function POST(req: NextRequest) {
 
     const allergyContext =
       allergies?.length > 0
-        ? `The user has these allergies: ${allergies.join(", ")}. Include allergens for each dish so they can be warned.`
+        ? `CRITICAL SAFETY REQUIREMENT: The user has these allergies: ${allergies.join(", ")}. DO NOT include any dishes that contain these allergens. Only suggest dishes that are completely safe and do not contain any of these ingredients. Still include the "allergens" field for each dish, but it should NOT contain any of the user's allergens.`
         : ""
 
     const prefContext =
       preferences?.length > 0
-        ? `The user prefers: ${preferences.join(", ")}.`
+        ? `The user prefers: ${preferences.join(", ")}. Prioritize dishes that match these preferences when possible.`
         : ""
 
     const response = await fetch("https://api.openai.com/v1/chat/completions", {

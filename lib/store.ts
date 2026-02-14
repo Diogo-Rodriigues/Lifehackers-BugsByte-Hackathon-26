@@ -13,6 +13,8 @@ const STORAGE_KEYS = {
   DAILY_LOGS: "nutrifuel_daily_logs",
   ACTIVE_TRIP: "nutrifuel_active_trip",
   API_KEY: "nutrifuel_openai_key",
+  ALLERGY_OPTIONS: "nutrifuel_allergy_options",
+  DIET_OPTIONS: "nutrifuel_diet_options",
 } as const
 
 function getItem<T>(key: string, fallback: T): T {
@@ -109,6 +111,23 @@ export function getApiKey(): string {
 
 export function saveApiKey(key: string) {
   setItem(STORAGE_KEYS.API_KEY, key)
+}
+
+// Options
+export function getAllergyOptions(fallback: string[]): string[] {
+  return getItem<string[]>(STORAGE_KEYS.ALLERGY_OPTIONS, fallback)
+}
+
+export function saveAllergyOptions(options: string[]) {
+  setItem(STORAGE_KEYS.ALLERGY_OPTIONS, options)
+}
+
+export function getDietOptions(fallback: string[]): string[] {
+  return getItem<string[]>(STORAGE_KEYS.DIET_OPTIONS, fallback)
+}
+
+export function saveDietOptions(options: string[]) {
+  setItem(STORAGE_KEYS.DIET_OPTIONS, options)
 }
 
 // Helpers
