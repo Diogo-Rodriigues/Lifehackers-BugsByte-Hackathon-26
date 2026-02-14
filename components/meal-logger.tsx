@@ -1,462 +1,219 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import {
-  getDailyLog,
-  saveDailyLog,
-  addMealToLog,
-  todayString,
-  generateId,
-  getProfile,
-} from "@/lib/store"
-import type { DailyLog, MealLog } from "@/lib/types"
-import {
-  Plus,
-  Droplets,
-  Footprints,
-  Activity,
-  Trash2,
-  Minus,
-} from "lucide-react"
-import { cn } from "@/lib/utils"
-import { toast } from "sonner"
-import { getLanguage, t } from "@/lib/language"
+import { getDailyLog, todayString } from "@/lib/store"
+import type { DailyLog } from "@/lib/types"
+import { Droplets, Footprints, Utensils, Calendar } from "lucide-react"
+import { getLanguage, t, type Language } from "@/lib/language"
 
 export function MealLogger() {
-  const today = todayString()
-  const profile = getProfile()
-  const lang = getLanguage()
-  const [dailyLog, setDailyLog] = useState<DailyLog>(getDailyLog(today))
-  const [showMealForm, setShowMealForm] = useState(false)
-  const [mealForm, setMealForm] = useState({
-    name: "",
-    type: "lunch" as "breakfast" | "lunch" | "dinner" | "snack",
-    calories: "",
-    protein: "",
-    carbs: "",
-    fat: "",
-    notes: "",
-  })
+  const [selectedDate, setSelectedDate] = useState(todayString())
+  const [dailyLog, setDailyLog] = useState<DailyLog>(getDailyLog(selectedDate))
+  const [lang, setLang] = useState<Language>(getLanguage())
 
-  // Reload on changes
   useEffect(() => {
-    setDailyLog(getDailyLog(today))
-  }, [today])
+    setDailyLog(getDailyLog(selectedDate))
+  }, [selectedDate])
 
-  function handleAddMeal() {
-    if (!mealForm.name) {
-      toast.error(t('pleaseEnterMealName', lang))
-      return
-    }
-    const now = new Date()
-    const meal: MealLog = {
-      id: generateId(),
-      date: today,
-      time: `${now.getHours().toString().padStart(2, "0")}:${now
-        .getMinutes()
-        .toString()
-        .padStart(2, "0")}`,
-      type: mealForm.type,
-      name: mealForm.name,
-      calories: parseInt(mealForm.calories) || 0,
-      protein: parseInt(mealForm.protein) || 0,
-      carbs: parseInt(mealForm.carbs) || 0,
-      fat: parseInt(mealForm.fat) || 0,
-      ingredients: [],
-      allergenWarnings: [],
-      notes: mealForm.notes,
-      isOffPlan: false,
-    }
-    const updated = addMealToLog(today, meal)
-    setDailyLog(updated)
-    setMealForm({
-      name: "",
-      type: "lunch",
-      calories: "",
-      protein: "",
-      carbs: "",
-      fat: "",
-      notes: "",
-    })
-    setShowMealForm(false)
-    toast.success(t('mealLogged', lang))
-  }
+  useEffect(() => {
+    setLang(getLanguage())
 
-  function removeMeal(mealId: string) {
-    const updated = {
-      ...dailyLog,
-      meals: dailyLog.meals.filter((m) => m.id !== mealId),
+    // Listen for language changes
+    const handleLanguageChange = (event: Event) => {
+      const customEvent = event as CustomEvent<Language>
+      setLang(customEvent.detail)
     }
-    saveDailyLog(updated)
-    setDailyLog(updated)
-    toast.success(t('mealRemoved', lang))
-  }
 
-  function updateWater(amount: number) {
-    const updated = {
-      ...dailyLog,
-      waterIntake: Math.max(0, dailyLog.waterIntake + amount),
+    window.addEventListener('languageChanged', handleLanguageChange)
+
+    return () => {
+      window.removeEventListener('languageChanged', handleLanguageChange)
     }
-    saveDailyLog(updated)
-    setDailyLog(updated)
-  }
+  }, [])
 
-  function updateSteps(value: string) {
-    const updated = {
-      ...dailyLog,
-      steps: parseInt(value) || 0,
-    }
-    saveDailyLog(updated)
-    setDailyLog(updated)
-  }
-
-  function updateActivity(
-    level: "sedentary" | "light" | "moderate" | "active"
-  ) {
-    const updated = {
-      ...dailyLog,
-      activityLevel: level,
-    }
-    saveDailyLog(updated)
-    setDailyLog(updated)
-  }
-
-  function updateNotes(notes: string) {
-    const updated = {
-      ...dailyLog,
-      activityNotes: notes,
-    }
-    saveDailyLog(updated)
-    setDailyLog(updated)
-  }
-
-  const waterPercent = profile
-    ? Math.min(100, (dailyLog.waterIntake / profile.waterTarget) * 100)
-    : 0
+  const totalCalories = dailyLog.meals.reduce((sum, meal) => sum + meal.calories, 0)
+  const totalProtein = dailyLog.meals.reduce((sum, meal) => sum + meal.protein, 0)
+  const totalCarbs = dailyLog.meals.reduce((sum, meal) => sum + meal.carbs, 0)
+  const totalFat = dailyLog.meals.reduce((sum, meal) => sum + meal.fat, 0)
 
   return (
     <div className="flex flex-col gap-6 px-4 pb-24 pt-4">
-      <h1 className="font-display text-2xl text-primary">{t('dailyLog', lang)}</h1>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h1 className="font-display text-2xl text-[#38b6ff]">{t('dailyLog', lang)}</h1>
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Calendar className="h-4 w-4" />
+          {selectedDate === todayString() ? "Today" : selectedDate}
+        </div>
+      </div>
 
-      <Tabs defaultValue="meals" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 bg-muted">
-          <TabsTrigger value="meals" className="data-[state=active]:bg-card data-[state=active]:text-foreground">{t('meals', lang)}</TabsTrigger>
-          <TabsTrigger value="water" className="data-[state=active]:bg-card data-[state=active]:text-foreground">{t('water', lang)}</TabsTrigger>
-          <TabsTrigger value="activity" className="data-[state=active]:bg-card data-[state=active]:text-foreground">{t('activity', lang)}</TabsTrigger>
-        </TabsList>
-
-        {/* Meals Tab */}
-        <TabsContent value="meals" className="mt-4 flex flex-col gap-4">
-          {/* Logged Meals */}
-          {dailyLog.meals.length > 0 && (
-            <div className="flex flex-col gap-2">
-              {dailyLog.meals.map((meal) => (
-                <Card key={meal.id} className="border-0 bg-card shadow-sm">
-                  <CardContent className="flex items-center justify-between p-3">
-                    <div className="flex flex-col gap-0.5">
-                      <span className="text-sm font-medium text-foreground">
-                        {meal.name}
-                      </span>
-                      <span className="text-xs capitalize text-muted-foreground">
-                        {meal.type} - {meal.time}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {meal.calories} kcal | P: {meal.protein}g | C:{" "}
-                        {meal.carbs}g | F: {meal.fat}g
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => removeMeal(meal.id)}
-                      className="rounded-lg p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
-                      aria-label={`Remove ${meal.name}`}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </CardContent>
-                </Card>
-              ))}
+      {/* Daily Summary */}
+      <Card className="border-0 bg-gradient-to-br from-primary/5 to-secondary/5 shadow-sm">
+        <CardContent className="p-4">
+          <h2 className="mb-3 text-base font-semibold text-foreground">{t('dailySummary', lang)}</h2>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-lg bg-card p-3">
+              <p className="text-xs text-muted-foreground">{t('calories', lang)}</p>
+              <p className="text-2xl font-bold text-foreground">{totalCalories}</p>
+              <p className="text-xs text-muted-foreground">kcal</p>
             </div>
-          )}
+            <div className="rounded-lg bg-card p-3">
+              <p className="text-xs text-muted-foreground">{t('protein', lang)}</p>
+              <p className="text-2xl font-bold text-foreground">{totalProtein}g</p>
+            </div>
+            <div className="rounded-lg bg-card p-3">
+              <p className="text-xs text-muted-foreground">{t('carbs', lang)}</p>
+              <p className="text-2xl font-bold text-foreground">{totalCarbs}g</p>
+            </div>
+            <div className="rounded-lg bg-card p-3">
+              <p className="text-xs text-muted-foreground">{t('fat', lang)}</p>
+              <p className="text-2xl font-bold text-foreground">{totalFat}g</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-          {/* Add Meal Form */}
-          {showMealForm ? (
-            <Card className="border border-primary/20 bg-card shadow-sm">
-              <CardContent className="flex flex-col gap-3 p-4">
-                <h3 className="text-sm font-semibold text-foreground">
-                  {t('addManualMeal', lang)}
-                </h3>
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="meal-name">{t('mealName', lang)}</Label>
-                  <Input
-                    id="meal-name"
-                    placeholder="e.g. Grilled Chicken Salad"
-                    value={mealForm.name}
-                    onChange={(e) =>
-                      setMealForm({ ...mealForm, name: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <Label>{t('mealType', lang)}</Label>
-                  <Select
-                    value={mealForm.type}
-                    onValueChange={(v) =>
-                      setMealForm({
-                        ...mealForm,
-                        type: v as typeof mealForm.type,
-                      })
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="breakfast">{t('breakfast', lang)}</SelectItem>
-                      <SelectItem value="lunch">{t('lunch', lang)}</SelectItem>
-                      <SelectItem value="dinner">{t('dinner', lang)}</SelectItem>
-                      <SelectItem value="snack">{t('snack', lang)}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="meal-cal">{t('calories', lang)}</Label>
-                    <Input
-                      id="meal-cal"
-                      type="number"
-                      placeholder="kcal"
-                      value={mealForm.calories}
-                      onChange={(e) =>
-                        setMealForm({ ...mealForm, calories: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="meal-prot">{t('protein', lang)} (g)</Label>
-                    <Input
-                      id="meal-prot"
-                      type="number"
-                      placeholder="g"
-                      value={mealForm.protein}
-                      onChange={(e) =>
-                        setMealForm({ ...mealForm, protein: e.target.value })
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="meal-carbs">{t('carbs', lang)} (g)</Label>
-                    <Input
-                      id="meal-carbs"
-                      type="number"
-                      placeholder="g"
-                      value={mealForm.carbs}
-                      onChange={(e) =>
-                        setMealForm({ ...mealForm, carbs: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="meal-fat">{t('fat', lang)} (g)</Label>
-                    <Input
-                      id="meal-fat"
-                      type="number"
-                      placeholder="g"
-                      value={mealForm.fat}
-                      onChange={(e) =>
-                        setMealForm({ ...mealForm, fat: e.target.value })
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="meal-notes">{t('notes', lang)}</Label>
-                  <Textarea
-                    id="meal-notes"
-                    placeholder="Any notes about this meal"
-                    value={mealForm.notes}
-                    onChange={(e) =>
-                      setMealForm({ ...mealForm, notes: e.target.value })
-                    }
-                    className="min-h-[60px]"
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowMealForm(false)}
-                    className="flex-1"
-                  >
-                    {t('cancel', lang)}
-                  </Button>
-                  <Button
-                    onClick={handleAddMeal}
-                    className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
-                  >
-                    {t('addMeal', lang)}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
-            <Button
-              onClick={() => setShowMealForm(true)}
-              variant="outline"
-              className="border-dashed border-primary/30 text-primary hover:bg-primary/5"
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              {t('addMealManually', lang)}
-            </Button>
-          )}
-        </TabsContent>
-
-        {/* Water Tab */}
-        <TabsContent value="water" className="mt-4 flex flex-col gap-4">
-          <Card className="border-0 bg-card shadow-sm">
-            <CardContent className="flex flex-col items-center gap-4 p-6">
-              <Droplets className="h-12 w-12 text-secondary" />
-              <div className="text-center">
-                <p className="text-3xl font-bold text-foreground">
-                  {dailyLog.waterIntake}
-                  <span className="text-base font-normal text-muted-foreground">
-                    ml
-                  </span>
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {t('water', lang)}: {profile?.waterTarget || 2500}ml {t('ofTarget', lang)}
-                </p>
-              </div>
-              {/* Progress bar */}
-              <div className="h-3 w-full overflow-hidden rounded-full bg-muted">
-                <div
-                  className="h-full rounded-full bg-secondary transition-all duration-300"
-                  style={{ width: `${waterPercent}%` }}
-                />
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => updateWater(-250)}
-                  disabled={dailyLog.waterIntake <= 0}
-                >
-                  <Minus className="mr-1 h-3 w-3" />
-                  250ml
-                </Button>
-                <Button
-                  onClick={() => updateWater(250)}
-                  size="sm"
-                  className="bg-secondary text-secondary-foreground hover:bg-secondary/90"
-                >
-                  <Plus className="mr-1 h-3 w-3" />
-                  250ml
-                </Button>
-                <Button
-                  onClick={() => updateWater(500)}
-                  size="sm"
-                  className="bg-secondary text-secondary-foreground hover:bg-secondary/90"
-                >
-                  <Plus className="mr-1 h-3 w-3" />
-                  500ml
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Activity Tab */}
-        <TabsContent value="activity" className="mt-4 flex flex-col gap-4">
-          <Card className="border-0 bg-card shadow-sm">
-            <CardContent className="flex flex-col gap-4 p-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                  <Footprints className="h-5 w-5 text-primary" />
-                </div>
-                <div className="flex-1">
-                  <Label htmlFor="steps">{t('stepCount', lang)}</Label>
-                  <Input
-                    id="steps"
-                    type="number"
-                    placeholder="0"
-                    value={dailyLog.steps || ""}
-                    onChange={(e) => updateSteps(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label className="mb-2 block">{t('activityLevel', lang)}</Label>
-                <div className="grid grid-cols-2 gap-2">
-                  {([
-                      {
-                        key: "sedentary",
-                        label: t('sedentary', lang),
-                        desc: t('deskWork', lang),
-                      },
-                      {
-                        key: "light",
-                        label: t('lightActivity', lang),
-                        desc: t('walkingTours', lang),
-                      },
-                      {
-                        key: "moderate",
-                        label: t('moderate', lang),
-                        desc: t('hikingCycling', lang),
-                      },
-                      {
-                        key: "active",
-                        label: t('activeLevel', lang),
-                        desc: t('sportsIntense', lang),
-                      },
-                    ] as const
-                  ).map((level) => (
-                    <button
-                      key={level.key}
-                      onClick={() => updateActivity(level.key)}
-                      className={cn(
-                        "flex flex-col items-start gap-0.5 rounded-lg border p-3 text-left transition-colors",
-                        dailyLog.activityLevel === level.key
-                          ? "border-primary bg-primary/5 text-foreground"
-                          : "border-border bg-card text-muted-foreground hover:border-primary/50"
+      {/* Meals Section */}
+      <div>
+        <div className="mb-3 flex items-center gap-2">
+          <Utensils className="h-5 w-5 text-primary" />
+          <h2 className="text-lg font-semibold text-foreground">
+            {t('meals', lang)} ({dailyLog.meals.length})
+          </h2>
+        </div>
+        {dailyLog.meals.length > 0 ? (
+          <div className="flex flex-col gap-2">
+            {dailyLog.meals.map((meal) => (
+              <Card key={meal.id} className="border-0 bg-card shadow-sm">
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm font-semibold text-foreground">
+                          {meal.name}
+                        </span>
+                        {meal.isOffPlan && (
+                          <span className="rounded-full bg-destructive/10 px-2 py-0.5 text-xs text-destructive whitespace-nowrap">
+                            {t('offPlan', lang)}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs capitalize text-muted-foreground mb-2">
+                        {meal.type === "breakfast" ? t('breakfast', lang) :
+                         meal.type === "lunch" ? t('lunch', lang) :
+                         meal.type === "dinner" ? t('dinner', lang) :
+                         t('snack', lang)} • {meal.time}
+                      </p>
+                      {meal.photoUrl && (
+                        <div className="mb-2 overflow-hidden rounded-lg">
+                          <img
+                            src={meal.photoUrl}
+                            alt={meal.name}
+                            className="h-32 w-full object-cover"
+                          />
+                        </div>
                       )}
-                    >
-                      <span className="text-sm font-medium">
-                        {level.label}
-                      </span>
-                      <span className="text-[10px]">{level.desc}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="activity-notes">{t('activityNotes', lang)}</Label>
-                <Textarea
-                  id="activity-notes"
-                  placeholder="Walked around the temple district..."
-                  value={dailyLog.activityNotes}
-                  onChange={(e) => updateNotes(e.target.value)}
-                  className="min-h-[80px]"
-                />
-              </div>
+                      <div className="grid grid-cols-4 gap-2">
+                        <div className="rounded bg-muted p-2 text-center">
+                          <p className="text-sm font-bold text-foreground">{meal.calories}</p>
+                          <p className="text-[9px] text-muted-foreground">kcal</p>
+                        </div>
+                        <div className="rounded bg-muted p-2 text-center">
+                          <p className="text-sm font-bold text-foreground">{meal.protein}g</p>
+                          <p className="text-[9px] text-muted-foreground">{t('protein', lang)}</p>
+                        </div>
+                        <div className="rounded bg-muted p-2 text-center">
+                          <p className="text-sm font-bold text-foreground">{meal.carbs}g</p>
+                          <p className="text-[9px] text-muted-foreground">{t('carbs', lang)}</p>
+                        </div>
+                        <div className="rounded bg-muted p-2 text-center">
+                          <p className="text-sm font-bold text-foreground">{meal.fat}g</p>
+                          <p className="text-[9px] text-muted-foreground">{t('fat', lang)}</p>
+                        </div>
+                      </div>
+                      {meal.allergenWarnings.length > 0 && (
+                        <div className="mt-2 flex items-center gap-1 text-xs text-destructive">
+                          <span>⚠️</span>
+                          <span>{meal.allergenWarnings.join(", ")}</span>
+                        </div>
+                      )}
+                      {meal.notes && (
+                        <p className="mt-2 text-xs text-muted-foreground">{meal.notes}</p>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <Card className="border-2 border-dashed border-muted bg-muted/5">
+            <CardContent className="flex flex-col items-center justify-center p-8 text-center">
+              <Utensils className="mb-2 h-10 w-10 text-muted-foreground/50" />
+              <p className="text-sm text-muted-foreground">{t('noMealsYet', lang)}</p>
             </CardContent>
           </Card>
-        </TabsContent>
-      </Tabs>
+        )}
+      </div>
+
+      {/* Water Section */}
+      <div>
+        <div className="mb-3 flex items-center gap-2">
+          <Droplets className="h-5 w-5 text-secondary" />
+          <h2 className="text-lg font-semibold text-foreground">{t('water', lang)}</h2>
+        </div>
+        <Card className="border-0 bg-card shadow-sm">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-2xl font-bold text-foreground">
+                  {dailyLog.waterIntake}
+                  <span className="text-sm font-normal text-muted-foreground"> ml</span>
+                </p>
+                <p className="text-xs text-muted-foreground">Water intake today</p>
+              </div>
+              <Droplets className="h-8 w-8 text-secondary/30" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Activity Section */}
+      <div>
+        <div className="mb-3 flex items-center gap-2">
+          <Footprints className="h-5 w-5 text-primary" />
+          <h2 className="text-lg font-semibold text-foreground">{t('activity', lang)}</h2>
+        </div>
+        <Card className="border-0 bg-card shadow-sm">
+          <CardContent className="p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">{t('steps', lang)}</p>
+                <p className="text-2xl font-bold text-foreground">{dailyLog.steps || 0}</p>
+              </div>
+              <Footprints className="h-8 w-8 text-primary/30" />
+            </div>
+            {dailyLog.activityLevel && (
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">{t('activityLevel', lang)}</p>
+                <span className="inline-flex rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary capitalize whitespace-nowrap">
+                  {dailyLog.activityLevel === "sedentary" ? t('sedentary', lang) :
+                   dailyLog.activityLevel === "light" ? t('lightActivity', lang) :
+                   dailyLog.activityLevel === "moderate" ? t('moderate', lang) :
+                   t('activeLevel', lang)}
+                </span>
+              </div>
+            )}
+            {dailyLog.activityNotes && (
+              <div>
+                <p className="text-xs text-muted-foreground mb-1">{t('notes', lang)}</p>
+                <p className="text-sm text-foreground">{dailyLog.activityNotes}</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }

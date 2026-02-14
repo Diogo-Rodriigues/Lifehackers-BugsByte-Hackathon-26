@@ -10,11 +10,16 @@ import { MealAnalysis } from "@/components/meal-analysis"
 import { MealLogger } from "@/components/meal-logger"
 import { SettingsPage } from "@/components/settings-page"
 import { BottomNav, type PageId } from "@/components/bottom-nav"
+import { SplashScreen } from "@/components/splash-screen"
+import { WelcomeScreen } from "@/components/welcome-screen"
 
 export default function Page() {
   const [currentPage, setCurrentPage] = useState<PageId>("dashboard")
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [mounted, setMounted] = useState(false)
+  const [showSplash, setShowSplash] = useState(true)
+  const [showWelcome, setShowWelcome] = useState(false)
+  const [startOnboardingAtStep, setStartOnboardingAtStep] = useState<number | null>(null)
 
   useEffect(() => {
     setMounted(true)
@@ -37,21 +42,41 @@ export default function Page() {
       setProfile(saved)
       setCurrentPage("dashboard")
     }
+    setStartOnboardingAtStep(null) // Reset onboarding step state
   }
 
-  if (!mounted) {
+  if (!mounted || showSplash) {
+    return <SplashScreen onComplete={() => {
+      setShowSplash(false)
+      // Only show welcome screen if no profile exists
+      const saved = getProfile()
+      if (!saved?.onboardingComplete) {
+        setShowWelcome(true)
+      }
+    }} />
+  }
+
+  if (showWelcome) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="flex flex-col items-center gap-3">
-          <h1 className="font-display text-3xl text-primary">Nutrifuel</h1>
-          <div className="h-1 w-24 animate-pulse rounded-full bg-primary/30" />
-        </div>
-      </div>
+      <WelcomeScreen
+        onStartFresh={() => setShowWelcome(false)}
+        onPlanImported={() => {
+          setShowWelcome(false)
+          setStartOnboardingAtStep(4) // Start at trip details step
+        }}
+      />
     )
   }
 
-  if (!profile) {
-    return <Onboarding onComplete={handleOnboardingComplete} />
+  if (!profile || startOnboardingAtStep !== null) {
+    return <Onboarding 
+      onComplete={handleOnboardingComplete} 
+      onBack={() => {
+        setShowWelcome(true)
+        setStartOnboardingAtStep(null)
+      }}
+      initialStep={startOnboardingAtStep || 0}
+    />
   }
 
   return (

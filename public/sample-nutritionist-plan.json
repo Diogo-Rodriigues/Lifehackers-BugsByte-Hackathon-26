@@ -1,0 +1,17 @@
+{
+  "name": "John Doe",
+  "age": 30,
+  "sex": "male",
+  "height": 175,
+  "weight": 75,
+  "goal": "maintain",
+  "allergies": ["Peanuts", "Shellfish"],
+  "dietaryPreferences": ["Mediterranean"],
+  "dailyCalorieTarget": 2200,
+  "macros": {
+    "protein": 165,
+    "carbs": 220,
+    "fat": 73
+  },
+  "waterTarget": 2500
+}

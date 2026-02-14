@@ -37,19 +37,30 @@ export function TripPlanning() {
     return (
         <div className="flex flex-col gap-6 px-4 pb-24 pt-4">
             <div className="flex items-center justify-between">
-                <h1 className="font-display text-2xl text-primary">{t('yourTrip', lang)}</h1>
-                <Badge variant="outline" className="border-primary/20 bg-primary/5 text-primary">
+                <h1 className="font-display text-2xl text-[#38b6ff]">{t('yourTrip', lang)}</h1>
+                <Badge variant="outline" className="border-primary/20 bg-primary/5 text-primary whitespace-nowrap">
                     {t('activeBadge', lang)}
                 </Badge>
             </div>
 
             <Card className="overflow-hidden border-0 bg-card shadow-sm">
-                <div className="h-32 bg-muted/30 relative">
-                    <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
-                    <div className="absolute bottom-4 left-4">
-                        <h2 className="text-2xl font-bold text-foreground">
-                            {existingTrip.destination}
-                        </h2>
+                <div 
+                    className="h-40 relative bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5"
+                    style={{ 
+                        backgroundImage: `url('https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?w=800&h=400&fit=crop&q=80')`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center'
+                    }}
+                >
+                    <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-background/70 to-background/30" />
+                    <div className="absolute inset-0 backdrop-blur-[2px]" />
+                    <div className="absolute bottom-4 left-4 z-10">
+                        <div className="flex items-center gap-2 mb-1">
+                            <Plane className="h-5 w-5 text-primary" />
+                            <h2 className="text-2xl font-bold text-foreground">
+                                {existingTrip.destination}
+                            </h2>
+                        </div>
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                             <CalendarDays className="h-3.5 w-3.5" />
                             <span>
@@ -92,7 +103,7 @@ export function TripPlanning() {
                                     <Badge
                                         key={d.name}
                                         variant="secondary"
-                                        className="bg-accent text-accent-foreground hover:bg-accent/80"
+                                        className="bg-accent text-accent-foreground hover:bg-accent/80 whitespace-nowrap"
                                     >
                                         {d.name}
                                     </Badge>
@@ -116,7 +127,7 @@ export function TripPlanning() {
                                     <Badge
                                         key={b.name}
                                         variant="secondary"
-                                        className="bg-accent text-accent-foreground hover:bg-accent/80"
+                                        className="bg-accent text-accent-foreground hover:bg-accent/80 whitespace-nowrap"
                                     >
                                         {b.name}
                                     </Badge>
@@ -136,7 +147,7 @@ export function TripPlanning() {
                                     <ShieldCheck className="h-4 w-4 text-primary" />
                                     {t('dailyMealPlan', lang)}
                                 </h3>
-                                <Badge variant="outline" className="text-[10px] capitalize text-primary border-primary/20">
+                                <Badge variant="outline" className="text-[10px] capitalize text-primary border-primary/20 whitespace-nowrap">
                                     {existingTrip.mealPlan.status.replace("-", " ")}
                                 </Badge>
                             </div>

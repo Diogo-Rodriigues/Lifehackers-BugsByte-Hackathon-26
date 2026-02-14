@@ -28,6 +28,7 @@ import {
   Eye,
   EyeOff,
   Trash2,
+  Palette,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
@@ -112,7 +113,7 @@ export function SettingsPage() {
 
   return (
     <div className="flex flex-col gap-6 px-4 pb-24 pt-6">
-      <h1 className="font-display text-3xl font-bold text-primary tracking-tight">{t('settings', language)}</h1>
+      <h1 className="font-display text-2xl font-bold text-[#38b6ff] tracking-tight">{t('settings', language)}</h1>
 
       {/* API Key */}
       <Card className="border-0 bg-card shadow-sm hover:shadow-md transition-shadow duration-200">
@@ -171,11 +172,11 @@ export function SettingsPage() {
         <CardContent className="flex flex-col gap-4 p-5">
           <div className="flex items-center gap-2">
             <User className="h-5 w-5 text-primary" />
-            <h2 className="text-base font-semibold text-foreground">{t('profile', language)}</h2>
+            <h2 className="text-lg font-semibold text-foreground">{t('profile', language)}</h2>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1">
-              <Label htmlFor="s-name" className="text-xs">
+              <Label htmlFor="s-name" className="text-sm">
                 {t('name', language)}
               </Label>
               <Input
@@ -187,7 +188,7 @@ export function SettingsPage() {
               />
             </div>
             <div className="flex flex-col gap-1">
-              <Label htmlFor="s-age" className="text-xs">
+              <Label htmlFor="s-age" className="text-sm">
                 {t('age', language)}
               </Label>
               <Input
@@ -205,7 +206,7 @@ export function SettingsPage() {
           </div>
           <div className="grid grid-cols-3 gap-3">
             <div className="flex flex-col gap-1">
-              <Label htmlFor="s-height" className="text-xs">
+              <Label htmlFor="s-height" className="text-sm">
                 {t('height', language)}
               </Label>
               <Input
@@ -221,7 +222,7 @@ export function SettingsPage() {
               />
             </div>
             <div className="flex flex-col gap-1">
-              <Label htmlFor="s-weight" className="text-xs">
+              <Label htmlFor="s-weight" className="text-sm">
                 {t('weight', language)}
               </Label>
               <Input
@@ -254,7 +255,7 @@ export function SettingsPage() {
             </div>
           </div>
           <div className="flex flex-col gap-1">
-            <Label className="text-xs">{t('goal', language)}</Label>
+            <Label className="text-sm">{t('goal', language)}</Label>
             <Select
               value={profile.goal}
               onValueChange={(v) =>
@@ -327,10 +328,10 @@ export function SettingsPage() {
       {/* Danger Zone */}
       <Card className="border border-destructive/30 bg-card shadow-none hover:border-destructive/50 transition-all duration-200">
         <CardContent className="flex flex-col gap-4 p-5">
-          <h2 className="text-sm font-semibold text-destructive">
+          <h2 className="text-base font-semibold text-destructive">
             {t('dangerZone', language)}
           </h2>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             {t('dangerZoneDescription', language)}
           </p>
           <Button
@@ -349,12 +350,12 @@ export function SettingsPage() {
       <Card className="border-0 bg-card shadow-sm hover:shadow-md transition-shadow duration-200">
         <CardContent className="flex flex-col gap-4 p-5">
           <div className="flex items-center gap-2">
-            <Eye className="h-5 w-5 text-primary" />
-            <h2 className="text-base font-semibold text-foreground">
+            <Palette className="h-5 w-5 text-primary" />
+            <h2 className="text-lg font-semibold text-foreground">
               {t('theme', language)}
             </h2>
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             {t('themeDescription', language)}
           </p>
           <div className="flex gap-2 items-center">
@@ -378,11 +379,11 @@ export function SettingsPage() {
               <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
               <path d="M2 12h20"/>
             </svg>
-            <h2 className="text-base font-semibold text-foreground">
+            <h2 className="text-lg font-semibold text-foreground">
               {t('language', language)}
             </h2>
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             {t('languageDescription', language)}
           </p>
           <Select value={language} onValueChange={(value) => handleLanguageChange(value as Language)}>

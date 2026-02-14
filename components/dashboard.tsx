@@ -8,7 +8,6 @@ import type { UserProfile } from "@/lib/types"
 import type { PageId } from "@/components/bottom-nav"
 import { Droplets, Footprints, Flame, TrendingUp } from "lucide-react"
 import { cn } from "@/lib/utils"
-import Image from "next/image"
 import { getLanguage, t } from "@/lib/language"
 
 const DESTINATION_FLAGS: Record<string, string> = {
@@ -64,10 +63,7 @@ export function Dashboard({ profile, onNavigate }: DashboardProps) {
     <div className="flex flex-col gap-6 px-4 pb-24 pt-4">
       {/* Header */}
       <div className="flex flex-col items-center gap-3">
-        <div className="flex items-center gap-2">
-          <Image src="/logo.png" alt="NutriFuel" width={32} height={32} />
-          <h1 className="font-display text-2xl text-primary">Nutrifuel</h1>
-        </div>
+        <h1 className="font-display text-2xl text-[#38b6ff]">NutriFuel</h1>
         {activeTrip && (
           <div className="rounded-full bg-accent px-4 py-1.5">
             <span className="text-sm font-medium text-accent-foreground">
@@ -134,8 +130,8 @@ export function Dashboard({ profile, onNavigate }: DashboardProps) {
               <Droplets className="h-5 w-5 text-secondary" />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">{t('water', lang)}</p>
-              <p className="text-lg font-semibold text-foreground">
+              <p className="text-sm text-muted-foreground">{t('water', lang)}</p>
+              <p className="text-2xl font-bold text-foreground">
                 {dailyLog.waterIntake}
                 <span className="text-xs text-muted-foreground font-normal">
                   /{profile.waterTarget}ml
@@ -150,8 +146,8 @@ export function Dashboard({ profile, onNavigate }: DashboardProps) {
               <Footprints className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">{t('steps', lang)}</p>
-              <p className="text-lg font-semibold text-foreground">
+              <p className="text-sm text-muted-foreground">{t('steps', lang)}</p>
+              <p className="text-2xl font-bold text-foreground">
                 {dailyLog.steps.toLocaleString()}
               </p>
             </div>
@@ -162,10 +158,10 @@ export function Dashboard({ profile, onNavigate }: DashboardProps) {
       {/* Today's Meals */}
       <div>
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-base font-semibold text-foreground">
+          <h2 className="text-lg font-semibold text-foreground">
             {t('todaysMeals', lang)}
           </h2>
-          <span className="text-xs text-muted-foreground">
+          <span className="text-sm text-muted-foreground">
             {mealCount} {t('logged', lang)}
           </span>
         </div>
@@ -263,8 +259,8 @@ function MacroCard({
           color={color}
         />
         <div className="text-center">
-          <p className="text-xs text-muted-foreground">{label}</p>
-          <p className="text-sm font-semibold text-foreground">
+          <p className="text-sm text-muted-foreground">{label}</p>
+          <p className="text-base font-semibold text-foreground">
             {value}
             <span className="text-xs text-muted-foreground font-normal">
               /{max}

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -100,10 +100,12 @@ const NUTRITIONIST_BY_DESTINATION: Record<string, NutritionistProfile> = {
 
 interface OnboardingProps {
   onComplete: () => void
+  onBack?: () => void
+  initialStep?: number
 }
 
-export function Onboarding({ onComplete }: OnboardingProps) {
-  const [step, setStep] = useState(0)
+export function Onboarding({ onComplete, onBack, initialStep = 0 }: OnboardingProps) {
+  const [step, setStep] = useState(initialStep)
   const [language, setLanguageState] = useState<Language>('en')
   const [apiKey, setApiKey] = useState("")
   const [allergyOptions, setAllergyOptions] = useState(ALLERGY_OPTIONS)
@@ -225,7 +227,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
       setLocalDishes(data.dishes || [])
       setLocalBeverages(data.beverages || [])
     } catch {
-      toast.error("Could not load local dishes. Using offline data.")
+      toast.error(t('couldNotLoadDishes', language))
       setLocalDishes(getDefaultDishes(trip.destination!))
       setLocalBeverages(getDefaultBeverages(trip.destination!))
     } finally {
@@ -238,7 +240,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     try {
       // Ensure we have required trip data
       if (!trip.destination || !trip.departureDate || !trip.arrivalDate) {
-        toast.error("Please complete trip details first")
+        toast.error(t('pleaseCompleteTripDetails', language))
         setLoadingPlan(false)
         return
       }
@@ -500,45 +502,24 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 
   return (
     <div className="flex min-h-screen flex-col bg-background relative">
-      {/* Language Selector - Top Right */}
-      <div className="absolute top-6 right-6 z-10">
-        <Select 
-          value={language} 
-          onValueChange={(value) => {
-            setLanguage(value as Language)
-            setLanguageState(value as Language)
-          }}
-        >
-          <SelectTrigger className="w-[90px] h-8 text-xs border-0 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm font-semibold">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {LANGUAGES.map((lang) => (
-              <SelectItem key={lang.code} value={lang.code} className="cursor-pointer text-xs">
-                {lang.code.toUpperCase()}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
       
       {/* Header */}
       <div className="flex flex-col items-center gap-3 px-6 pt-16 pb-8">
-        <Image src="/logo.png" alt="NutriFuel" width={160} height={160} priority className="mb-2" />
+        <h1 className="font-display text-2xl text-[#38b6ff] mb-2">NutriFuel</h1>
         <p className="text-base text-muted-foreground font-medium text-center">
           {t('setupProfile', language)}
         </p>
 
         {/* Step Indicator */}
-        <div className="flex items-center justify-center gap-1 sm:gap-2 w-full px-4 mt-4">
+        <div className="flex items-center w-full mt-4">
           {steps.map((s, i) => (
-            <div key={s.title} className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+            <div key={s.title} className="flex items-center flex-1 last:flex-none">
               <div
                 className={cn(
-                  "flex h-7 w-7 sm:h-9 sm:w-9 items-center justify-center rounded-full text-xs sm:text-sm font-semibold transition-all duration-300 flex-shrink-0 shadow-sm",
+                  "flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full text-xs sm:text-sm font-semibold transition-all duration-300 shadow-sm flex-shrink-0",
                   i <= step
                     ? "bg-primary text-primary-foreground ring-2 ring-primary/20"
-                    : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    : "bg-muted text-muted-foreground"
                 )}
               >
                 {i + 1}
@@ -546,7 +527,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
               {i < steps.length - 1 && (
                 <div
                   className={cn(
-                    "h-0.5 w-3 sm:w-6 rounded-full transition-all duration-300 flex-shrink-0",
+                    "h-0.5 flex-1 rounded-full transition-all duration-300 mx-1 sm:mx-2",
                     i < step ? "bg-primary" : "bg-muted"
                   )}
                 />
@@ -584,7 +565,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                     onChange={(e) => setApiKey(e.target.value)}
                     className="h-11"
                   />
-                  <p className="text-xs text-muted-foreground leading-relaxed">
+                  <p className="text-sm text-muted-foreground leading-relaxed">
                     {t('apiKeyDescription', language)}
                   </p>
                 </div>
@@ -738,20 +719,20 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 </div>
                 <div className="grid grid-cols-3 gap-3">
                   <div className="rounded-lg bg-muted p-3 text-center">
-                    <p className="text-xs text-muted-foreground">Protein</p>
-                    <p className="text-lg font-semibold text-foreground">
+                    <p className="text-sm text-muted-foreground">Protein</p>
+                    <p className="text-2xl font-bold text-foreground">
                       {profile.macros?.protein}g
                     </p>
                   </div>
                   <div className="rounded-lg bg-muted p-3 text-center">
-                    <p className="text-xs text-muted-foreground">Carbs</p>
-                    <p className="text-lg font-semibold text-foreground">
+                    <p className="text-sm text-muted-foreground">Carbs</p>
+                    <p className="text-2xl font-bold text-foreground">
                       {profile.macros?.carbs}g
                     </p>
                   </div>
                   <div className="rounded-lg bg-muted p-3 text-center">
-                    <p className="text-xs text-muted-foreground">Fat</p>
-                    <p className="text-lg font-semibold text-foreground">
+                    <p className="text-sm text-muted-foreground">Fat</p>
+                    <p className="text-2xl font-bold text-foreground">
                       {profile.macros?.fat}g
                     </p>
                   </div>
@@ -793,7 +774,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                         key={allergy}
                         onClick={() => toggleItem("allergies", allergy)}
                         className={cn(
-                          "inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors",
+                          "inline-flex items-center gap-1 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors whitespace-nowrap",
                           selected
                             ? "border-destructive bg-destructive/10 text-destructive"
                             : "border-border bg-card text-foreground hover:border-destructive/50"
@@ -955,53 +936,49 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="dep-date">{t('departure', language)}</Label>
-                    <Input
-                      id="dep-date"
-                      type="date"
-                      value={trip.departureDate}
-                      onChange={(e) =>
-                        setTrip({ ...trip, departureDate: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="dep-time">{t('departureTime', language)}</Label>
-                    <Input
-                      id="dep-time"
-                      type="time"
-                      value={trip.departureTime}
-                      onChange={(e) =>
-                        setTrip({ ...trip, departureTime: e.target.value })
-                      }
-                    />
-                  </div>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="dep-date">{t('departure', language)}</Label>
+                  <Input
+                    id="dep-date"
+                    type="date"
+                    value={trip.departureDate}
+                    onChange={(e) =>
+                      setTrip({ ...trip, departureDate: e.target.value })
+                    }
+                  />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="arr-date">{t('arrival', language)}</Label>
-                    <Input
-                      id="arr-date"
-                      type="date"
-                      value={trip.arrivalDate}
-                      onChange={(e) =>
-                        setTrip({ ...trip, arrivalDate: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="arr-time">{t('arrivalTime', language)}</Label>
-                    <Input
-                      id="arr-time"
-                      type="time"
-                      value={trip.arrivalTime}
-                      onChange={(e) =>
-                        setTrip({ ...trip, arrivalTime: e.target.value })
-                      }
-                    />
-                  </div>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="dep-time">{t('departureTime', language)}</Label>
+                  <Input
+                    id="dep-time"
+                    type="time"
+                    value={trip.departureTime}
+                    onChange={(e) =>
+                      setTrip({ ...trip, departureTime: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="arr-date">{t('arrival', language)}</Label>
+                  <Input
+                    id="arr-date"
+                    type="date"
+                    value={trip.arrivalDate}
+                    onChange={(e) =>
+                      setTrip({ ...trip, arrivalDate: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="arr-time">{t('arrivalTime', language)}</Label>
+                  <Input
+                    id="arr-time"
+                    type="time"
+                    value={trip.arrivalTime}
+                    onChange={(e) =>
+                      setTrip({ ...trip, arrivalTime: e.target.value })
+                    }
+                  />
                 </div>
                 {trip.destination && (
                   <Card className="border border-secondary/30 bg-accent/50 shadow-none">
@@ -1030,7 +1007,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                   <p className="text-sm text-muted-foreground">
                     {t('selectDishes', language)} {trip.destination}.
                   </p>
-                  <span className="text-xs font-medium bg-primary/10 text-primary px-2 py-1 rounded-full">
+                  <span className="text-xs font-medium bg-primary/10 text-primary px-2 py-1 rounded-full whitespace-nowrap">
                     {trip.selectedDishes?.length || 0} {t('selected', language)}
                   </span>
                 </div>
@@ -1324,20 +1301,16 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                   disabled={!mealPlan || isSimulatingDietitianReview}
                   onClick={() => selectReviewChoice("dietitian")}
                   className={cn(
-                    "rounded-lg border px-4 py-3 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-50",
+                    "rounded-lg border px-4 py-3 text-left transition-colors disabled:cursor-not-allowed",
                     reviewChoice === "dietitian"
-                      ? "border-primary bg-primary/10"
-                      : "border-border bg-card hover:border-primary/40"
+                      ? "border-primary bg-primary/10 opacity-100"
+                      : "border-border bg-card hover:border-primary/40 opacity-100",
+                    (!mealPlan || isSimulatingDietitianReview) && "opacity-40 bg-muted/50"
                   )}
                 >
                   <p className="text-sm font-semibold text-foreground">
                     {t('requestLocalDietitianReview', language)}
                   </p>
-                  {!mealPlan && (
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {t('proceedToApp', language)}
-                    </p>
-                  )}
                 </button>
 
                 {dietitianReviewCompleted && reviewedNutritionist && (
@@ -1375,20 +1348,24 @@ export function Onboarding({ onComplete }: OnboardingProps) {
 
       {/* Navigation */}
       <div className="flex gap-3 px-6 py-6 pb-8 safe-bottom border-t border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-        {step > 0 && (
+        {(step > 0 || (step === 0 && onBack)) && (
           <Button
             variant="outline"
             onClick={() => {
-              if (step === steps.length - 1) {
-                setReviewChoice(null)
-                setDietitianReviewCompleted(false)
-                setReviewedNutritionist(null)
-                setIsSimulatingDietitianReview(false)
+              if (step === 0 && onBack) {
+                onBack()
+              } else {
+                if (step === steps.length - 1) {
+                  setReviewChoice(null)
+                  setDietitianReviewCompleted(false)
+                  setReviewedNutritionist(null)
+                  setIsSimulatingDietitianReview(false)
+                }
+                setStep(step - 1)
               }
-              setStep(step - 1)
             }}
             disabled={isSimulatingDietitianReview}
-            className="flex-1 h-12 font-semibold shadow-sm hover:shadow transition-all"
+            className="flex-1 h-12 font-semibold shadow-sm hover:shadow transition-all text-sm"
           >
             <ChevronLeft className="mr-1.5 h-5 w-5" />
             {t('back', language)}
@@ -1420,7 +1397,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
             isSimulatingDietitianReview ||
             (step === steps.length - 1 && !reviewChoice)
           }
-          className="flex-1 h-12 font-semibold bg-primary text-primary-foreground hover:bg-primary/90 shadow-md hover:shadow-lg transition-all"
+          className="flex-1 h-12 font-semibold bg-primary text-primary-foreground hover:bg-primary/90 shadow-md hover:shadow-lg transition-all text-sm"
         >
           {isSimulatingDietitianReview ? (
             <Loader2 className="h-5 w-5 animate-spin" />
