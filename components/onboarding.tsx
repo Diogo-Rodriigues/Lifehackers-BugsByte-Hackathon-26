@@ -30,6 +30,7 @@ import { DESTINATIONS, TIMEZONE_OFFSETS } from "@/lib/constants"
 import { generateId, saveTrip, setActiveTrip, saveApiKey, getApiKey } from "@/lib/store"
 import { apiFetch } from "@/lib/api"
 import type { Trip, LocalDish, MealPlan } from "@/lib/types"
+import { getLanguage, setLanguage, t, type Language, LANGUAGES } from "@/lib/language"
 import {
   Plane,
   Calendar,
@@ -74,6 +75,7 @@ interface OnboardingProps {
 
 export function Onboarding({ onComplete }: OnboardingProps) {
   const [step, setStep] = useState(0)
+  const [language, setLanguageState] = useState<Language>('en')
   const [profile, setProfile] = useState<Partial<UserProfile>>({
     name: "",
     age: 25,
@@ -105,16 +107,17 @@ export function Onboarding({ onComplete }: OnboardingProps) {
   // Load existing API key if available
   useEffect(() => {
     setApiKey(getApiKey() || "")
+    setLanguageState(getLanguage())
   }, [])
 
   const steps = [
-    { title: "About You", icon: User },
-    { title: "Goals", icon: Target },
-    { title: "Allergies", icon: ShieldAlert },
-    { title: "Preferences", icon: Utensils },
-    { title: "Trip Details", icon: Plane },
-    { title: "Local Cuisine", icon: Utensils },
-    { title: "Meal Plan", icon: ShieldCheck },
+    { title: t('aboutYou', language), icon: User },
+    { title: t('goals', language), icon: Target },
+    { title: t('allergies', language), icon: ShieldAlert },
+    { title: t('preferences', language), icon: Utensils },
+    { title: t('tripDetails', language), icon: Plane },
+    { title: t('localCuisine', language), icon: Utensils },
+    { title: t('mealPlan', language), icon: ShieldCheck },
   ]
 
   async function fetchLocalDishes() {
@@ -239,24 +242,46 @@ export function Onboarding({ onComplete }: OnboardingProps) {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex min-h-screen flex-col bg-background relative">
+      {/* Language Selector - Top Right */}
+      <div className="absolute top-6 right-6 z-10">
+        <Select 
+          value={language} 
+          onValueChange={(value) => {
+            setLanguage(value as Language)
+            setLanguageState(value as Language)
+          }}
+        >
+          <SelectTrigger className="w-[70px] h-8 text-xs border-0 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm font-semibold">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {LANGUAGES.map((lang) => (
+              <SelectItem key={lang.code} value={lang.code} className="cursor-pointer text-xs">
+                {lang.code.toUpperCase()}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      
       {/* Header */}
-      <div className="flex flex-col items-center gap-4 px-6 pt-12 pb-6">
-        <Image src="/logo.png" alt="NutriFuel" width={180} height={180} priority />
-        <p className="text-sm text-muted-foreground mt-2">
-          Let{"'"}s set up your nutrition profile
+      <div className="flex flex-col items-center gap-3 px-6 pt-16 pb-8">
+        <Image src="/logo.png" alt="NutriFuel" width={160} height={160} priority className="mb-2" />
+        <p className="text-base text-muted-foreground font-medium text-center">
+          {t('setupProfile', language)}
         </p>
 
         {/* Step Indicator */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-center gap-1 sm:gap-2 w-full px-4 mt-4">
           {steps.map((s, i) => (
-            <div key={s.title} className="flex items-center gap-2">
+            <div key={s.title} className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
               <div
                 className={cn(
-                  "flex h-8 w-8 items-center justify-center rounded-full text-xs font-medium transition-colors",
+                  "flex h-7 w-7 sm:h-9 sm:w-9 items-center justify-center rounded-full text-xs sm:text-sm font-semibold transition-all duration-300 flex-shrink-0 shadow-sm",
                   i <= step
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground"
+                    ? "bg-primary text-primary-foreground ring-2 ring-primary/20"
+                    : "bg-muted text-muted-foreground hover:bg-muted/80"
                 )}
               >
                 {i + 1}
@@ -264,7 +289,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
               {i < steps.length - 1 && (
                 <div
                   className={cn(
-                    "h-0.5 w-6 rounded-full transition-colors",
+                    "h-0.5 w-3 sm:w-6 rounded-full transition-all duration-300 flex-shrink-0",
                     i < step ? "bg-primary" : "bg-muted"
                   )}
                 />
@@ -275,51 +300,53 @@ export function Onboarding({ onComplete }: OnboardingProps) {
       </div>
 
       {/* Content */}
-      <div className="flex-1 px-6">
+      <div className="flex-1 px-6 pb-6">
         <Card className="border-0 shadow-none">
           <CardContent className="px-0 pt-0">
-            <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-foreground">
+            <h2 className="mb-6 flex items-center gap-2.5 text-xl font-bold text-foreground">
               {(() => {
                 const StepIcon = steps[step].icon
-                return <StepIcon className="h-5 w-5 text-primary" />
+                return <StepIcon className="h-6 w-6 text-primary" />
               })()}
               {steps[step].title}
             </h2>
 
             {/* Step 0: About You */}
             {step === 0 && (
-              <div className="flex flex-col gap-4">
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="api-key" className="flex items-center gap-2">
-                    <Key className="h-4 w-4" />
-                    OpenAI API Key
+              <div className="flex flex-col gap-5">
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="api-key" className="flex items-center gap-2 text-sm font-semibold">
+                    <Key className="h-4 w-4 text-primary" />
+                    {t('apiKey', language)}
                   </Label>
                   <Input
                     id="api-key"
                     type="password"
-                    placeholder="sk-..."
+                    placeholder={t('apiKeyPlaceholder', language)}
                     value={apiKey}
                     onChange={(e) => setApiKey(e.target.value)}
+                    className="h-11"
                   />
-                  <p className="text-[10px] text-muted-foreground">
-                    Required for AI meal planning and dish discovery. Your key is stored locally on your device.
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {t('apiKeyDescription', language)}
                   </p>
                 </div>
 
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="name">Name</Label>
+                <div className="flex flex-col gap-2">
+                  <Label htmlFor="name" className="text-sm font-semibold">{t('name', language)}</Label>
                   <Input
                     id="name"
-                    placeholder="Your name"
+                    placeholder={t('namePlaceholder', language)}
                     value={profile.name}
                     onChange={(e) =>
                       setProfile({ ...profile, name: e.target.value })
                     }
+                    className="h-11"
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="age">Age</Label>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="age" className="text-sm font-semibold">{t('age', language)}</Label>
                     <Input
                       id="age"
                       type="number"
@@ -333,10 +360,11 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                           age: val === "" ? undefined : parseInt(val),
                         })
                       }}
+                      className="h-11"
                     />
                   </div>
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="sex">Sex</Label>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="sex" className="text-sm font-semibold">{t('sex', language)}</Label>
                     <Select
                       value={profile.sex}
                       onValueChange={(v) =>
@@ -346,20 +374,20 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                         })
                       }
                     >
-                      <SelectTrigger id="sex">
+                      <SelectTrigger id="sex" className="h-11">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="male">Male</SelectItem>
-                        <SelectItem value="female">Female</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
+                        <SelectItem value="male">{t('male', language)}</SelectItem>
+                        <SelectItem value="female">{t('female', language)}</SelectItem>
+                        <SelectItem value="other">{t('other', language)}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="height">Height (cm)</Label>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="height" className="text-sm font-semibold">{t('height', language)}</Label>
                     <Input
                       id="height"
                       type="number"
@@ -373,10 +401,11 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                           height: val === "" ? undefined : parseInt(val),
                         })
                       }}
+                      className="h-11"
                     />
                   </div>
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="weight">Weight (kg)</Label>
+                  <div className="flex flex-col gap-2">
+                    <Label htmlFor="weight" className="text-sm font-semibold">{t('weight', language)}</Label>
                     <Input
                       id="weight"
                       type="number"
@@ -390,6 +419,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                           weight: val === "" ? undefined : parseInt(val),
                         })
                       }}
+                      className="h-11"
                     />
                   </div>
                 </div>
@@ -400,13 +430,13 @@ export function Onboarding({ onComplete }: OnboardingProps) {
             {step === 1 && (
               <div className="flex flex-col gap-4">
                 <div className="flex flex-col gap-1.5">
-                  <Label>Nutritional Goal</Label>
+                  <Label>{t('nutritionalGoal', language)}</Label>
                   <div className="grid grid-cols-3 gap-2">
                     {(
                       [
-                        { key: "lose", label: "Lose Weight" },
-                        { key: "maintain", label: "Maintain" },
-                        { key: "gain", label: "Gain Muscle" },
+                        { key: "lose", label: t('loseWeight', language) },
+                        { key: "maintain", label: t('maintain', language) },
+                        { key: "gain", label: t('gainMuscle', language) },
                       ] as const
                     ).map((g) => (
                       <button
@@ -426,7 +456,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="calories">
-                    Daily Calorie Target: {profile.dailyCalorieTarget} kcal
+                    {t('dailyCalorieTarget', language)}: {profile.dailyCalorieTarget} kcal
                   </Label>
                   <Input
                     id="calories"
@@ -471,7 +501,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="water">
-                    Water Target: {profile.waterTarget}ml
+                    {t('waterTarget', language)}: {profile.waterTarget}ml
                   </Label>
                   <Input
                     id="water"
@@ -496,8 +526,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
             {step === 2 && (
               <div className="flex flex-col gap-4">
                 <p className="text-sm text-muted-foreground">
-                  Select any allergies or food intolerances. This helps us flag
-                  unsafe dishes.
+                  {t('selectAllergiesDesc', language)}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {ALLERGY_OPTIONS.map((allergy) => {
@@ -522,10 +551,10 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 {(profile.allergies?.length ?? 0) > 0 && (
                   <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3">
                     <p className="text-xs font-medium text-destructive">
-                      Safety Guardrail Active
+                      {t('safetyGuardrail', language)}
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground">
-                      AI will never recommend dishes containing:{" "}
+                      {t('aiWillNever', language)}{" "}
                       {profile.allergies?.join(", ")}
                     </p>
                   </div>
@@ -537,8 +566,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
             {step === 3 && (
               <div className="flex flex-col gap-4">
                 <p className="text-sm text-muted-foreground">
-                  Select your dietary preferences to personalize meal
-                  recommendations.
+                  {t('selectPreferencesDesc', language)}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {DIET_OPTIONS.map((diet) => {
@@ -814,15 +842,15 @@ export function Onboarding({ onComplete }: OnboardingProps) {
       </div>
 
       {/* Navigation */}
-      <div className="flex gap-3 px-6 py-6 safe-bottom">
+      <div className="flex gap-3 px-6 py-6 pb-8 safe-bottom border-t border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
         {step > 0 && (
           <Button
             variant="outline"
             onClick={() => setStep(step - 1)}
-            className="flex-1"
+            className="flex-1 h-12 font-semibold shadow-sm hover:shadow transition-all"
           >
-            <ChevronLeft className="mr-1 h-4 w-4" />
-            Back
+            <ChevronLeft className="mr-1.5 h-5 w-5" />
+            {t('back', language)}
           </Button>
         )}
         <Button
@@ -847,15 +875,15 @@ export function Onboarding({ onComplete }: OnboardingProps) {
               handleComplete()
             }
           }}
-          className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
+          className="flex-1 h-12 font-semibold bg-primary text-primary-foreground hover:bg-primary/90 shadow-md hover:shadow-lg transition-all"
         >
           {step < steps.length - 1 ? (
             <>
-              Next
-              <ChevronRight className="ml-1 h-4 w-4" />
+              {t('next', language)}
+              <ChevronRight className="ml-1.5 h-5 w-5" />
             </>
           ) : (
-            "Start Your Journey"
+            t('finish', language)
           )}
         </Button>
       </div>

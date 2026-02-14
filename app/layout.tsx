@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter, Pacifico } from 'next/font/google'
 import { Toaster } from '@/components/ui/sonner'
+import { ThemeProvider } from '@/components/theme-provider'
 
 import './globals.css'
 
@@ -36,7 +37,7 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${pacifico.variable}`}>
+    <html lang="en">
       <head>
         <link rel="apple-touch-icon" sizes="180x180" href="/favicon_io/apple-touch-icon.png" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon_io/favicon-32x32.png" />
@@ -44,9 +45,11 @@ export default function RootLayout({
         <link rel="manifest" href="/favicon_io/site.webmanifest" />
         <link rel="icon" href="/favicon_io/favicon.ico" />
       </head>
-      <body className="font-sans antialiased">
-        {children}
-        <Toaster position="top-center" richColors />
+      <body className={`font-sans antialiased ${inter.variable} ${pacifico.variable}`}>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+          {children}
+          <Toaster position="top-center" richColors />
+        </ThemeProvider>
       </body>
     </html>
   )

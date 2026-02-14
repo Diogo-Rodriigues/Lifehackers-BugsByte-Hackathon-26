@@ -31,6 +31,8 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
+import { useTheme } from 'next-themes'
+import { getLanguage, setLanguage, t, type Language, LANGUAGES } from "@/lib/language"
 
 const ALLERGY_OPTIONS = [
   "Gluten",
@@ -49,21 +51,40 @@ export function SettingsPage() {
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [apiKey, setApiKeyState] = useState("")
   const [showKey, setShowKey] = useState(false)
+  const [language, setLanguageState] = useState<Language>('en')
+  const { theme, setTheme } = useTheme()
 
   useEffect(() => {
     setProfile(getProfile())
     setApiKeyState(getApiKey())
+    setLanguageState(getLanguage())
   }, [])
 
   function handleSaveApiKey() {
     saveApiKey(apiKey)
-    toast.success("API key saved")
+    toast.success(t('save', language) + " ✓")
+  }
+
+  function handleLanguageChange(lang: Language) {
+    setLanguage(lang)
+    setLanguageState(lang)
+    const messages: Record<Language, string> = {
+      en: 'Language updated',
+      pt: 'Idioma atualizado',
+      es: 'Idioma actualizado',
+      fr: 'Langue mise à jour',
+      de: 'Sprache aktualisiert',
+      it: 'Lingua aggiornata',
+      zh: '语言已更新',
+      ja: '言語を更新しました'
+    }
+    toast.success(messages[lang])
   }
 
   function handleSaveProfile() {
     if (profile) {
       saveProfile(profile)
-      toast.success("Profile updated")
+      toast.success(t('saveProfile', language) + " ✓")
     }
   }
 
@@ -89,15 +110,15 @@ export function SettingsPage() {
   if (!profile) return null
 
   return (
-    <div className="flex flex-col gap-6 px-4 pb-24 pt-4">
-      <h1 className="font-display text-2xl text-primary">Settings</h1>
+    <div className="flex flex-col gap-6 px-4 pb-24 pt-6">
+      <h1 className="font-display text-3xl font-bold text-primary tracking-tight">{t('settings', language)}</h1>
 
       {/* API Key */}
-      <Card className="border-0 bg-card shadow-sm">
-        <CardContent className="flex flex-col gap-3 p-4">
+      <Card className="border-0 bg-card shadow-sm hover:shadow-md transition-shadow duration-200">
+        <CardContent className="flex flex-col gap-4 p-5">
           <div className="flex items-center gap-2">
-            <Key className="h-4 w-4 text-primary" />
-            <h2 className="text-sm font-semibold text-foreground">
+            <Key className="h-5 w-5 text-primary" />
+            <h2 className="text-base font-semibold text-foreground">
               OpenAI API Key
             </h2>
           </div>
@@ -146,11 +167,11 @@ export function SettingsPage() {
       </Card>
 
       {/* Profile */}
-      <Card className="border-0 bg-card shadow-sm">
-        <CardContent className="flex flex-col gap-3 p-4">
+      <Card className="border-0 bg-card shadow-sm hover:shadow-md transition-shadow duration-200">
+        <CardContent className="flex flex-col gap-4 p-5">
           <div className="flex items-center gap-2">
-            <User className="h-4 w-4 text-primary" />
-            <h2 className="text-sm font-semibold text-foreground">Profile</h2>
+            <User className="h-5 w-5 text-primary" />
+            <h2 className="text-base font-semibold text-foreground">Profile</h2>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1">
@@ -264,11 +285,11 @@ export function SettingsPage() {
       </Card>
 
       {/* Allergies */}
-      <Card className="border-0 bg-card shadow-sm">
-        <CardContent className="flex flex-col gap-3 p-4">
+      <Card className="border-0 bg-card shadow-sm hover:shadow-md transition-shadow duration-200">
+        <CardContent className="flex flex-col gap-4 p-5">
           <div className="flex items-center gap-2">
-            <Shield className="h-4 w-4 text-destructive" />
-            <h2 className="text-sm font-semibold text-foreground">
+            <Shield className="h-5 w-5 text-destructive" />
+            <h2 className="text-base font-semibold text-foreground">
               Allergies & Intolerances
             </h2>
           </div>
@@ -304,8 +325,8 @@ export function SettingsPage() {
       </Card>
 
       {/* Danger Zone */}
-      <Card className="border border-destructive/30 bg-card shadow-none">
-        <CardContent className="flex flex-col gap-3 p-4">
+      <Card className="border border-destructive/30 bg-card shadow-none hover:border-destructive/50 transition-all duration-200">
+        <CardContent className="flex flex-col gap-4 p-5">
           <h2 className="text-sm font-semibold text-destructive">
             Danger Zone
           </h2>
@@ -321,6 +342,61 @@ export function SettingsPage() {
             <Trash2 className="mr-2 h-4 w-4" />
             Clear All Data
           </Button>
+        </CardContent>
+      </Card>
+
+      {/* Theme Toggle */}
+      <Card className="border-0 bg-card shadow-sm hover:shadow-md transition-shadow duration-200">
+        <CardContent className="flex flex-col gap-4 p-5">
+          <div className="flex items-center gap-2">
+            <Eye className="h-5 w-5 text-primary" />
+            <h2 className="text-base font-semibold text-foreground">
+              {t('theme', language)}
+            </h2>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {t('themeDescription', language)}
+          </p>
+          <div className="flex gap-2 items-center">
+            <Button
+              variant={theme === 'dark' ? 'default' : 'outline'}
+              onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+              className="transition-all duration-200 hover:scale-105"
+            >
+              {theme === 'dark' ? t('lightMode', language) : t('darkMode', language)}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Language Selector */}
+      <Card className="border-0 bg-card shadow-sm hover:shadow-md transition-shadow duration-200">
+        <CardContent className="flex flex-col gap-4 p-5">
+          <div className="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+              <path d="M2 12h20"/>
+            </svg>
+            <h2 className="text-base font-semibold text-foreground">
+              {t('language', language)}
+            </h2>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            {t('languageDescription', language)}
+          </p>
+          <Select value={language} onValueChange={(value) => handleLanguageChange(value as Language)}>
+            <SelectTrigger className="w-[80px] h-9 text-sm transition-all duration-200 shadow-sm hover:shadow border-0 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {LANGUAGES.map((lang) => (
+                <SelectItem key={lang.code} value={lang.code} className="cursor-pointer text-sm">
+                  {lang.code.toUpperCase()}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </CardContent>
       </Card>
     </div>
