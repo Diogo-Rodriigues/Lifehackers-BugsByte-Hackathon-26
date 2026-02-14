@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
 
     const allergyContext =
       allergies?.length > 0
-        ? `CRITICAL SAFETY REQUIREMENT: The user has these allergies: ${allergies.join(", ")}. DO NOT include any dishes that contain these allergens. Only suggest dishes that are completely safe and do not contain any of these ingredients. Still include the "allergens" field for each dish, but it should NOT contain any of the user's allergens.`
+        ? `CRITICAL SAFETY REQUIREMENT: The user has these allergies: ${allergies.join(", ")}. DO NOT include any dishes OR beverages that contain these allergens. Only suggest options that are completely safe and do not contain any of these ingredients. Still include the "allergens" field, but it should NOT contain any of the user's allergens.`
         : ""
 
     const prefContext =
@@ -41,7 +41,9 @@ export async function POST(req: NextRequest) {
         messages: [
           {
             role: "system",
-            content: `You are a culinary guide specializing in ${destination} cuisine. Return a JSON object with a "dishes" array containing 8-12 typical local dishes. Each dish must have:
+            content: `You are a culinary guide specializing in ${destination} cuisine. Return a JSON object with BOTH "dishes" and "beverages" arrays.
+
+"dishes" must contain 8-12 typical local dishes. Each dish must have:
 {
   "name": string,
   "category": "soups" | "main" | "desserts" | "snacks",
@@ -50,13 +52,30 @@ export async function POST(req: NextRequest) {
   "allergens": string[] (common allergens like "Gluten", "Dairy", "Eggs", "Peanuts", "Tree Nuts", "Soy", "Fish", "Shellfish", "Wheat", "Sesame")
 }
 Include at least 2 soups, 3-4 mains, 2 desserts, and 2 snacks.
+
+"beverages" must contain 6-10 typical local drinks (mix alcoholic and non-alcoholic when culturally relevant). Each beverage must have:
+{
+  "name": string,
+  "type": "alcoholic" | "non-alcoholic",
+  "description": string (12-24 words),
+  "estimatedCalories": number,
+  "allergens": string[],
+  "worthTrying": boolean,
+  "whyWorthTrying": string (max 16 words)
+}
+
+Guidance for beverages:
+- Mark "worthTrying" true only for drinks that are authentic, popular, and realistically worth trying for travelers.
+- Set "worthTrying" false for generic drinks with low cultural relevance.
+- Keep allergen safety rules equally strict for beverages.
+
 ${allergyContext}
 ${prefContext}
 Return ONLY the JSON object, no other text.`,
           },
           {
             role: "user",
-            content: `List typical local dishes from ${destination} with nutritional estimates.`,
+            content: `List typical local dishes and beverages from ${destination} with nutritional estimates.`,
           },
         ],
         max_tokens: 1500,
@@ -88,7 +107,7 @@ Return ONLY the JSON object, no other text.`,
       )
     }
 
-    return NextResponse.json(parsed || { dishes: [] })
+    return NextResponse.json(parsed || { dishes: [], beverages: [] })
   } catch (error) {
     console.error("Dishes error:", error)
     return NextResponse.json(

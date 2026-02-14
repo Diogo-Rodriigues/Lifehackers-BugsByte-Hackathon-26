@@ -8,6 +8,7 @@ import {
     Clock,
     ShieldCheck,
     Utensils,
+    Wine,
     CalendarDays,
     Plane,
 } from "lucide-react"
@@ -100,6 +101,30 @@ export function TripPlanning() {
                         ) : (
                             <p className="text-sm text-muted-foreground italic">
                                 {t('noDishesSelected', lang)}
+                            </p>
+                        )}
+                    </div>
+
+                    <div className="mb-6">
+                        <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground">
+                            <Wine className="h-4 w-4 text-primary" />
+                            {t('mustTryBeverages', lang)}
+                        </h3>
+                        {existingTrip.selectedBeverages.length > 0 ? (
+                            <div className="flex flex-wrap gap-2">
+                                {existingTrip.selectedBeverages.map((b) => (
+                                    <Badge
+                                        key={b.name}
+                                        variant="secondary"
+                                        className="bg-accent text-accent-foreground hover:bg-accent/80"
+                                    >
+                                        {b.name}
+                                    </Badge>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="text-sm text-muted-foreground italic">
+                                {t('noBeveragesSelected', lang)}
                             </p>
                         )}
                     </div>

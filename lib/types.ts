@@ -24,6 +24,7 @@ export interface Trip {
   timezoneShift: number // hours
   layovers: string[]
   selectedDishes: LocalDish[]
+  selectedBeverages: LocalBeverage[]
   mealPlan: MealPlan | null
 }
 
@@ -33,6 +34,16 @@ export interface LocalDish {
   description: string
   estimatedCalories: number
   allergens: string[]
+}
+
+export interface LocalBeverage {
+  name: string
+  type: "alcoholic" | "non-alcoholic"
+  description: string
+  estimatedCalories: number
+  allergens: string[]
+  worthTrying: boolean
+  whyWorthTrying: string
 }
 
 export interface MealPlan {

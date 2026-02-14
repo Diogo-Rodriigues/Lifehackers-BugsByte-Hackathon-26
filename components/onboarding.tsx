@@ -29,7 +29,7 @@ import Image from "next/image"
 import { DESTINATIONS, TIMEZONE_OFFSETS } from "@/lib/constants"
 import { generateId, saveTrip, setActiveTrip, saveApiKey, getApiKey, getAllergyOptions, saveAllergyOptions, getDietOptions, saveDietOptions } from "@/lib/store"
 import { apiFetch } from "@/lib/api"
-import type { Trip, LocalDish, MealPlan } from "@/lib/types"
+import type { Trip, LocalDish, LocalBeverage, MealPlan } from "@/lib/types"
 import { getLanguage, setLanguage, t, type Language, LANGUAGES } from "@/lib/language"
 import {
   Plane,
@@ -70,6 +70,34 @@ const DIET_OPTIONS = [
   "No Preference",
 ]
 
+interface NutritionistProfile {
+  name: string
+  photoUrl: string
+}
+
+const DEFAULT_NUTRITIONIST: NutritionistProfile = {
+  name: "Local Nutrition Specialist",
+  photoUrl: "/nutritionists/default.jpg",
+}
+
+const NUTRITIONIST_BY_DESTINATION: Record<string, NutritionistProfile> = {
+  Japan: { name: "Dr. Aiko Tanaka", photoUrl: "/nutritionists/japan.jpg" },
+  Thailand: { name: "Dr. Naree Suksawat", photoUrl: "/nutritionists/thailand.jpg" },
+  Mexico: { name: "Dr. Valeria Soto", photoUrl: "/nutritionists/mexico.jpg" },
+  Italy: { name: "Dr.ssa Giulia Romano", photoUrl: "/nutritionists/italy.jpg" },
+  India: { name: "Dr. Priya Menon", photoUrl: "/nutritionists/india.jpg" },
+  France: { name: "Dr. Camille Laurent", photoUrl: "/nutritionists/france.jpg" },
+  Morocco: { name: "Dr. Leila Idrissi", photoUrl: "/nutritionists/morocco.jpg" },
+  Peru: { name: "Dr. Luciana Quispe", photoUrl: "/nutritionists/peru.jpg" },
+  "South Korea": { name: "Dr. Minji Park", photoUrl: "/nutritionists/south-korea.jpg" },
+  Spain: { name: "Dr. Elena Navarro", photoUrl: "/nutritionists/spain.jpg" },
+  Turkey: { name: "Dr. Selin Kaya", photoUrl: "/nutritionists/turkey.jpg" },
+  Vietnam: { name: "Dr. Linh Tran", photoUrl: "/nutritionists/vietnam.jpg" },
+  Greece: { name: "Dr. Eleni Papadopoulou", photoUrl: "/nutritionists/greece.jpg" },
+  Brazil: { name: "Dr. Marina Costa", photoUrl: "/nutritionists/brazil.jpg" },
+  Colombia: { name: "Dr. Sofia Ramirez", photoUrl: "/nutritionists/colombia.jpg" },
+}
+
 interface OnboardingProps {
   onComplete: () => void
 }
@@ -107,11 +135,17 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     arrivalTime: "",
     layovers: [],
     selectedDishes: [],
+    selectedBeverages: [],
   })
   const [localDishes, setLocalDishes] = useState<LocalDish[]>([])
+  const [localBeverages, setLocalBeverages] = useState<LocalBeverage[]>([])
   const [loadingDishes, setLoadingDishes] = useState(false)
   const [mealPlan, setMealPlan] = useState<MealPlan | null>(null)
   const [loadingPlan, setLoadingPlan] = useState(false)
+  const [reviewChoice, setReviewChoice] = useState<"ai" | "dietitian" | null>(null)
+  const [isSimulatingDietitianReview, setIsSimulatingDietitianReview] = useState(false)
+  const [dietitianReviewCompleted, setDietitianReviewCompleted] = useState(false)
+  const [reviewedNutritionist, setReviewedNutritionist] = useState<NutritionistProfile | null>(null)
 
   useEffect(() => {
     setAllergyOptions(getAllergyOptions(ALLERGY_OPTIONS))
@@ -140,6 +174,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     { title: t('tripDetails', language), icon: Plane },
     { title: t('localCuisine', language), icon: Utensils },
     { title: t('mealPlan', language), icon: ShieldCheck },
+    { title: t('planConfirmation', language), icon: ShieldCheck },
   ]
 
   function getAllergyLabel(allergy: string): string {
@@ -188,9 +223,11 @@ export function Onboarding({ onComplete }: OnboardingProps) {
       if (!res.ok) throw new Error("Failed to fetch dishes")
       const data = await res.json()
       setLocalDishes(data.dishes || [])
+      setLocalBeverages(data.beverages || [])
     } catch {
       toast.error("Could not load local dishes. Using offline data.")
       setLocalDishes(getDefaultDishes(trip.destination!))
+      setLocalBeverages(getDefaultBeverages(trip.destination!))
     } finally {
       setLoadingDishes(false)
     }
@@ -242,6 +279,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
         timezoneShift: TIMEZONE_OFFSETS[trip.destination || ""] || 0,
         layovers: trip.layovers || [],
         selectedDishes: trip.selectedDishes || [],
+        selectedBeverages: trip.selectedBeverages || [],
         mealPlan: null,
       }
       setMealPlan(getDefaultMealPlan(tempTrip))
@@ -268,7 +306,24 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     }
   }
 
-  function handleComplete() {
+  function toggleBeverage(beverage: LocalBeverage) {
+    const selected = trip.selectedBeverages || []
+    const exists = selected.find((b) => b.name === beverage.name)
+    const newSelectedBeverages = exists
+      ? selected.filter((b) => b.name !== beverage.name)
+      : [...selected, beverage]
+
+    setTrip({
+      ...trip,
+      selectedBeverages: newSelectedBeverages,
+    })
+
+    if (!exists) {
+      toast.success(`${beverage.name} ${t('added', language) || 'added'}`, { duration: 1000 })
+    }
+  }
+
+  async function handleComplete(choice?: "ai" | "dietitian") {
     const full: UserProfile = {
       name: profile.name || "Traveler",
       age: profile.age || 25,
@@ -300,13 +355,52 @@ export function Onboarding({ onComplete }: OnboardingProps) {
         timezoneShift: TIMEZONE_OFFSETS[trip.destination] || 0,
         layovers: trip.layovers || [],
         selectedDishes: trip.selectedDishes || [],
-        mealPlan: mealPlan ? { ...mealPlan, status: "dietitian-verified" } : null,
+        selectedBeverages: trip.selectedBeverages || [],
+        mealPlan: mealPlan
+          ? {
+              ...mealPlan,
+              status:
+                choice === "dietitian"
+                  ? "dietitian-verified"
+                  : choice === "ai"
+                  ? "ai-generated"
+                  : mealPlan.status,
+            }
+          : null,
       }
       saveTrip(fullTrip)
       setActiveTrip(fullTrip.id)
     }
 
     onComplete()
+  }
+
+  async function handlePlanConfirmation() {
+    if (!reviewChoice || isSimulatingDietitianReview) return
+
+    if (reviewChoice === "ai") {
+      await handleComplete("ai")
+      return
+    }
+
+    if (dietitianReviewCompleted) {
+      await handleComplete("dietitian")
+      return
+    }
+
+    const nutritionist = NUTRITIONIST_BY_DESTINATION[trip.destination || ""] || DEFAULT_NUTRITIONIST
+    setReviewedNutritionist(nutritionist)
+    setIsSimulatingDietitianReview(true)
+    await new Promise((resolve) => setTimeout(resolve, 2000))
+    setIsSimulatingDietitianReview(false)
+    setDietitianReviewCompleted(true)
+    toast.success(t('dietitianReviewComplete', language))
+  }
+
+  function selectReviewChoice(choice: "ai" | "dietitian") {
+    setReviewChoice(choice)
+    setDietitianReviewCompleted(false)
+    setReviewedNutritionist(null)
   }
 
   function toggleItem(
@@ -967,7 +1061,6 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                               )
                               // Filter out "Not Know" from allergies for conflict checking
                               const realAllergies = profile.allergies?.filter(a => a !== "Not Know") || []
-                              const hasNotKnow = profile.allergies?.includes("Not Know")
                               const hasAllergenConflict = dish.allergens.some(
                                 (a) => realAllergies.includes(a)
                               )
@@ -1027,6 +1120,96 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                         </div>
                       )
                     })}
+
+                    <div>
+                      <h3 className="mb-2 text-sm font-semibold text-foreground">
+                        {t('mustTryBeverages', language)}
+                      </h3>
+                      {(() => {
+                        const beveragesToShow = localBeverages.filter((b) => b.worthTrying)
+
+                        if (beveragesToShow.length === 0) {
+                          return (
+                            <p className="text-sm text-muted-foreground italic">
+                              {t('noBeveragesSelected', language)}
+                            </p>
+                          )
+                        }
+
+                        return (
+                          <div className="flex flex-col gap-2">
+                            {beveragesToShow.map((beverage) => {
+                              const isSelected = trip.selectedBeverages?.some(
+                                (b) => b.name === beverage.name
+                              )
+                              const realAllergies = profile.allergies?.filter((a) => a !== "Not Know") || []
+                              const hasAllergenConflict = beverage.allergens.some(
+                                (a) => realAllergies.includes(a)
+                              )
+
+                              return (
+                                <Card
+                                  key={beverage.name}
+                                  className={cn(
+                                    "cursor-pointer border-2 transition-all duration-200",
+                                    isSelected
+                                      ? "border-primary bg-primary/10 shadow-md ring-2 ring-primary/20"
+                                      : "border-border bg-card hover:border-primary/30",
+                                    hasAllergenConflict && "border-destructive/50 opacity-60"
+                                  )}
+                                  onClick={() => {
+                                    if (hasAllergenConflict) {
+                                      toast.error(
+                                        `${t('contains', language) || 'Contains'}: ${beverage.allergens.join(", ")}`
+                                      )
+                                      return
+                                    }
+                                    toggleBeverage(beverage)
+                                  }}
+                                >
+                                  <CardContent className="flex items-center justify-between p-3">
+                                    <div className="flex flex-col gap-1">
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-sm font-medium text-foreground">
+                                          {beverage.name}
+                                        </span>
+                                        <Badge variant="outline" className="text-[10px]">
+                                          {beverage.type === "alcoholic"
+                                            ? t('alcoholic', language)
+                                            : t('nonAlcoholic', language)}
+                                        </Badge>
+                                        {hasAllergenConflict && (
+                                          <AlertTriangle className="h-3.5 w-3.5 text-destructive" />
+                                        )}
+                                      </div>
+                                      <span className="text-xs text-muted-foreground">
+                                        {beverage.description}
+                                      </span>
+                                      <span className="text-xs text-muted-foreground">
+                                        ~{beverage.estimatedCalories} {t('calories', language)}
+                                      </span>
+                                      <span className="text-[10px] text-primary">
+                                        {t('worthTrying', language)}: {beverage.whyWorthTrying}
+                                      </span>
+                                      {beverage.allergens.length > 0 && (
+                                        <span className="text-[10px] text-muted-foreground">
+                                          {t('allergens', language) || 'Allergens'}: {beverage.allergens.join(", ")}
+                                        </span>
+                                      )}
+                                    </div>
+                                    {isSelected && (
+                                      <div className="rounded-full bg-primary p-1">
+                                        <Check className="h-4 w-4 text-primary-foreground" />
+                                      </div>
+                                    )}
+                                  </CardContent>
+                                </Card>
+                              )
+                            })}
+                          </div>
+                        )
+                      })()}
+                    </div>
                   </div>
                 )}
               </div>
@@ -1103,6 +1286,89 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 ) : null}
               </div>
             )}
+
+            {/* Step 7: Plan Confirmation */}
+            {step === 7 && (
+              <div className="flex flex-col gap-4">
+                <Card className="border border-primary/20 bg-primary/5 shadow-none">
+                  <CardContent className="p-4">
+                    <p className="text-sm font-medium text-foreground">
+                      {t('choosePlanPath', language)}
+                    </p>
+                    {!mealPlan && (
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {t('noDetailedPlanToReview', language)}
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+
+                <button
+                  type="button"
+                  onClick={() => selectReviewChoice("ai")}
+                  disabled={isSimulatingDietitianReview}
+                  className={cn(
+                    "rounded-lg border px-4 py-3 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-60",
+                    reviewChoice === "ai"
+                      ? "border-primary bg-primary/10"
+                      : "border-border bg-card hover:border-primary/40"
+                  )}
+                >
+                  <p className="text-sm font-semibold text-foreground">
+                    {t('continueWithProvidedPlan', language)}
+                  </p>
+                </button>
+
+                <button
+                  type="button"
+                  disabled={!mealPlan || isSimulatingDietitianReview}
+                  onClick={() => selectReviewChoice("dietitian")}
+                  className={cn(
+                    "rounded-lg border px-4 py-3 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-50",
+                    reviewChoice === "dietitian"
+                      ? "border-primary bg-primary/10"
+                      : "border-border bg-card hover:border-primary/40"
+                  )}
+                >
+                  <p className="text-sm font-semibold text-foreground">
+                    {t('requestLocalDietitianReview', language)}
+                  </p>
+                  {!mealPlan && (
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {t('proceedToApp', language)}
+                    </p>
+                  )}
+                </button>
+
+                {dietitianReviewCompleted && reviewedNutritionist && (
+                  <Card className="border border-primary/30 bg-primary/5 shadow-none">
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-3">
+                        <Image
+                          src={reviewedNutritionist.photoUrl}
+                          alt={reviewedNutritionist.name}
+                          width={52}
+                          height={52}
+                          className="h-13 w-13 rounded-full border border-primary/20 object-cover"
+                        />
+                        <div>
+                          <p className="text-sm font-semibold text-foreground">
+                            {t('reviewCompleted', language)}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {t('nutritionistReviewLabel', language)}
+                          </p>
+                        </div>
+                        <Check className="ml-auto h-5 w-5 text-primary" />
+                      </div>
+                      <p className="mt-3 text-sm text-foreground">
+                        {t('dietitianReviewedSuccessBy', language)} {reviewedNutritionist.name}
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -1112,7 +1378,16 @@ export function Onboarding({ onComplete }: OnboardingProps) {
         {step > 0 && (
           <Button
             variant="outline"
-            onClick={() => setStep(step - 1)}
+            onClick={() => {
+              if (step === steps.length - 1) {
+                setReviewChoice(null)
+                setDietitianReviewCompleted(false)
+                setReviewedNutritionist(null)
+                setIsSimulatingDietitianReview(false)
+              }
+              setStep(step - 1)
+            }}
+            disabled={isSimulatingDietitianReview}
             className="flex-1 h-12 font-semibold shadow-sm hover:shadow transition-all"
           >
             <ChevronLeft className="mr-1.5 h-5 w-5" />
@@ -1120,7 +1395,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
           </Button>
         )}
         <Button
-          onClick={() => {
+          onClick={async () => {
             if (step < steps.length - 1) {
               const nextStep = step + 1
 
@@ -1138,16 +1413,28 @@ export function Onboarding({ onComplete }: OnboardingProps) {
                 generateMealPlan()
               }
             } else {
-              handleComplete()
+              await handlePlanConfirmation()
             }
           }}
+          disabled={
+            isSimulatingDietitianReview ||
+            (step === steps.length - 1 && !reviewChoice)
+          }
           className="flex-1 h-12 font-semibold bg-primary text-primary-foreground hover:bg-primary/90 shadow-md hover:shadow-lg transition-all"
         >
-          {step < steps.length - 1 ? (
+          {isSimulatingDietitianReview ? (
+            <Loader2 className="h-5 w-5 animate-spin" />
+          ) : step < steps.length - 1 ? (
             <>
               {t('next', language)}
               <ChevronRight className="ml-1.5 h-5 w-5" />
             </>
+          ) : step === steps.length - 2 ? (
+            t('finish', language)
+          ) : step === steps.length - 1 && reviewChoice === "dietitian" && !dietitianReviewCompleted ? (
+            t('requestLocalDietitianReview', language)
+          ) : step === steps.length - 1 ? (
+            t('proceedToApp', language)
           ) : (
             t('finish', language)
           )}
@@ -1198,6 +1485,33 @@ function getDefaultDishes(destination: string): LocalDish[] {
     dishes[destination] ||
     dishes["Italy"] || []
   )
+}
+
+function getDefaultBeverages(destination: string): LocalBeverage[] {
+  const beverages: Record<string, LocalBeverage[]> = {
+    Japan: [
+      { name: "Matcha", type: "non-alcoholic", description: "Traditional powdered green tea with deep umami and ceremonial heritage.", estimatedCalories: 10, allergens: [], worthTrying: true, whyWorthTrying: "Iconic tea ritual tied to Japanese culture." },
+      { name: "Sake", type: "alcoholic", description: "Fermented rice drink served warm or chilled depending on style and season.", estimatedCalories: 135, allergens: [], worthTrying: true, whyWorthTrying: "Classic national drink with regional varieties." },
+      { name: "Umeshu", type: "alcoholic", description: "Sweet plum liqueur often served over ice or mixed with soda.", estimatedCalories: 160, allergens: [], worthTrying: true, whyWorthTrying: "Popular local aperitif with distinct plum flavor." },
+    ],
+    Italy: [
+      { name: "Espresso", type: "non-alcoholic", description: "Small, intense coffee that anchors daily Italian café culture.", estimatedCalories: 5, allergens: [], worthTrying: true, whyWorthTrying: "Essential part of authentic Italian routine." },
+      { name: "Aperol Spritz", type: "alcoholic", description: "Bubbly bittersweet aperitif cocktail enjoyed before dinner.", estimatedCalories: 125, allergens: [], worthTrying: true, whyWorthTrying: "Famous aperitivo drink across Italian cities." },
+      { name: "Limoncello", type: "alcoholic", description: "Sweet lemon liqueur typically served chilled after meals.", estimatedCalories: 155, allergens: [], worthTrying: true, whyWorthTrying: "Southern Italian digestif with strong local identity." },
+    ],
+    Mexico: [
+      { name: "Horchata", type: "non-alcoholic", description: "Sweet rice-based drink with cinnamon, often served cold.", estimatedCalories: 180, allergens: ["Dairy"], worthTrying: true, whyWorthTrying: "Widely loved traditional refreshment in Mexico." },
+      { name: "Agua de Jamaica", type: "non-alcoholic", description: "Hibiscus infusion with tart, refreshing flavor.", estimatedCalories: 90, allergens: [], worthTrying: true, whyWorthTrying: "Traditional and common in local eateries." },
+      { name: "Mezcal", type: "alcoholic", description: "Agave spirit with smoky profile and artisanal production roots.", estimatedCalories: 140, allergens: [], worthTrying: true, whyWorthTrying: "Distinctive spirit deeply linked to regional traditions." },
+    ],
+    Thailand: [
+      { name: "Thai Iced Tea", type: "non-alcoholic", description: "Black tea with condensed milk and spices, served over ice.", estimatedCalories: 180, allergens: ["Dairy"], worthTrying: true, whyWorthTrying: "Street-food staple with unmistakable flavor." },
+      { name: "Nam Manao", type: "non-alcoholic", description: "Fresh lime drink with light sweetness, ideal in tropical heat.", estimatedCalories: 70, allergens: [], worthTrying: true, whyWorthTrying: "Refreshing local drink found across markets." },
+      { name: "Singha Beer", type: "alcoholic", description: "Classic Thai lager commonly paired with spicy dishes.", estimatedCalories: 150, allergens: ["Wheat"], worthTrying: true, whyWorthTrying: "Recognizable local beer for cultural pairing." },
+    ],
+  }
+
+  return beverages[destination] || []
 }
 
 function getDefaultMealPlan(trip: Trip): MealPlan {
