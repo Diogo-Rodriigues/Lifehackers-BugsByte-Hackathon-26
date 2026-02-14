@@ -19,6 +19,8 @@ export interface Trip {
   departureCity: string
   departureDate: string
   arrivalDate: string
+  departureTime: string
+  arrivalTime: string
   timezoneShift: number // hours
   layovers: string[]
   selectedDishes: LocalDish[]

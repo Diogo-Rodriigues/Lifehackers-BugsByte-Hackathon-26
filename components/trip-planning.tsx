@@ -75,6 +75,14 @@ const TIMEZONE_OFFSETS: Record<string, number> = {
 
 type PlanStep = "destination" | "flights" | "dishes" | "plan" | "verify"
 
+function formatDateTime(date: string, time?: string) {
+  if (!date) return ""
+  const [year, month, day] = date.split("-")
+  const dateLabel =
+    year && month && day ? `${day}/${month}/${year}` : date
+  return time ? `${dateLabel} ${time}` : dateLabel
+}
+
 export function TripPlanning() {
   const [step, setStep] = useState<PlanStep>("destination")
   const [trip, setTrip] = useState<Partial<Trip>>({
@@ -82,6 +90,8 @@ export function TripPlanning() {
     departureCity: "",
     departureDate: "",
     arrivalDate: "",
+    departureTime: "",
+    arrivalTime: "",
     layovers: [],
     selectedDishes: [],
   })
@@ -149,6 +159,8 @@ export function TripPlanning() {
       departureCity: trip.departureCity || "Home",
       departureDate: trip.departureDate || new Date().toISOString().split("T")[0],
       arrivalDate: trip.arrivalDate || new Date().toISOString().split("T")[0],
+      departureTime: trip.departureTime || "08:00",
+      arrivalTime: trip.arrivalTime || "12:00",
       timezoneShift: TIMEZONE_OFFSETS[trip.destination || ""] || 0,
       layovers: trip.layovers || [],
       selectedDishes: trip.selectedDishes || [],
@@ -178,7 +190,8 @@ export function TripPlanning() {
                   {existingTrip.destination}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {existingTrip.departureDate} - {existingTrip.arrivalDate}
+                  {formatDateTime(existingTrip.departureDate, existingTrip.departureTime)} -{" "}
+                  {formatDateTime(existingTrip.arrivalDate, existingTrip.arrivalTime)}
                 </p>
               </div>
             </div>
@@ -299,9 +312,9 @@ export function TripPlanning() {
               </SelectContent>
             </Select>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="dep-date">Departure</Label>
+              <Label htmlFor="dep-date">Departure Date</Label>
               <Input
                 id="dep-date"
                 type="date"
@@ -310,15 +323,37 @@ export function TripPlanning() {
                   setTrip({ ...trip, departureDate: e.target.value })
                 }
               />
+              <Label htmlFor="dep-time" className="pt-1">
+                Departure Time
+              </Label>
+              <Input
+                id="dep-time"
+                type="time"
+                value={trip.departureTime || ""}
+                onChange={(e) =>
+                  setTrip({ ...trip, departureTime: e.target.value })
+                }
+              />
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="arr-date">Arrival</Label>
+              <Label htmlFor="arr-date">Arrival Date</Label>
               <Input
                 id="arr-date"
                 type="date"
                 value={trip.arrivalDate}
                 onChange={(e) =>
                   setTrip({ ...trip, arrivalDate: e.target.value })
+                }
+              />
+              <Label htmlFor="arr-time" className="pt-1">
+                Arrival Time
+              </Label>
+              <Input
+                id="arr-time"
+                type="time"
+                value={trip.arrivalTime || ""}
+                onChange={(e) =>
+                  setTrip({ ...trip, arrivalTime: e.target.value })
                 }
               />
             </div>
