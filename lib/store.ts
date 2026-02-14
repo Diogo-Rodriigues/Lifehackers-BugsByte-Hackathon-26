@@ -8,11 +8,11 @@ import type {
 } from "./types"
 
 const STORAGE_KEYS = {
-  PROFILE: "nutrivoyage_profile",
-  TRIPS: "nutrivoyage_trips",
-  DAILY_LOGS: "nutrivoyage_daily_logs",
-  ACTIVE_TRIP: "nutrivoyage_active_trip",
-  API_KEY: "nutrivoyage_openai_key",
+  PROFILE: "nutrifuel_profile",
+  TRIPS: "nutrifuel_trips",
+  DAILY_LOGS: "nutrifuel_daily_logs",
+  ACTIVE_TRIP: "nutrifuel_active_trip",
+  API_KEY: "nutrifuel_openai_key",
 } as const
 
 function getItem<T>(key: string, fallback: T): T {

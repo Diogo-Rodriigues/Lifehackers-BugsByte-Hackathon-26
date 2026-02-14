@@ -43,7 +43,7 @@ export default function Page() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-3">
-          <h1 className="font-display text-3xl text-primary">NutriVoyage</h1>
+          <h1 className="font-display text-3xl text-primary">Nutrifuel</h1>
           <div className="h-1 w-24 animate-pulse rounded-full bg-primary/30" />
         </div>
       </div>
