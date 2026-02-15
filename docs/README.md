@@ -13,8 +13,6 @@ Welcome to the NutriFuel documentation! This directory contains comprehensive gu
 ### For Developers
 - **[API Documentation](./API.md)** - Complete API reference for all endpoints
 - **[Component Documentation](./COMPONENTS.md)** - Detailed component guide and usage
-- **[Contributing Guide](./CONTRIBUTING.md)** - How to contribute to NutriFuel
-- **[Code Style Guide](./CONTRIBUTING.md#style-guides)** - Coding standards and best practices
 
 ### For DevOps
 - **[Deployment Guide](./DEPLOYMENT.md)** - Deploy to various platforms
@@ -33,22 +31,13 @@ Welcome to the NutriFuel documentation! This directory contains comprehensive gu
 → Follow [Installation Guide](../README.md#installation)
 
 **Build a New Feature**
-→ Read [Contributing Guide](./CONTRIBUTING.md) and [Component Docs](./COMPONENTS.md)
+→ Read [Component Docs](./COMPONENTS.md) and [API Documentation](./API.md)
 
 **Integrate with the API**
 → Check [API Documentation](./API.md)
 
 **Deploy to Production**
 → Follow [Deployment Guide](./DEPLOYMENT.md)
-
-**Add a New Destination**
-→ See [Adding Destinations](./CONTRIBUTING.md#adding-new-destinations)
-
-**Add Language Support**
-→ See [Adding Languages](./CONTRIBUTING.md#adding-language-support)
-
-**Report a Bug**
-→ Follow [Bug Report Template](./CONTRIBUTING.md#reporting-bugs)
 
 ---
 
@@ -115,28 +104,6 @@ Platform-specific deployment instructions:
 - Rollback strategies
 - Scaling considerations
 - Cost estimation
-
----
-
-### 4. Contributing Guide (`CONTRIBUTING.md`)
-
-Everything you need to contribute:
-- Code of conduct
-- Development setup
-- How to contribute
-- Bug reporting
-- Feature suggestions
-- Style guides
-- Commit message format
-- Pull request process
-
-**Contribution Types:**
-- Bug fixes
-- New features
-- Documentation improvements
-- Adding destinations
-- Adding languages
-- Performance optimizations
 
 ---
 
@@ -234,8 +201,7 @@ nutrifuel/
 ├── docs/                 # Documentation
 │   ├── API.md
 │   ├── COMPONENTS.md
-│   ├── DEPLOYMENT.md
-│   └── CONTRIBUTING.md
+│   └── DEPLOYMENT.md
 ├── hooks/                # Custom hooks
 ├── .env.local            # Environment vars (gitignored)
 ├── .gitignore
@@ -297,7 +263,7 @@ pnpm start
 Currently in browser's `localStorage`. Future versions will support cloud sync.
 
 ### How do I add support for a new language?
-See [Adding Language Support](./CONTRIBUTING.md#adding-language-support)
+Update the `lib/language.ts` file with new translation keys and add the language to the supported languages list.
 
 ### How do I deploy the app?
 Follow the [Deployment Guide](./DEPLOYMENT.md)

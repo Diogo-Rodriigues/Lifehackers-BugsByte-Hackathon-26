@@ -342,7 +342,7 @@ We're grateful to these amazing technologies and partners:
 
 ---
 
-## 📞 Support & Contributing
+## 📞 Support
 
 ### Get Help
 - 📧 Contact the LifeHackers team
