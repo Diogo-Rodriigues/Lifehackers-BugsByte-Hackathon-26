@@ -270,7 +270,7 @@ Follow the [Deployment Guide](./DEPLOYMENT.md)
 
 ---
 
-## 📝 Contributing to Documentation
+## 📝 Improving Documentation
 
 Found an error or want to improve the docs?
 

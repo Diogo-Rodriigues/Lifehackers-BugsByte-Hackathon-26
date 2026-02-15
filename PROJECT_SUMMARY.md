@@ -69,7 +69,6 @@ All nutritionist profile images are present in `/public/nutritionists/`:
 - Environment variables reference
 - Development scripts
 - Roadmap for future enhancements
-- Contributing guidelines
 - License information
 - Acknowledgments
 
