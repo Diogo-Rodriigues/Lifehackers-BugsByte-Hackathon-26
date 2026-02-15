@@ -67,8 +67,13 @@ export const translations = {
     arrival: "Arrival",
     departureTime: "Departure Time",
     arrivalTime: "Arrival Time",
+    arrivalAtDest: "Arrival at Destination",
+    arrivalTimeAtDest: "Arrival Time",
+    departureFromDest: "Departure from Destination",
+    departureTimeFromDest: "Departure Time",
+    caffeineSchedule: "Caffeine Schedule for Jetlag",
     timezoneShift: "Timezone Shift",
-    timezoneDesc: "is UTC",
+    timezoneDesc: "Timezone and meal times will be calculated by AI based on your departure and destination.",
     mealTimesAdjusted: ". Meal times will be adjusted.",
     selectDishes: "Select dishes you'd like to try in",
     selected: "selected",
@@ -94,7 +99,7 @@ export const translations = {
     dietitianReviewedSuccessBy: "Reviewed successfully by",
     reviewCompleted: "Review completed",
     nutritionistReviewLabel: "Local nutritionist verification",
-    
+
     // Settings
     settings: "Settings",
     openaiApiKey: "OpenAI API Key",
@@ -120,7 +125,7 @@ export const translations = {
     chinese: "中文",
     japanese: "日本語",
     keyConfigured: "Key configured",
-    
+
     // Allergy labels
     gluten: "Gluten",
     dairy: "Dairy",
@@ -133,7 +138,7 @@ export const translations = {
     wheat: "Wheat",
     sesame: "Sesame",
     notKnow: "Not Know",
-    
+
     // Diet preference labels
     vegetarian: "Vegetarian",
     vegan: "Vegan",
@@ -145,7 +150,7 @@ export const translations = {
     halal: "Halal",
     kosher: "Kosher",
     noPreference: "No Preference",
-    
+
     // Custom adding
     addAllergy: "Add an allergy",
     addPreference: "Add a preference",
@@ -155,14 +160,30 @@ export const translations = {
     allergens: "Allergens",
     added: "added",
     couldNotGeneratePlan: "Could not generate meal plan. Using offline template.",
-    
+    connectNutrium: "Connect with Nutrium",
+    connectingNutrium: "Connecting to Nutrium...",
+    importingFromNutrium: "Importing your current nutrition plan...",
+    nutriumConnected: "Connected to Nutrium",
+    nutriumDescription: "Import your current nutrition plan from Nutrium app",
+    nutriumSynced: "Nutrition plan synced successfully",
+    nutritionPlan: "Your Nutrition Plan",
+    syncingData: "Syncing data...",
+    or: "or",
+    estimateFromInfo: "Estimate from My Info",
+    estimateFromInfoDesc: "Calculate nutrition goals based on your profile data",
+    nutritionGoals: "Nutrition Goals",
+    estimatingNutrition: "Estimating your goals...",
+    calculatingFromProfile: "Calculating nutrition goals from your profile...",
+    goalsEstimated: "Goals Estimated",
+    goalsCalculatedSuccess: "Nutrition goals calculated successfully",
+
     // Navigation
     navHome: "Home",
     navTrip: "Trip",
     navAnalyze: "Analyze",
     navLog: "Log",
     navSettings: "Settings",
-    
+
     // Dashboard
     welcomeBack: "Welcome back,",
     traveler: "Traveler",
@@ -176,7 +197,7 @@ export const translations = {
     offPlan: "Off-plan",
     planAdjusted: "Plan Adjusted",
     planAdjustedDesc: "You had an off-plan meal. Your remaining meals have been recalculated to keep you on track.",
-    
+
     // Meal Logger
     dailyLog: "Daily Log",
     meals: "Meals",
@@ -207,7 +228,7 @@ export const translations = {
     activeLevel: "Active",
     sportsIntense: "Sports, intense",
     activityNotes: "Activity Notes",
-    
+
     // Meal Analysis
     analyzeMeal: "Analyze Meal",
     analyzeDesc: "Take a photo of your meal for AI-powered nutritional analysis",
@@ -223,7 +244,7 @@ export const translations = {
     couldNotAnalyze: "Could not analyze photo. Check your API key in Settings.",
     mealLoggedSuccess: "Meal logged successfully!",
     allergenDetected: "Allergen detected",
-    
+
     // Trip Planning
     noTripPlanned: "No Trip Planned Yet",
     noTripDesc: "Complete your profile setup to start planning your culinary adventure.",
@@ -239,11 +260,18 @@ export const translations = {
     nonAlcoholic: "Non-alcoholic",
     worthTrying: "Worth trying",
     dailyMealPlan: "Daily Meal Plan",
-    
+
     // Settings extras
     apiKeyDescLong: "Required for meal photo analysis, local dish discovery, and AI meal planning. Your key is stored locally in your browser.",
     allDataCleared: "All data cleared. Refreshing...",
-    
+
+    // Welcome Page
+    welcome: "Welcome!",
+    howToBegin: "How would you like to begin?",
+    startOnboarding: "Start Onboarding",
+    startOnboardingDesc: "Set up your profile and nutrition preferences. Perfect for getting started.",
+    welcomeFooter: "Don't worry, you can always adjust your preferences later in Settings",
+
     // Common
     save: "Save",
   },
@@ -291,8 +319,13 @@ export const translations = {
     arrival: "Chegada",
     departureTime: "Hora de Partida",
     arrivalTime: "Hora de Chegada",
+    arrivalAtDest: "Chegada ao Destino",
+    arrivalTimeAtDest: "Hora de Chegada",
+    departureFromDest: "Partida do Destino",
+    departureTimeFromDest: "Hora de Partida",
+    caffeineSchedule: "Horário de Cafeína para Jetlag",
     timezoneShift: "Mudança de Fuso Horário",
-    timezoneDesc: "está em UTC",
+    timezoneDesc: "O fuso horário e horários de refeição serão calculados pela IA com base na sua partida e destino.",
     mealTimesAdjusted: ". Os horários das refeições serão ajustados.",
     selectDishes: "Selecione pratos que gostaria de experimentar em",
     selected: "selecionados",
@@ -318,7 +351,7 @@ export const translations = {
     dietitianReviewedSuccessBy: "Revisto com sucesso por",
     reviewCompleted: "Revisão concluída",
     nutritionistReviewLabel: "Verificação por nutricionista local",
-    
+
     // Settings
     settings: "Definições",
     openaiApiKey: "Chave API OpenAI",
@@ -344,7 +377,7 @@ export const translations = {
     chinese: "中文",
     japanese: "日本語",
     keyConfigured: "Chave configurada",
-    
+
     // Allergy labels
     gluten: "Glúten",
     dairy: "Laticínios",
@@ -357,7 +390,7 @@ export const translations = {
     wheat: "Trigo",
     sesame: "Sésamo",
     notKnow: "Não Sei",
-    
+
     // Diet preference labels
     vegetarian: "Vegetariano",
     vegan: "Vegano",
@@ -369,7 +402,7 @@ export const translations = {
     halal: "Halal",
     kosher: "Kosher",
     noPreference: "Sem Preferência",
-    
+
     // Custom adding
     addAllergy: "Adicionar alergia",
     addPreference: "Adicionar preferência",
@@ -379,14 +412,30 @@ export const translations = {
     allergens: "Alergénios",
     added: "adicionado",
     couldNotGeneratePlan: "Não foi possível gerar o plano de refeições. A usar modelo offline.",
-    
+    connectNutrium: "Conectar com Nutrium",
+    connectingNutrium: "A conectar ao Nutrium...",
+    importingFromNutrium: "A importar o seu plano nutricional atual...",
+    nutriumConnected: "Ligado ao Nutrium",
+    nutriumDescription: "Importe o seu plano nutricional atual da app Nutrium",
+    nutriumSynced: "Plano nutricional sincronizado com sucesso",
+    nutritionPlan: "O Seu Plano Nutricional",
+    syncingData: "A sincronizar dados...",
+    or: "ou",
+    estimateFromInfo: "Estimar com os Meus Dados",
+    estimateFromInfoDesc: "Calcular objetivos nutricionais com base nos seus dados de perfil",
+    nutritionGoals: "Objetivos Nutricionais",
+    estimatingNutrition: "A estimar os seus objetivos...",
+    calculatingFromProfile: "A calcular objetivos nutricionais a partir do seu perfil...",
+    goalsEstimated: "Objetivos Estimados",
+    goalsCalculatedSuccess: "Objetivos nutricionais calculados com sucesso",
+
     // Navigation
     navHome: "Início",
     navTrip: "Viagem",
     navAnalyze: "Analisar",
     navLog: "Registo",
     navSettings: "Definições",
-    
+
     // Dashboard
     welcomeBack: "Bem-vindo de volta,",
     traveler: "Viajante",
@@ -400,7 +449,7 @@ export const translations = {
     offPlan: "Fora do plano",
     planAdjusted: "Plano Ajustado",
     planAdjustedDesc: "Teve uma refeição fora do plano. As restantes refeições foram recalculadas para o manter no caminho certo.",
-    
+
     // Meal Logger
     dailyLog: "Registo Diário",
     meals: "Refeições",
@@ -431,7 +480,7 @@ export const translations = {
     activeLevel: "Ativo",
     sportsIntense: "Desportos, intenso",
     activityNotes: "Notas de Atividade",
-    
+
     // Meal Analysis
     analyzeMeal: "Analisar Refeição",
     analyzeDesc: "Tire uma foto da sua refeição para análise nutricional com IA",
@@ -447,7 +496,7 @@ export const translations = {
     couldNotAnalyze: "Não foi possível analisar a foto. Verifique a sua chave API nas Definições.",
     mealLoggedSuccess: "Refeição registada com sucesso!",
     allergenDetected: "Alergénio detetado",
-    
+
     // Trip Planning
     noTripPlanned: "Nenhuma Viagem Planeada",
     noTripDesc: "Complete a configuração do seu perfil para começar a planear a sua aventura culinária.",
@@ -463,11 +512,18 @@ export const translations = {
     nonAlcoholic: "Sem álcool",
     worthTrying: "Vale a pena",
     dailyMealPlan: "Plano Diário de Refeições",
-    
+
     // Settings extras
     apiKeyDescLong: "Necessária para análise de fotos de refeições, descoberta de pratos locais e planeamento de refeições com IA. A sua chave é armazenada localmente no seu navegador.",
     allDataCleared: "Todos os dados apagados. A atualizar...",
-    
+
+    // Welcome Page
+    welcome: "Bem-vindo!",
+    howToBegin: "Como gostaria de começar?",
+    startOnboarding: "Iniciar Configuração",
+    startOnboardingDesc: "Configure o seu perfil e preferências nutricionais. Perfeito para começar.",
+    welcomeFooter: "Não se preocupe, pode sempre ajustar as suas preferências mais tarde nas Definições",
+
     // Common
     save: "Guardar",
   },
@@ -515,8 +571,13 @@ export const translations = {
     arrival: "Chegada",
     departureTime: "Horário de Partida",
     arrivalTime: "Horário de Chegada",
+    arrivalAtDest: "Chegada ao Destino",
+    arrivalTimeAtDest: "Horário de Chegada",
+    departureFromDest: "Partida do Destino",
+    departureTimeFromDest: "Horário de Partida",
+    caffeineSchedule: "Horário de Cafeína para Jetlag",
     timezoneShift: "Mudança de Fuso Horário",
-    timezoneDesc: "está em UTC",
+    timezoneDesc: "O fuso horário e horários de refeição serão calculados pela IA com base na sua partida e destino.",
     mealTimesAdjusted: ". Os horários das refeições serão ajustados.",
     selectDishes: "Selecione pratos que gostaria de experimentar em",
     selected: "selecionados",
@@ -542,7 +603,7 @@ export const translations = {
     dietitianReviewedSuccessBy: "Revisado com sucesso por",
     reviewCompleted: "Revisão concluída",
     nutritionistReviewLabel: "Verificação por nutricionista local",
-    
+
     // Settings
     settings: "Configurações",
     openaiApiKey: "Chave API OpenAI",
@@ -568,7 +629,7 @@ export const translations = {
     chinese: "中文",
     japanese: "日本語",
     keyConfigured: "Chave configurada",
-    
+
     // Allergy labels
     gluten: "Glúten",
     dairy: "Laticínios",
@@ -581,7 +642,7 @@ export const translations = {
     wheat: "Trigo",
     sesame: "Gergelim",
     notKnow: "Não Sei",
-    
+
     // Diet preference labels
     vegetarian: "Vegetariano",
     vegan: "Vegano",
@@ -593,7 +654,7 @@ export const translations = {
     halal: "Halal",
     kosher: "Kosher",
     noPreference: "Sem Preferência",
-    
+
     // Custom adding
     addAllergy: "Adicionar alergia",
     addPreference: "Adicionar preferência",
@@ -603,14 +664,30 @@ export const translations = {
     allergens: "Alérgenos",
     added: "adicionado",
     couldNotGeneratePlan: "Não foi possível gerar o plano de refeições. Usando modelo offline.",
-    
+    connectNutrium: "Conectar com Nutrium",
+    connectingNutrium: "Conectando ao Nutrium...",
+    importingFromNutrium: "Importando seu plano nutricional atual...",
+    nutriumConnected: "Conectado ao Nutrium",
+    nutriumDescription: "Importe seu plano nutricional atual do app Nutrium",
+    nutriumSynced: "Plano nutricional sincronizado com sucesso",
+    nutritionPlan: "Seu Plano Nutricional",
+    syncingData: "Sincronizando dados...",
+    or: "ou",
+    estimateFromInfo: "Estimar com Meus Dados",
+    estimateFromInfoDesc: "Calcular objetivos nutricionais com base nos seus dados de perfil",
+    nutritionGoals: "Objetivos Nutricionais",
+    estimatingNutrition: "Estimando seus objetivos...",
+    calculatingFromProfile: "Calculando objetivos nutricionais a partir do seu perfil...",
+    goalsEstimated: "Objetivos Estimados",
+    goalsCalculatedSuccess: "Objetivos nutricionais calculados com sucesso",
+
     // Navigation
     navHome: "Início",
     navTrip: "Viagem",
     navAnalyze: "Analisar",
     navLog: "Registro",
     navSettings: "Configurações",
-    
+
     // Dashboard
     welcomeBack: "Bem-vindo de volta,",
     traveler: "Viajante",
@@ -624,7 +701,7 @@ export const translations = {
     offPlan: "Fora do plano",
     planAdjusted: "Plano Ajustado",
     planAdjustedDesc: "Você teve uma refeição fora do plano. Suas refeições restantes foram recalculadas para mantê-lo no caminho certo.",
-    
+
     // Meal Logger
     dailyLog: "Registro Diário",
     meals: "Refeições",
@@ -655,7 +732,7 @@ export const translations = {
     activeLevel: "Ativo",
     sportsIntense: "Esportes, intenso",
     activityNotes: "Notas de Atividade",
-    
+
     // Meal Analysis
     analyzeMeal: "Analisar Refeição",
     analyzeDesc: "Tire uma foto da sua refeição para análise nutricional com IA",
@@ -671,7 +748,7 @@ export const translations = {
     couldNotAnalyze: "Não foi possível analisar a foto. Verifique sua chave API nas Configurações.",
     mealLoggedSuccess: "Refeição registrada com sucesso!",
     allergenDetected: "Alérgeno detectado",
-    
+
     // Trip Planning
     noTripPlanned: "Nenhuma Viagem Planejada",
     noTripDesc: "Complete a configuração do seu perfil para começar a planejar sua aventura culinária.",
@@ -687,11 +764,18 @@ export const translations = {
     nonAlcoholic: "Sem álcool",
     worthTrying: "Vale a pena",
     dailyMealPlan: "Plano Diário de Refeições",
-    
+
     // Settings extras
     apiKeyDescLong: "Necessária para análise de fotos de refeições, descoberta de pratos locais e planejamento de refeições com IA. Sua chave é armazenada localmente no seu navegador.",
     allDataCleared: "Todos os dados limpos. Atualizando...",
-    
+
+    // Welcome Page
+    welcome: "Bem-vindo!",
+    howToBegin: "Como você gostaria de começar?",
+    startOnboarding: "Iniciar Configuração",
+    startOnboardingDesc: "Configure seu perfil e preferências nutricionais. Perfeito para começar.",
+    welcomeFooter: "Não se preocupe, você pode sempre ajustar suas preferências mais tarde nas Configurações",
+
     // Common
     save: "Salvar",
   },
@@ -738,8 +822,13 @@ export const translations = {
     arrival: "Llegada",
     departureTime: "Hora de Partida",
     arrivalTime: "Hora de Llegada",
+    arrivalAtDest: "Llegada al Destino",
+    arrivalTimeAtDest: "Hora de Llegada",
+    departureFromDest: "Salida del Destino",
+    departureTimeFromDest: "Hora de Salida",
+    caffeineSchedule: "Horario de Cafeína para Jetlag",
     timezoneShift: "Cambio de Zona Horaria",
-    timezoneDesc: "está en UTC",
+    timezoneDesc: "El huso horario y los horarios de comida serán calculados por la IA basados en tu partida y destino.",
     mealTimesAdjusted: ". Los horarios de comida serán ajustados.",
     selectDishes: "Selecciona platos que te gustaría probar en",
     selected: "seleccionados",
@@ -789,7 +878,7 @@ export const translations = {
     chinese: "中文",
     japanese: "日本語",
     keyConfigured: "Clave configurada",
-    
+
     // Allergy labels
     gluten: "Gluten",
     dairy: "Lácteos",
@@ -802,7 +891,7 @@ export const translations = {
     wheat: "Trigo",
     sesame: "Sésamo",
     notKnow: "No Sé",
-    
+
     // Diet preference labels
     vegetarian: "Vegetariano",
     vegan: "Vegano",
@@ -814,7 +903,7 @@ export const translations = {
     halal: "Halal",
     kosher: "Kosher",
     noPreference: "Sin Preferencia",
-    
+
     // Custom adding
     addAllergy: "Añadir alergia",
     addPreference: "Añadir preferencia",
@@ -824,7 +913,23 @@ export const translations = {
     allergens: "Alérgenos",
     added: "añadido",
     couldNotGeneratePlan: "No se pudo generar el plan de comidas. Usando plantilla offline.",
-    
+    connectNutrium: "Conectar con Nutrium",
+    connectingNutrium: "Conectando a Nutrium...",
+    importingFromNutrium: "Importando tu plan nutricional actual...",
+    nutriumConnected: "Conectado a Nutrium",
+    nutriumDescription: "Importa tu plan nutricional actual de la app Nutrium",
+    nutriumSynced: "Plan nutricional sincronizado con éxito",
+    nutritionPlan: "Tu Plan Nutricional",
+    syncingData: "Sincronizando datos...",
+    or: "o",
+    estimateFromInfo: "Estimar con Mis Datos",
+    estimateFromInfoDesc: "Calcular objetivos nutricionales basados en tus datos de perfil",
+    nutritionGoals: "Objetivos Nutricionales",
+    estimatingNutrition: "Estimando tus objetivos...",
+    calculatingFromProfile: "Calculando objetivos nutricionales a partir de tu perfil...",
+    goalsEstimated: "Objetivos Estimados",
+    goalsCalculatedSuccess: "Objetivos nutricionales calculados con éxito",
+
     // Navigation
     navHome: "Inicio",
     navTrip: "Viaje",
@@ -902,7 +1007,14 @@ export const translations = {
     dailyMealPlan: "Plan Diario de Comidas",
     apiKeyDescLong: "Necesaria para análisis de fotos de comidas, descubrimiento de platos locales y planificación de comidas con IA. Tu clave se almacena localmente en tu navegador.",
     allDataCleared: "Todos los datos borrados. Actualizando...",
-    
+
+    // Welcome Page
+    welcome: "¡Bienvenido!",
+    howToBegin: "¿Cómo te gustaría empezar?",
+    startOnboarding: "Iniciar Configuración",
+    startOnboardingDesc: "Configura tu perfil y preferencias nutricionales. Perfecto para empezar.",
+    welcomeFooter: "No te preocupes, siempre puedes ajustar tus preferencias más tarde en Ajustes",
+
     save: "Guardar",
   },
   fr: {
@@ -948,8 +1060,13 @@ export const translations = {
     arrival: "Arrivée",
     departureTime: "Heure de Départ",
     arrivalTime: "Heure d'Arrivée",
+    arrivalAtDest: "Arrivée à Destination",
+    arrivalTimeAtDest: "Heure d'Arrivée",
+    departureFromDest: "Départ de la Destination",
+    departureTimeFromDest: "Heure de Départ",
+    caffeineSchedule: "Horaire Caféine pour le Décalage Horaire",
     timezoneShift: "Décalage Horaire",
-    timezoneDesc: "est UTC",
+    timezoneDesc: "Le fuseau horaire et les heures de repas seront calculés par l'IA en fonction de votre départ et destination.",
     mealTimesAdjusted: ". Les horaires des repas seront ajustés.",
     selectDishes: "Sélectionnez les plats que vous aimeriez essayer à",
     selected: "sélectionnés",
@@ -999,7 +1116,7 @@ export const translations = {
     chinese: "中文",
     japanese: "日本語",
     keyConfigured: "Clé configurée",
-    
+
     // Allergy labels
     gluten: "Gluten",
     dairy: "Produits Laitiers",
@@ -1012,7 +1129,7 @@ export const translations = {
     wheat: "Blé",
     sesame: "Sésame",
     notKnow: "Je Ne Sais Pas",
-    
+
     // Diet preference labels
     vegetarian: "Végétarien",
     vegan: "Végétalien",
@@ -1024,7 +1141,7 @@ export const translations = {
     halal: "Halal",
     kosher: "Casher",
     noPreference: "Aucune Préférence",
-    
+
     // Custom adding
     addAllergy: "Ajouter une allergie",
     addPreference: "Ajouter une préférence",
@@ -1034,7 +1151,23 @@ export const translations = {
     allergens: "Allergènes",
     added: "ajouté",
     couldNotGeneratePlan: "Impossible de générer le plan de repas. Utilisation du modèle hors ligne.",
-    
+    connectNutrium: "Se connecter à Nutrium",
+    connectingNutrium: "Connexion à Nutrium...",
+    importingFromNutrium: "Importation de votre plan nutritionnel actuel...",
+    nutriumConnected: "Connecté à Nutrium",
+    nutriumDescription: "Importez votre plan nutritionnel actuel depuis l'application Nutrium",
+    nutriumSynced: "Plan nutritionnel synchronisé avec succès",
+    nutritionPlan: "Votre Plan Nutritionnel",
+    syncingData: "Synchronisation des données...",
+    or: "ou",
+    estimateFromInfo: "Estimer avec Mes Données",
+    estimateFromInfoDesc: "Calculer les objectifs nutritionnels à partir de vos données de profil",
+    nutritionGoals: "Objectifs Nutritionnels",
+    estimatingNutrition: "Estimation de vos objectifs...",
+    calculatingFromProfile: "Calcul des objectifs nutritionnels à partir de votre profil...",
+    goalsEstimated: "Objectifs Estimés",
+    goalsCalculatedSuccess: "Objectifs nutritionnels calculés avec succès",
+
     // Navigation
     navHome: "Accueil",
     navTrip: "Voyage",
@@ -1112,7 +1245,14 @@ export const translations = {
     dailyMealPlan: "Plan de Repas Quotidien",
     apiKeyDescLong: "Nécessaire pour l'analyse de photos de repas, la découverte de plats locaux et la planification de repas par IA. Votre clé est stockée localement dans votre navigateur.",
     allDataCleared: "Toutes les données effacées. Actualisation...",
-    
+
+    // Welcome Page
+    welcome: "Bienvenue !",
+    howToBegin: "Comment souhaitez-vous commencer ?",
+    startOnboarding: "Commencer la Configuration",
+    startOnboardingDesc: "Configurez votre profil et vos préférences nutritionnelles. Parfait pour débuter.",
+    welcomeFooter: "Ne vous inquiétez pas, vous pouvez toujours ajuster vos préférences plus tard dans les Paramètres",
+
     save: "Enregistrer",
   },
   de: {
@@ -1158,8 +1298,13 @@ export const translations = {
     arrival: "Ankunft",
     departureTime: "Abflugzeit",
     arrivalTime: "Ankunftszeit",
-    timezoneShift: "Zeitzonenwechsel",
-    timezoneDesc: "ist UTC",
+    arrivalAtDest: "Ankunft am Reiseziel",
+    arrivalTimeAtDest: "Ankunftszeit",
+    departureFromDest: "Abreise vom Reiseziel",
+    departureTimeFromDest: "Abreisezeit",
+    caffeineSchedule: "Koffeinplan gegen Jetlag",
+    timezoneShift: "Zeitverschiebung",
+    timezoneDesc: "Zeitzone und Essenszeiten werden von der KI basierend auf Ihrem Abflug- und Zielort berechnet.",
     mealTimesAdjusted: ". Essenszeiten werden angepasst.",
     selectDishes: "Wähle Gerichte, die du probieren möchtest in",
     selected: "ausgewählt",
@@ -1209,7 +1354,7 @@ export const translations = {
     chinese: "中文",
     japanese: "日本語",
     keyConfigured: "Schlüssel konfiguriert",
-    
+
     // Allergy labels
     gluten: "Gluten",
     dairy: "Milchprodukte",
@@ -1222,7 +1367,7 @@ export const translations = {
     wheat: "Weizen",
     sesame: "Sesam",
     notKnow: "Weiß Nicht",
-    
+
     // Diet preference labels
     vegetarian: "Vegetarisch",
     vegan: "Vegan",
@@ -1234,7 +1379,7 @@ export const translations = {
     halal: "Halal",
     kosher: "Koscher",
     noPreference: "Keine Präferenz",
-    
+
     // Custom adding
     addAllergy: "Allergie hinzufügen",
     addPreference: "Präferenz hinzufügen",
@@ -1244,7 +1389,23 @@ export const translations = {
     allergens: "Allergene",
     added: "hinzugefügt",
     couldNotGeneratePlan: "Essensplan konnte nicht generiert werden. Offline-Vorlage wird verwendet.",
-    
+    connectNutrium: "Mit Nutrium verbinden",
+    connectingNutrium: "Verbindung mit Nutrium...",
+    importingFromNutrium: "Aktuellen Ernährungsplan importieren...",
+    nutriumConnected: "Mit Nutrium verbunden",
+    nutriumDescription: "Importieren Sie Ihren aktuellen Ernährungsplan aus der Nutrium-App",
+    nutriumSynced: "Ernährungsplan erfolgreich synchronisiert",
+    nutritionPlan: "Ihr Ernährungsplan",
+    syncingData: "Daten werden synchronisiert...",
+    or: "oder",
+    estimateFromInfo: "Aus meinen Daten schätzen",
+    estimateFromInfoDesc: "Ernährungsziele basierend auf deinen Profildaten berechnen",
+    nutritionGoals: "Ernährungsziele",
+    estimatingNutrition: "Deine Ziele werden geschätzt...",
+    calculatingFromProfile: "Ernährungsziele werden aus deinem Profil berechnet...",
+    goalsEstimated: "Ziele Geschätzt",
+    goalsCalculatedSuccess: "Ernährungsziele erfolgreich berechnet",
+
     // Navigation
     navHome: "Startseite",
     navTrip: "Reise",
@@ -1322,7 +1483,14 @@ export const translations = {
     dailyMealPlan: "Täglicher Essensplan",
     apiKeyDescLong: "Erforderlich für Foto-Analyse, lokale Gerichtentdeckung und KI-Essensplanung. Dein Schlüssel wird lokal in deinem Browser gespeichert.",
     allDataCleared: "Alle Daten gelöscht. Aktualisierung...",
-    
+
+    // Welcome Page
+    welcome: "Willkommen!",
+    howToBegin: "Wie möchtest du beginnen?",
+    startOnboarding: "Einrichtung starten",
+    startOnboardingDesc: "Richte dein Profil und deine Ernährungspräferenzen ein. Perfekt zum Loslegen.",
+    welcomeFooter: "Keine Sorge, du kannst deine Präferenzen jederzeit später in den Einstellungen anpassen",
+
     save: "Speichern",
   },
   it: {
@@ -1368,8 +1536,13 @@ export const translations = {
     arrival: "Arrivo",
     departureTime: "Ora di Partenza",
     arrivalTime: "Ora di Arrivo",
+    arrivalAtDest: "Arrivo a Destinazione",
+    arrivalTimeAtDest: "Ora di Arrivo",
+    departureFromDest: "Partenza dalla Destinazione",
+    departureTimeFromDest: "Ora di Partenza",
+    caffeineSchedule: "Programma Caffeina per Jetlag",
     timezoneShift: "Cambio di Fuso Orario",
-    timezoneDesc: "è UTC",
+    timezoneDesc: "Il fuso orario e gli orari dei pasti saranno calcolati dall'IA in base alla partenza e alla destinazione.",
     mealTimesAdjusted: ". Gli orari dei pasti saranno adattati.",
     selectDishes: "Seleziona i piatti che vorresti provare in",
     selected: "selezionati",
@@ -1419,7 +1592,7 @@ export const translations = {
     chinese: "中文",
     japanese: "日本語",
     keyConfigured: "Chiave configurata",
-    
+
     // Allergy labels
     gluten: "Glutine",
     dairy: "Latticini",
@@ -1432,7 +1605,7 @@ export const translations = {
     wheat: "Grano",
     sesame: "Sesamo",
     notKnow: "Non So",
-    
+
     // Diet preference labels
     vegetarian: "Vegetariano",
     vegan: "Vegano",
@@ -1444,7 +1617,7 @@ export const translations = {
     halal: "Halal",
     kosher: "Kosher",
     noPreference: "Nessuna Preferenza",
-    
+
     // Custom adding
     addAllergy: "Aggiungi un'allergia",
     addPreference: "Aggiungi una preferenza",
@@ -1454,7 +1627,23 @@ export const translations = {
     allergens: "Allergeni",
     added: "aggiunto",
     couldNotGeneratePlan: "Impossibile generare il piano pasti. Utilizzo del modello offline.",
-    
+    connectNutrium: "Connetti con Nutrium",
+    connectingNutrium: "Connessione a Nutrium...",
+    importingFromNutrium: "Importazione del piano nutrizionale attuale...",
+    nutriumConnected: "Connesso a Nutrium",
+    nutriumDescription: "Importa il tuo piano nutrizionale attuale dall'app Nutrium",
+    nutriumSynced: "Piano nutrizionale sincronizzato con successo",
+    nutritionPlan: "Il Tuo Piano Nutrizionale",
+    syncingData: "Sincronizzazione dati...",
+    or: "o",
+    estimateFromInfo: "Stima dai Miei Dati",
+    estimateFromInfoDesc: "Calcola gli obiettivi nutrizionali in base ai tuoi dati di profilo",
+    nutritionGoals: "Obiettivi Nutrizionali",
+    estimatingNutrition: "Stima dei tuoi obiettivi...",
+    calculatingFromProfile: "Calcolo degli obiettivi nutrizionali dal tuo profilo...",
+    goalsEstimated: "Obiettivi Stimati",
+    goalsCalculatedSuccess: "Obiettivi nutrizionali calcolati con successo",
+
     // Navigation
     navHome: "Home",
     navTrip: "Viaggio",
@@ -1532,7 +1721,14 @@ export const translations = {
     dailyMealPlan: "Piano Pasti Giornaliero",
     apiKeyDescLong: "Necessaria per l'analisi di foto dei pasti, la scoperta di piatti locali e la pianificazione dei pasti con IA. La tua chiave è memorizzata localmente nel tuo browser.",
     allDataCleared: "Tutti i dati cancellati. Aggiornamento...",
-    
+
+    // Welcome Page
+    welcome: "Benvenuto!",
+    howToBegin: "Come vorresti iniziare?",
+    startOnboarding: "Inizia Configurazione",
+    startOnboardingDesc: "Configura il tuo profilo e le preferenze nutrizionali. Perfetto per iniziare.",
+    welcomeFooter: "Non preoccuparti, puoi sempre modificare le tue preferenze più tardi nelle Impostazioni",
+
     save: "Salva",
   },
   zh: {
@@ -1578,8 +1774,13 @@ export const translations = {
     arrival: "到达",
     departureTime: "出发时间",
     arrivalTime: "到达时间",
-    timezoneShift: "时区变化",
-    timezoneDesc: "是UTC",
+    arrivalAtDest: "到达目的地",
+    arrivalTimeAtDest: "到达时间",
+    departureFromDest: "离开目的地",
+    departureTimeFromDest: "离开时间",
+    caffeineSchedule: "时差调整咖啡因计划",
+    timezoneShift: "时区调整",
+    timezoneDesc: "时区和用餐时间将由AI根据您的出发地和目的地计算。",
     mealTimesAdjusted: "。用餐时间将被调整。",
     selectDishes: "选择您想在以下地点尝试的菜肴",
     selected: "已选择",
@@ -1628,7 +1829,7 @@ export const translations = {
     italian: "Italiano",
     chinese: "中文",
     japanese: "日本語",
-    keyConfigured: "密钥已配置",    
+    keyConfigured: "密钥已配置",
     // Allergy labels
     gluten: "麸质",
     dairy: "乳制品",
@@ -1641,7 +1842,7 @@ export const translations = {
     wheat: "小麦",
     sesame: "芝麻",
     notKnow: "不知道",
-    
+
     // Diet preference labels
     vegetarian: "素食",
     vegan: "纯素",
@@ -1653,7 +1854,7 @@ export const translations = {
     halal: "清真",
     kosher: "犹太洁食",
     noPreference: "无偏好",
-    
+
     // Custom adding
     addAllergy: "添加过敏原",
     addPreference: "添加偏好",
@@ -1663,7 +1864,23 @@ export const translations = {
     allergens: "过敏原",
     added: "已添加",
     couldNotGeneratePlan: "无法生成餐食计划。使用离线模板。",
-    
+    connectNutrium: "连接 Nutrium",
+    connectingNutrium: "正在连接 Nutrium...",
+    importingFromNutrium: "正在导入您当前的营养计划...",
+    nutriumConnected: "已连接 Nutrium",
+    nutriumDescription: "从 Nutrium 应用导入您当前的营养计划",
+    nutriumSynced: "营养计划同步成功",
+    nutritionPlan: "您的营养计划",
+    syncingData: "正在同步数据...",
+    or: "或",
+    estimateFromInfo: "根据我的信息估算",
+    estimateFromInfoDesc: "根据您的个人资料计算营养目标",
+    nutritionGoals: "营养目标",
+    estimatingNutrition: "正在估算您的目标...",
+    calculatingFromProfile: "正在根据您的个人资料计算营养目标...",
+    goalsEstimated: "目标已估算",
+    goalsCalculatedSuccess: "营养目标计算成功",
+
     // Navigation
     navHome: "首页",
     navTrip: "旅行",
@@ -1741,7 +1958,14 @@ export const translations = {
     dailyMealPlan: "每日餐饮计划",
     apiKeyDescLong: "用于餐食照片分析、本地菜肴发现和AI餐饮规划。您的密钥存储在浏览器本地。",
     allDataCleared: "所有数据已清除。正在刷新...",
-    
+
+    // Welcome Page
+    welcome: "欢迎！",
+    howToBegin: "您想如何开始？",
+    startOnboarding: "开始设置",
+    startOnboardingDesc: "设置您的个人资料和营养偏好。非常适合入门。",
+    welcomeFooter: "别担心，您随时可以在设置中调整您的偏好",
+
     save: "保存",
   },
   ja: {
@@ -1838,7 +2062,7 @@ export const translations = {
     chinese: "中文",
     japanese: "日本語",
     keyConfigured: "キーが設定されました",
-    
+
     // Allergy labels
     gluten: "グルテン",
     dairy: "乳製品",
@@ -1851,7 +2075,7 @@ export const translations = {
     wheat: "小麦",
     sesame: "ごま",
     notKnow: "わからない",
-    
+
     // Diet preference labels
     vegetarian: "ベジタリアン",
     vegan: "ビーガン",
@@ -1863,7 +2087,7 @@ export const translations = {
     halal: "ハラール",
     kosher: "コーシャ",
     noPreference: "無し",
-    
+
     // Custom adding
     addAllergy: "アレルギーを追加",
     addPreference: "好みを追加",
@@ -1873,7 +2097,23 @@ export const translations = {
     allergens: "アレルゲン",
     added: "追加しました",
     couldNotGeneratePlan: "食事プランを生成できませんでした。オフラインテンプレートを使用します。",
-    
+    connectNutrium: "Nutriumに接続",
+    connectingNutrium: "Nutriumに接続中...",
+    importingFromNutrium: "現在の栄養プランをインポート中...",
+    nutriumConnected: "Nutriumに接続済み",
+    nutriumDescription: "Nutriumアプリから現在の栄養プランをインポート",
+    nutriumSynced: "栄養プランの同期に成功しました",
+    nutritionPlan: "あなたの栄養プラン",
+    syncingData: "データを同期中...",
+    or: "または",
+    estimateFromInfo: "私の情報から推定",
+    estimateFromInfoDesc: "プロフィールデータに基づいて栄養目標を計算",
+    nutritionGoals: "栄養目標",
+    estimatingNutrition: "目標を推定中...",
+    calculatingFromProfile: "プロフィールから栄養目標を計算中...",
+    goalsEstimated: "目標推定完了",
+    goalsCalculatedSuccess: "栄養目標の計算に成功しました",
+
     // Navigation
     navHome: "ホーム",
     navTrip: "旅行",
@@ -1951,7 +2191,14 @@ export const translations = {
     dailyMealPlan: "毎日の食事計画",
     apiKeyDescLong: "食事写真分析、現地料理の発見、AI食事計画に必要です。キーはブラウザにローカル保存されます。",
     allDataCleared: "すべてのデータが消去されました。更新中...",
-    
+
+    // Welcome Page
+    welcome: "ようこそ！",
+    howToBegin: "どのように始めますか？",
+    startOnboarding: "セットアップを開始",
+    startOnboardingDesc: "プロフィールと栄養の好みを設定します。始めるのに最適です。",
+    welcomeFooter: "ご安心ください。設定でいつでも好みを変更できます",
+
     save: "保存",
   }
 }

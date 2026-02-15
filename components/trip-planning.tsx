@@ -5,7 +5,6 @@ import { Badge } from "@/components/ui/badge"
 import { getActiveTrip } from "@/lib/store"
 import {
     MapPin,
-    Clock,
     ShieldCheck,
     Utensils,
     Wine,
@@ -53,7 +52,7 @@ export function TripPlanning() {
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
                             <CalendarDays className="h-3.5 w-3.5" />
                             <span>
-                                {existingTrip.departureDate} - {existingTrip.arrivalDate}
+                                {existingTrip.arrivalDate} - {existingTrip.returnDate}
                             </span>
                         </div>
                     </div>
@@ -71,12 +70,11 @@ export function TripPlanning() {
                         </div>
                         <div className="flex flex-col gap-1 rounded-lg bg-muted/50 p-3">
                             <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                <Clock className="h-3.5 w-3.5" />
-                                {t('timezone', lang)}
+                                <MapPin className="h-3.5 w-3.5" />
+                                {t('destinationCountry', lang)}
                             </div>
                             <span className="font-medium text-foreground">
-                                {existingTrip.timezoneShift > 0 ? "+" : ""}
-                                {existingTrip.timezoneShift}h (UTC)
+                                {existingTrip.destination}
                             </span>
                         </div>
                     </div>
