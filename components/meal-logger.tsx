@@ -31,17 +31,18 @@ import {
   Activity,
   Trash2,
   Minus,
+  Calendar,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
-import { getLanguage, t } from "@/lib/language"
+import { getLanguage, t, type Language } from "@/lib/language"
 import { apiFetch } from "@/lib/api"
 
 export function MealLogger() {
   const today = todayString()
   const profile = getProfile()
   const activeTrip = getActiveTrip()
-  const lang = getLanguage()
+  const [lang, setLang] = useState<Language>(getLanguage())
   const [dailyLog, setDailyLog] = useState<DailyLog>(getDailyLog(today))
   const [showMealForm, setShowMealForm] = useState(false)
   const [mealForm, setMealForm] = useState({
@@ -60,6 +61,15 @@ export function MealLogger() {
   }, [today])
 
   useEffect(() => {
+    setLang(getLanguage())
+
+    const handleLanguageChange = (event: Event) => {
+      const customEvent = event as CustomEvent<Language>
+      setLang(customEvent.detail)
+    }
+
+    window.addEventListener("languageChanged", handleLanguageChange)
+
     async function refreshDynamicTargets() {
       if (!profile || !activeTrip?.destination) return
       const currentLog = getDailyLog(today)
@@ -86,6 +96,10 @@ export function MealLogger() {
       }
     }
     refreshDynamicTargets()
+
+    return () => {
+      window.removeEventListener("languageChanged", handleLanguageChange)
+    }
   }, [today, profile, activeTrip?.destination, dailyLog.steps])
 
   function handleAddMeal() {
@@ -180,10 +194,45 @@ export function MealLogger() {
     : 0
 
   const effectiveWaterTarget = dailyLog.dynamicTargets?.adjustedWaterTarget || profile?.waterTarget || 2500
+  const totalCalories = dailyLog.meals.reduce((sum, meal) => sum + meal.calories, 0)
+  const totalProtein = dailyLog.meals.reduce((sum, meal) => sum + meal.protein, 0)
+  const totalCarbs = dailyLog.meals.reduce((sum, meal) => sum + meal.carbs, 0)
+  const totalFat = dailyLog.meals.reduce((sum, meal) => sum + meal.fat, 0)
 
   return (
     <div className="flex flex-col gap-6 px-4 pb-24 pt-4">
-      <h1 className="font-display text-2xl text-primary">{t('dailyLog', lang)}</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="font-display text-2xl text-primary">{t('dailyLog', lang)}</h1>
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Calendar className="h-4 w-4" />
+          <span>{today}</span>
+        </div>
+      </div>
+
+      <Card className="border-0 bg-gradient-to-br from-primary/5 to-secondary/5 shadow-sm">
+        <CardContent className="p-4">
+          <h2 className="mb-3 text-base font-semibold text-foreground">{t('dailySummary', lang)}</h2>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-lg bg-card p-3">
+              <p className="text-xs text-muted-foreground">{t('calories', lang)}</p>
+              <p className="text-2xl font-bold text-foreground">{totalCalories}</p>
+              <p className="text-xs text-muted-foreground">kcal</p>
+            </div>
+            <div className="rounded-lg bg-card p-3">
+              <p className="text-xs text-muted-foreground">{t('protein', lang)}</p>
+              <p className="text-2xl font-bold text-foreground">{totalProtein}g</p>
+            </div>
+            <div className="rounded-lg bg-card p-3">
+              <p className="text-xs text-muted-foreground">{t('carbs', lang)}</p>
+              <p className="text-2xl font-bold text-foreground">{totalCarbs}g</p>
+            </div>
+            <div className="rounded-lg bg-card p-3">
+              <p className="text-xs text-muted-foreground">{t('fat', lang)}</p>
+              <p className="text-2xl font-bold text-foreground">{totalFat}g</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       <Tabs defaultValue="meals" className="w-full">
         <TabsList className="grid w-full grid-cols-3 bg-muted">

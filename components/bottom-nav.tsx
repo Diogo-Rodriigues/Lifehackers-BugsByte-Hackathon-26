@@ -1,19 +1,20 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import {
   Home,
   Plane,
-  Camera,
+  PlusCircle,
   ClipboardList,
   Settings,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { getLanguage, t } from "@/lib/language"
+import { getLanguage, t, type Language } from "@/lib/language"
 
 const navItems = [
   { id: "dashboard" as const, labelKey: "navHome" as const, icon: Home },
   { id: "trip" as const, labelKey: "navTrip" as const, icon: Plane },
-  { id: "analyze" as const, labelKey: "navAnalyze" as const, icon: Camera },
+  { id: "analyze" as const, labelKey: "navAdd" as const, icon: PlusCircle },
   { id: "log" as const, labelKey: "navLog" as const, icon: ClipboardList },
   { id: "settings" as const, labelKey: "navSettings" as const, icon: Settings },
 ]
@@ -26,7 +27,24 @@ interface BottomNavProps {
 }
 
 export function BottomNav({ currentPage, onNavigate }: BottomNavProps) {
-  const lang = getLanguage()
+  const [lang, setLang] = useState<Language>(getLanguage())
+
+  useEffect(() => {
+    // Update language state when component mounts
+    setLang(getLanguage())
+
+    // Listen for language changes
+    const handleLanguageChange = (event: Event) => {
+      const customEvent = event as CustomEvent<Language>
+      setLang(customEvent.detail)
+    }
+
+    window.addEventListener('languageChanged', handleLanguageChange)
+
+    return () => {
+      window.removeEventListener('languageChanged', handleLanguageChange)
+    }
+  }, [])
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card safe-bottom">
       <div className="mx-auto flex max-w-md items-center justify-around px-2 py-1">

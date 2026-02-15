@@ -1539,7 +1539,6 @@ export function Onboarding({ onComplete, startAtStep = 0, initialProfile }: Onbo
                 )
                 return
               }
-
               const nextStep = step + 1
 
               setStep(nextStep)

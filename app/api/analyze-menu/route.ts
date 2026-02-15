@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 
 export async function POST(req: NextRequest) {
   try {
-    const { image, allergies, dishName, destination } = await req.json()
+    const { image, allergies, destination } = await req.json()
 
     const apiKey =
       req.headers.get("x-openai-key") || process.env.OPENAI_API_KEY
@@ -25,12 +25,8 @@ export async function POST(req: NextRequest) {
         ? `The user has the following allergies/intolerances: ${allergies.join(", ")}. ALWAYS flag if any detected ingredients match these allergens.`
         : ""
 
-    const dishNameContext = dishName
-      ? `The user indicates this dish is called "${dishName}". Use this name to better infer typical ingredients and portions based on the culinary tradition.`
-      : ""
-
     const cuisineContext = destination
-      ? `The user is traveling to/in ${destination}. Consider typical local cuisine and portion sizes from this region when analyzing.`
+      ? `The menu is likely from ${destination}. Consider typical local cuisine when analyzing.`
       : ""
 
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -44,21 +40,24 @@ export async function POST(req: NextRequest) {
         messages: [
           {
             role: "system",
-            content: `You are a nutritional analysis AI. Analyze the food in the image and return a JSON object with these exact fields:
+            content: `You are a nutritional analysis AI specialized in reading menus. Analyze the menu in the image and extract all individual menu items with their nutritional information. Return a JSON object with this structure:
 {
-  "name": "Name of the dish",
-  "calories": number (estimated total kcal),
-  "protein": number (grams),
-  "carbs": number (grams),
-  "fat": number (grams),
-  "ingredients": ["list", "of", "detected", "ingredients"],
-  "allergenWarnings": ["list of allergens present that match user allergies"],
-  "confidence": number between 0 and 1
+  "items": [
+    {
+      "name": "Name of the dish",
+      "calories": number (estimated kcal),
+      "protein": number (grams),
+      "carbs": number (grams),
+      "fat": number (grams),
+      "ingredients": ["list", "of", "typical", "ingredients"],
+      "allergenWarnings": ["list of allergens that match user allergies"],
+      "confidence": number between 0 and 1
+    }
+  ]
 }
 ${allergyContext}
-${dishNameContext}
 ${cuisineContext}
-Be more accurate when dish name is provided - use it to infer typical ingredients and nutritional values for that specific dish based on cultural context.
+Extract ALL visible menu items. If you can't read the menu clearly or if it's not a menu, return an empty items array.
 Return ONLY the JSON object, no other text.`,
           },
           {
@@ -66,22 +65,20 @@ Return ONLY the JSON object, no other text.`,
             content: [
               {
                 type: "text",
-                text: dishName 
-                  ? `Analyze this photo of "${dishName}" and estimate its nutritional content.`
-                  : "Analyze this meal photo and estimate its nutritional content.",
+                text: "Extract all menu items from this menu and estimate nutritional content for each.",
               },
               {
                 type: "image_url",
                 image_url: {
                   url: `data:image/jpeg;base64,${image}`,
-                  detail: "low",
+                  detail: "high", // Use high detail for menu OCR
                 },
               },
             ],
           },
         ],
-        max_tokens: 500,
-        temperature: 0.3,
+        max_tokens: 2000, // More tokens for multiple items
+        temperature: 0.2, // Lower temperature for more accurate extraction
       }),
     })
 
@@ -98,28 +95,28 @@ Return ONLY the JSON object, no other text.`,
     const content = data.choices?.[0]?.message?.content || ""
 
     // Parse JSON from response
-    let analysis
+    let result
     try {
       const jsonMatch = content.match(/\{[\s\S]*\}/)
-      analysis = jsonMatch ? JSON.parse(jsonMatch[0]) : null
+      result = jsonMatch ? JSON.parse(jsonMatch[0]) : { items: [] }
     } catch {
-      console.error("Failed to parse analysis JSON:", content)
+      console.error("Failed to parse menu analysis JSON:", content)
       return NextResponse.json(
         { error: "Failed to parse analysis" },
         { status: 500 }
       )
     }
 
-    if (!analysis) {
+    if (!result || !Array.isArray(result.items)) {
       return NextResponse.json(
-        { error: "No analysis result" },
+        { error: "Invalid analysis result" },
         { status: 500 }
       )
     }
 
-    return NextResponse.json({ analysis })
+    return NextResponse.json(result)
   } catch (error) {
-    console.error("Analyze meal error:", error)
+    console.error("Analyze menu error:", error)
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
