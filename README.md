@@ -11,6 +11,10 @@
   [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4.17-38bdf8)](https://tailwindcss.com/)
   [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
   
+  <br/>
+  
+  [🎬 **View Our Pitch Presentation**](https://gamma.app/docs/NutriFuel-Pitch-lf0v6qn58nnesij)
+  
 </div>
 
 ---
@@ -358,6 +362,19 @@ We welcome contributions! See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for guidel
 ## 🏆 Built For
 
 This project was created for the **BugsByte 2026 Hackathon** by the **LifeHackers** team.
+
+### 🎬 Pitch Presentation
+
+Want to learn more about NutriFuel's vision, features, and impact? 
+
+**[➡️ View our complete pitch presentation](https://gamma.app/docs/NutriFuel-Pitch-lf0v6qn58nnesij)**
+
+Discover:
+- The problem we're solving for travelers
+- Our unique approach to nutrition tracking
+- Technical architecture and AI integration
+- Market opportunity and future roadmap
+- Live demo walkthrough
 
 ---
 
