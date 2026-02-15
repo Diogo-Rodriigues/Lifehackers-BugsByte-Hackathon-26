@@ -209,6 +209,24 @@ nutrifuel/
 
 ---
 
+## 🤝 Powered by Nutrium
+
+<div align="center">
+  <img src="./public/nutrium-logo.png" alt="Nutrium Logo" width="200"/>
+</div>
+
+NutriFuel integrates with [**Nutrium**](https://nutrium.com), the leading nutrition software for healthcare professionals, to provide you with expert-level nutrition planning.
+
+### Integration Features:
+- **Professional Nutrition Plans**: Import meal plans created by certified nutritionists
+- **Seamless Sync**: Connect your Nutrium account during onboarding
+- **Expert Guidance**: Combine AI recommendations with professional oversight
+- **Trusted Platform**: Used by thousands of nutrition professionals worldwide
+
+Whether you're working with a nutritionist or prefer AI-guided planning, NutriFuel adapts to your needs.
+
+---
+
 ## 🌐 Supported Destinations
 
 NutriFuel currently supports nutrition guidance for **28 countries**:
@@ -302,11 +320,21 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- **shadcn/ui** for the beautiful component library
-- **Nutrium** for nutrition plan integration
-- **OpenAI** for GPT-4 API
-- **Unsplash** for destination images
-- **Lifehackers Team** for development
+We're grateful to these amazing technologies and partners:
+
+### Key Partners
+- **[Nutrium](https://nutrium.com)** - Professional nutrition software integration, enabling expert meal planning
+- **[OpenAI](https://openai.com)** - GPT-4 API powering intelligent meal analysis and recommendations
+
+### Technologies
+- **[shadcn/ui](https://ui.shadcn.com)** - Beautiful, accessible UI component library
+- **[Radix UI](https://www.radix-ui.com)** - Unstyled, accessible component primitives
+- **[Tailwind CSS](https://tailwindcss.com)** - Utility-first CSS framework
+- **[Next.js](https://nextjs.org)** - React framework for production
+- **[Unsplash](https://unsplash.com)** - High-quality destination imagery
+
+### Team
+- **LifeHackers Team** - Design, development, and innovation
 
 ---
 
