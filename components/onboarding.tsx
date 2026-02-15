@@ -100,10 +100,12 @@ const NUTRITIONIST_BY_DESTINATION: Record<string, NutritionistProfile> = {
 
 interface OnboardingProps {
   onComplete: () => void
+  startAtStep?: number
+  initialProfile?: Partial<UserProfile>
 }
 
-export function Onboarding({ onComplete }: OnboardingProps) {
-  const [step, setStep] = useState(0)
+export function Onboarding({ onComplete, startAtStep = 0, initialProfile }: OnboardingProps) {
+  const [step, setStep] = useState(startAtStep)
   const [language, setLanguageState] = useState<Language>('en')
   const [apiKey, setApiKey] = useState("")
   const [allergyOptions, setAllergyOptions] = useState(ALLERGY_OPTIONS)
@@ -112,7 +114,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
   const [customDietPreference, setCustomDietPreference] = useState("")
   const [customAllergyError, setCustomAllergyError] = useState("")
   const [customDietError, setCustomDietError] = useState("")
-  const [profile, setProfile] = useState<Partial<UserProfile>>({
+  const [profile, setProfile] = useState<Partial<UserProfile>>(() => ({
     name: "",
     age: 25,
     sex: "male",
@@ -124,7 +126,8 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     dailyCalorieTarget: 2000,
     macros: { protein: 150, carbs: 250, fat: 67 },
     waterTarget: 2500,
-  })
+    ...initialProfile,
+  }))
 
   const [trip, setTrip] = useState<Partial<Trip>>({
     destination: "",
@@ -281,6 +284,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
         selectedDishes: trip.selectedDishes || [],
         selectedBeverages: trip.selectedBeverages || [],
         mealPlan: null,
+        status: "active",
       }
       setMealPlan(getDefaultMealPlan(tempTrip))
     } finally {
@@ -346,7 +350,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
     if (trip.destination) {
       const fullTrip: Trip = {
         id: generateId(),
-        destination: trip.destination,
+        destination: trip.destination || "",
         departureCity: trip.departureCity || "Home",
         departureDate: trip.departureDate || new Date().toISOString().split("T")[0],
         departureTime: trip.departureTime || "12:00",
@@ -356,6 +360,7 @@ export function Onboarding({ onComplete }: OnboardingProps) {
         layovers: trip.layovers || [],
         selectedDishes: trip.selectedDishes || [],
         selectedBeverages: trip.selectedBeverages || [],
+        status: "active",
         mealPlan: mealPlan
           ? {
               ...mealPlan,

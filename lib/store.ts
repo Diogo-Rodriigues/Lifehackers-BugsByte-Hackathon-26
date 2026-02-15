@@ -67,9 +67,20 @@ export function setActiveTrip(tripId: string) {
   setItem(STORAGE_KEYS.ACTIVE_TRIP, tripId)
 }
 
+export function clearActiveTrip() {
+  if (typeof window === "undefined") return
+  localStorage.removeItem(STORAGE_KEYS.ACTIVE_TRIP)
+}
+
 // Daily Logs
 export function getDailyLogs(): DailyLog[] {
   return getItem<DailyLog[]>(STORAGE_KEYS.DAILY_LOGS, [])
+}
+
+export function getDailyLogsInRange(startDate: string, endDate: string): DailyLog[] {
+  const logs = getDailyLogs()
+  if (!startDate || !endDate) return logs
+  return logs.filter((l) => l.date >= startDate && l.date <= endDate)
 }
 
 export function getDailyLog(date: string): DailyLog {

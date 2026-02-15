@@ -9,6 +9,7 @@ import { TripPlanning } from "@/components/trip-planning"
 import { MealAnalysis } from "@/components/meal-analysis"
 import { MealLogger } from "@/components/meal-logger"
 import { SettingsPage } from "@/components/settings-page"
+import { TripReview } from "@/components/trip-review"
 import { BottomNav, type PageId } from "@/components/bottom-nav"
 
 export default function Page() {
@@ -54,18 +55,33 @@ export default function Page() {
     return <Onboarding onComplete={handleOnboardingComplete} />
   }
 
+  if (currentPage === "onboarding") {
+    return (
+      <Onboarding
+        onComplete={handleOnboardingComplete}
+        startAtStep={4}
+        initialProfile={profile}
+      />
+    )
+  }
+
   return (
     <main className="min-h-screen bg-background">
       <div className="mx-auto max-w-md">
         {currentPage === "dashboard" && (
           <Dashboard profile={profile} onNavigate={handleNavigate} />
         )}
-        {currentPage === "trip" && <TripPlanning />}
+        {currentPage === "trip" && <TripPlanning onOpenTripReview={handleNavigate} />}
+        {currentPage === "trip-review" && (
+          <TripReview profile={profile} onNavigate={handleNavigate} />
+        )}
         {currentPage === "analyze" && <MealAnalysis />}
         {currentPage === "log" && <MealLogger />}
         {currentPage === "settings" && <SettingsPage />}
       </div>
-      <BottomNav currentPage={currentPage} onNavigate={handleNavigate} />
+      {currentPage !== "trip-review" && (
+        <BottomNav currentPage={currentPage} onNavigate={handleNavigate} />
+      )}
     </main>
   )
 }

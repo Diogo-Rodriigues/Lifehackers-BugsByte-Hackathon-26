@@ -26,6 +26,32 @@ export interface Trip {
   selectedDishes: LocalDish[]
   selectedBeverages: LocalBeverage[]
   mealPlan: MealPlan | null
+  status: "active" | "completed"
+  completedAt?: string
+  postTripAnalysis?: TripDietAnalysis
+  nutriumSync?: NutriumSyncStatus
+}
+
+export interface TripDietAnalysis {
+  tripId: string
+  generatedAt: string
+  daysAnalyzed: number
+  totalMeals: number
+  avgCaloriesPerDay: number
+  avgWaterPerDay: number
+  avgStepsPerDay: number
+  offPlanMeals: number
+  hydrationTargetHitDays: number
+  adherenceScore: number
+  highlights: string[]
+}
+
+export interface NutriumSyncStatus {
+  status: "not-sent" | "sending" | "sent" | "failed"
+  lastAttemptAt?: string
+  lastSentAt: string
+  syncId: string
+  message: string
 }
 
 export interface LocalDish {

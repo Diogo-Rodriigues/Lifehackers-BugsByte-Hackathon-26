@@ -18,7 +18,7 @@ const navItems = [
   { id: "settings" as const, labelKey: "navSettings" as const, icon: Settings },
 ]
 
-export type PageId = (typeof navItems)[number]["id"] | "onboarding"
+export type PageId = (typeof navItems)[number]["id"] | "onboarding" | "trip-review"
 
 interface BottomNavProps {
   currentPage: PageId
