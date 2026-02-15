@@ -559,9 +559,9 @@ export function Onboarding({ onComplete, startAtStep = 0, initialProfile }: Onbo
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-background relative">
+    <div className="flex h-[100dvh] flex-col bg-background relative overflow-hidden">
       {/* Language Selector - Top Right */}
-      <div className="absolute top-6 right-6 z-10">
+      <div className="absolute top-3 right-3 sm:top-6 sm:right-6 z-10">
         <Select
           value={language}
           onValueChange={(value) => {
@@ -583,19 +583,19 @@ export function Onboarding({ onComplete, startAtStep = 0, initialProfile }: Onbo
       </div>
 
       {/* Header */}
-      <div className="flex flex-col items-center gap-3 px-6 pt-16 pb-8">
-        <Image src="/logo.png" alt="NutriFuel" width={160} height={160} priority className="mb-2" />
-        <p className="text-base text-muted-foreground font-medium text-center">
+      <div className="flex flex-col items-center gap-2 px-4 pt-10 pb-4 sm:gap-3 sm:px-6 sm:pt-16 sm:pb-8">
+        <Image src="/logo.png" alt="NutriFuel" width={160} height={160} priority className="mb-1 w-[100px] h-[100px] sm:w-[160px] sm:h-[160px]" />
+        <p className="text-sm sm:text-base text-muted-foreground font-medium text-center">
           {t('setupProfile', language)}
         </p>
 
         {/* Step Indicator */}
-        <div className="flex items-center justify-center gap-1 sm:gap-2 w-full px-4 mt-4">
+        <div className="flex items-center justify-center gap-1 sm:gap-2 w-full px-2 sm:px-4 mt-3 sm:mt-4 overflow-x-auto scrollbar-hide">
           {steps.map((s, i) => (
-            <div key={s.title} className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+            <div key={s.title} className="flex items-center gap-0.5 sm:gap-2 flex-shrink-0">
               <div
                 className={cn(
-                  "flex h-7 w-7 sm:h-9 sm:w-9 items-center justify-center rounded-full text-xs sm:text-sm font-semibold transition-all duration-300 flex-shrink-0 shadow-sm",
+                  "flex h-6 w-6 sm:h-9 sm:w-9 items-center justify-center rounded-full text-[10px] sm:text-sm font-semibold transition-all duration-300 flex-shrink-0 shadow-sm",
                   i <= step
                     ? "bg-primary text-primary-foreground ring-2 ring-primary/20"
                     : "bg-muted text-muted-foreground hover:bg-muted/80"
@@ -606,7 +606,7 @@ export function Onboarding({ onComplete, startAtStep = 0, initialProfile }: Onbo
               {i < steps.length - 1 && (
                 <div
                   className={cn(
-                    "h-0.5 w-3 sm:w-6 rounded-full transition-all duration-300 flex-shrink-0",
+                    "h-0.5 w-2 sm:w-6 rounded-full transition-all duration-300 flex-shrink-0",
                     i < step ? "bg-primary" : "bg-muted"
                   )}
                 />
@@ -617,7 +617,7 @@ export function Onboarding({ onComplete, startAtStep = 0, initialProfile }: Onbo
       </div>
 
       {/* Content */}
-      <div className="flex-1 px-6 pb-6">
+      <div className="flex-1 min-h-0 px-4 pb-4 sm:px-6 sm:pb-6 overflow-y-auto">
         <Card className="border-0 shadow-none">
           <CardContent className="px-0 pt-0">
             <h2 className="mb-6 flex items-center gap-2.5 text-xl font-bold text-foreground">
@@ -1485,7 +1485,7 @@ export function Onboarding({ onComplete, startAtStep = 0, initialProfile }: Onbo
       </div>
 
       {/* Navigation */}
-      <div className="flex gap-3 px-6 py-6 pb-8 safe-bottom border-t border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+      <div className="flex-shrink-0 flex gap-2 px-4 py-3 pb-5 sm:gap-3 sm:px-6 sm:py-6 sm:pb-8 safe-bottom border-t border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
         {step > 0 && (
           <Button
             variant="outline"
@@ -1499,7 +1499,7 @@ export function Onboarding({ onComplete, startAtStep = 0, initialProfile }: Onbo
               setStep(step - 1)
             }}
             disabled={isSimulatingDietitianReview}
-            className="flex-1 h-12 font-semibold shadow-sm hover:shadow transition-all"
+            className="flex-1 h-10 sm:h-12 font-semibold shadow-sm hover:shadow transition-all"
           >
             <ChevronLeft className="mr-1.5 h-5 w-5" />
             {t('back', language)}
@@ -1561,7 +1561,7 @@ export function Onboarding({ onComplete, startAtStep = 0, initialProfile }: Onbo
             (step === 6 && !isMealPlanStepValid) ||
             (step === steps.length - 1 && !reviewChoice)
           }
-          className="flex-1 h-12 font-semibold bg-primary text-primary-foreground hover:bg-primary/90 shadow-md hover:shadow-lg transition-all"
+          className="flex-1 h-10 sm:h-12 font-semibold bg-primary text-primary-foreground hover:bg-primary/90 shadow-md hover:shadow-lg transition-all"
         >
           {isSimulatingDietitianReview ? (
             <Loader2 className="h-5 w-5 animate-spin" />

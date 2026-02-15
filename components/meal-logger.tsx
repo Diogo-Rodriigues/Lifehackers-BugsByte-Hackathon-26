@@ -8,33 +8,21 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import {
   getDailyLog,
   saveDailyLog,
-  addMealToLog,
   todayString,
-  generateId,
   getProfile,
   getActiveTrip,
 } from "@/lib/store"
-import type { DailyLog, MealLog } from "@/lib/types"
+import type { DailyLog } from "@/lib/types"
 import {
   Plus,
   Droplets,
   Footprints,
-  Activity,
-  Trash2,
   Minus,
   Calendar,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { toast } from "sonner"
 import { getLanguage, t, type Language } from "@/lib/language"
 import { apiFetch } from "@/lib/api"
 
@@ -44,16 +32,6 @@ export function MealLogger() {
   const activeTrip = getActiveTrip()
   const [lang, setLang] = useState<Language>(getLanguage())
   const [dailyLog, setDailyLog] = useState<DailyLog>(getDailyLog(today))
-  const [showMealForm, setShowMealForm] = useState(false)
-  const [mealForm, setMealForm] = useState({
-    name: "",
-    type: "lunch" as "breakfast" | "lunch" | "dinner" | "snack",
-    calories: "",
-    protein: "",
-    carbs: "",
-    fat: "",
-    notes: "",
-  })
 
   // Reload on changes
   useEffect(() => {
@@ -102,55 +80,6 @@ export function MealLogger() {
     }
   }, [today, profile, activeTrip?.destination, dailyLog.steps])
 
-  function handleAddMeal() {
-    if (!mealForm.name) {
-      toast.error(t('pleaseEnterMealName', lang))
-      return
-    }
-    const now = new Date()
-    const meal: MealLog = {
-      id: generateId(),
-      date: today,
-      time: `${now.getHours().toString().padStart(2, "0")}:${now
-        .getMinutes()
-        .toString()
-        .padStart(2, "0")}`,
-      type: mealForm.type,
-      name: mealForm.name,
-      calories: parseInt(mealForm.calories) || 0,
-      protein: parseInt(mealForm.protein) || 0,
-      carbs: parseInt(mealForm.carbs) || 0,
-      fat: parseInt(mealForm.fat) || 0,
-      ingredients: [],
-      allergenWarnings: [],
-      notes: mealForm.notes,
-      isOffPlan: false,
-    }
-    const updated = addMealToLog(today, meal)
-    setDailyLog(updated)
-    setMealForm({
-      name: "",
-      type: "lunch",
-      calories: "",
-      protein: "",
-      carbs: "",
-      fat: "",
-      notes: "",
-    })
-    setShowMealForm(false)
-    toast.success(t('mealLogged', lang))
-  }
-
-  function removeMeal(mealId: string) {
-    const updated = {
-      ...dailyLog,
-      meals: dailyLog.meals.filter((m) => m.id !== mealId),
-    }
-    saveDailyLog(updated)
-    setDailyLog(updated)
-    toast.success(t('mealRemoved', lang))
-  }
-
   function updateWater(amount: number) {
     const updated = {
       ...dailyLog,
@@ -194,10 +123,6 @@ export function MealLogger() {
     : 0
 
   const effectiveWaterTarget = dailyLog.dynamicTargets?.adjustedWaterTarget || profile?.waterTarget || 2500
-  const totalCalories = dailyLog.meals.reduce((sum, meal) => sum + meal.calories, 0)
-  const totalProtein = dailyLog.meals.reduce((sum, meal) => sum + meal.protein, 0)
-  const totalCarbs = dailyLog.meals.reduce((sum, meal) => sum + meal.carbs, 0)
-  const totalFat = dailyLog.meals.reduce((sum, meal) => sum + meal.fat, 0)
 
   return (
     <div className="flex flex-col gap-6 px-4 pb-24 pt-4">
@@ -209,203 +134,11 @@ export function MealLogger() {
         </div>
       </div>
 
-      <Card className="border-0 bg-gradient-to-br from-primary/5 to-secondary/5 shadow-sm">
-        <CardContent className="p-4">
-          <h2 className="mb-3 text-base font-semibold text-foreground">{t('dailySummary', lang)}</h2>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="rounded-lg bg-card p-3">
-              <p className="text-xs text-muted-foreground">{t('calories', lang)}</p>
-              <p className="text-2xl font-bold text-foreground">{totalCalories}</p>
-              <p className="text-xs text-muted-foreground">kcal</p>
-            </div>
-            <div className="rounded-lg bg-card p-3">
-              <p className="text-xs text-muted-foreground">{t('protein', lang)}</p>
-              <p className="text-2xl font-bold text-foreground">{totalProtein}g</p>
-            </div>
-            <div className="rounded-lg bg-card p-3">
-              <p className="text-xs text-muted-foreground">{t('carbs', lang)}</p>
-              <p className="text-2xl font-bold text-foreground">{totalCarbs}g</p>
-            </div>
-            <div className="rounded-lg bg-card p-3">
-              <p className="text-xs text-muted-foreground">{t('fat', lang)}</p>
-              <p className="text-2xl font-bold text-foreground">{totalFat}g</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Tabs defaultValue="meals" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 bg-muted">
-          <TabsTrigger value="meals" className="data-[state=active]:bg-card data-[state=active]:text-foreground">{t('meals', lang)}</TabsTrigger>
+      <Tabs defaultValue="water" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 bg-muted">
           <TabsTrigger value="water" className="data-[state=active]:bg-card data-[state=active]:text-foreground">{t('water', lang)}</TabsTrigger>
           <TabsTrigger value="activity" className="data-[state=active]:bg-card data-[state=active]:text-foreground">{t('activity', lang)}</TabsTrigger>
         </TabsList>
-
-        {/* Meals Tab */}
-        <TabsContent value="meals" className="mt-4 flex flex-col gap-4">
-          {/* Logged Meals */}
-          {dailyLog.meals.length > 0 && (
-            <div className="flex flex-col gap-2">
-              {dailyLog.meals.map((meal) => (
-                <Card key={meal.id} className="border-0 bg-card shadow-sm">
-                  <CardContent className="flex items-center justify-between p-3">
-                    <div className="flex flex-col gap-0.5">
-                      <span className="text-sm font-medium text-foreground">
-                        {meal.name}
-                      </span>
-                      <span className="text-xs capitalize text-muted-foreground">
-                        {meal.type} - {meal.time}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {meal.calories} kcal | P: {meal.protein}g | C:{" "}
-                        {meal.carbs}g | F: {meal.fat}g
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => removeMeal(meal.id)}
-                      className="rounded-lg p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
-                      aria-label={`Remove ${meal.name}`}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-
-          {/* Add Meal Form */}
-          {showMealForm ? (
-            <Card className="border border-primary/20 bg-card shadow-sm">
-              <CardContent className="flex flex-col gap-3 p-4">
-                <h3 className="text-sm font-semibold text-foreground">
-                  {t('addManualMeal', lang)}
-                </h3>
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="meal-name">{t('mealName', lang)}</Label>
-                  <Input
-                    id="meal-name"
-                    placeholder="e.g. Grilled Chicken Salad"
-                    value={mealForm.name}
-                    onChange={(e) =>
-                      setMealForm({ ...mealForm, name: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <Label>{t('mealType', lang)}</Label>
-                  <Select
-                    value={mealForm.type}
-                    onValueChange={(v) =>
-                      setMealForm({
-                        ...mealForm,
-                        type: v as typeof mealForm.type,
-                      })
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="breakfast">{t('breakfast', lang)}</SelectItem>
-                      <SelectItem value="lunch">{t('lunch', lang)}</SelectItem>
-                      <SelectItem value="dinner">{t('dinner', lang)}</SelectItem>
-                      <SelectItem value="snack">{t('snack', lang)}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="meal-cal">{t('calories', lang)}</Label>
-                    <Input
-                      id="meal-cal"
-                      type="number"
-                      placeholder="kcal"
-                      value={mealForm.calories}
-                      onChange={(e) =>
-                        setMealForm({ ...mealForm, calories: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="meal-prot">{t('protein', lang)} (g)</Label>
-                    <Input
-                      id="meal-prot"
-                      type="number"
-                      placeholder="g"
-                      value={mealForm.protein}
-                      onChange={(e) =>
-                        setMealForm({ ...mealForm, protein: e.target.value })
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="meal-carbs">{t('carbs', lang)} (g)</Label>
-                    <Input
-                      id="meal-carbs"
-                      type="number"
-                      placeholder="g"
-                      value={mealForm.carbs}
-                      onChange={(e) =>
-                        setMealForm({ ...mealForm, carbs: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="meal-fat">{t('fat', lang)} (g)</Label>
-                    <Input
-                      id="meal-fat"
-                      type="number"
-                      placeholder="g"
-                      value={mealForm.fat}
-                      onChange={(e) =>
-                        setMealForm({ ...mealForm, fat: e.target.value })
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="meal-notes">{t('notes', lang)}</Label>
-                  <Textarea
-                    id="meal-notes"
-                    placeholder="Any notes about this meal"
-                    value={mealForm.notes}
-                    onChange={(e) =>
-                      setMealForm({ ...mealForm, notes: e.target.value })
-                    }
-                    className="min-h-[60px]"
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowMealForm(false)}
-                    className="flex-1"
-                  >
-                    {t('cancel', lang)}
-                  </Button>
-                  <Button
-                    onClick={handleAddMeal}
-                    className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
-                  >
-                    {t('addMeal', lang)}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
-            <Button
-              onClick={() => setShowMealForm(true)}
-              variant="outline"
-              className="border-dashed border-primary/30 text-primary hover:bg-primary/5"
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              {t('addMealManually', lang)}
-            </Button>
-          )}
-        </TabsContent>
 
         {/* Water Tab */}
         <TabsContent value="water" className="mt-4 flex flex-col gap-4">
@@ -490,27 +223,27 @@ export function MealLogger() {
                 <Label className="mb-2 block">{t('activityLevel', lang)}</Label>
                 <div className="grid grid-cols-2 gap-2">
                   {([
-                      {
-                        key: "sedentary",
-                        label: t('sedentary', lang),
-                        desc: t('deskWork', lang),
-                      },
-                      {
-                        key: "light",
-                        label: t('lightActivity', lang),
-                        desc: t('walkingTours', lang),
-                      },
-                      {
-                        key: "moderate",
-                        label: t('moderate', lang),
-                        desc: t('hikingCycling', lang),
-                      },
-                      {
-                        key: "active",
-                        label: t('activeLevel', lang),
-                        desc: t('sportsIntense', lang),
-                      },
-                    ] as const
+                    {
+                      key: "sedentary",
+                      label: t('sedentary', lang),
+                      desc: t('deskWork', lang),
+                    },
+                    {
+                      key: "light",
+                      label: t('lightActivity', lang),
+                      desc: t('walkingTours', lang),
+                    },
+                    {
+                      key: "moderate",
+                      label: t('moderate', lang),
+                      desc: t('hikingCycling', lang),
+                    },
+                    {
+                      key: "active",
+                      label: t('activeLevel', lang),
+                      desc: t('sportsIntense', lang),
+                    },
+                  ] as const
                   ).map((level) => (
                     <button
                       key={level.key}

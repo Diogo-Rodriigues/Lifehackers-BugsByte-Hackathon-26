@@ -108,6 +108,18 @@ export function saveDailyLog(log: DailyLog) {
   setItem(STORAGE_KEYS.DAILY_LOGS, logs)
 }
 
+export function resetDailyLog(date: string) {
+  const freshLog: DailyLog = {
+    date,
+    meals: [],
+    waterIntake: 0,
+    steps: 0,
+    activityLevel: "sedentary",
+    activityNotes: "",
+  }
+  saveDailyLog(freshLog)
+}
+
 export function addMealToLog(date: string, meal: MealLog) {
   const log = getDailyLog(date)
   log.meals.push(meal)

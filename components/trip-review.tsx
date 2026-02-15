@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, CheckCircle2, CircleDashed, Loader2, Send, Sparkles } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { clearActiveTrip, getActiveTrip, getDailyLogs, getDailyLogsInRange, saveTrip } from "@/lib/store"
+import { clearActiveTrip, getActiveTrip, getDailyLogs, getDailyLogsInRange, saveTrip, resetDailyLog, todayString } from "@/lib/store"
 import type { PageId } from "@/components/bottom-nav"
 import type { Trip, TripDietAnalysis, UserProfile, DailyLog, NutriumSyncStatus } from "@/lib/types"
 import { getLanguage, t } from "@/lib/language"
@@ -183,6 +183,7 @@ export function TripReview({ profile, onNavigate }: TripReviewProps) {
       setTimeout(() => setStage(1), 600),
       setTimeout(() => setStage(2), 1300),
       setTimeout(() => setStage(3), 2100),
+      setTimeout(() => setStage(4), 2800),
     ]
     return () => timers.forEach((timer) => clearTimeout(timer))
   }, [])
@@ -242,6 +243,7 @@ export function TripReview({ profile, onNavigate }: TripReviewProps) {
 
     saveTrip(updatedTrip)
     clearActiveTrip()
+    resetDailyLog(todayString())
     onNavigate("dashboard")
   }
 

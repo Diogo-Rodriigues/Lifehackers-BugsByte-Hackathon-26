@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { getProfile, addMealToLog, todayString, generateId, getActiveTrip, getDailyLog, saveDailyLog } from "@/lib/store"
 import { apiFetch } from "@/lib/api"
 import type { AnalysisResult, MealLog, DailyLog } from "@/lib/types"
@@ -28,11 +29,7 @@ import {
   UtensilsCrossed,
   CheckCircle,
   Edit,
-  Droplets,
-  Footprints,
-  Activity,
   Trash2,
-  Minus,
   FileImage,
   PencilLine,
 } from "lucide-react"
@@ -102,7 +99,7 @@ export function MealAnalysis() {
   function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
-    
+
     // Prevent file selection if already analyzing
     if (analyzing) {
       toast.error(t('pleaseWaitAnalysis', lang))
@@ -215,11 +212,11 @@ export function MealAnalysis() {
     if (selectedMenuItems.size === 0) return
     const now = new Date()
     const date = todayString()
-    
+
     selectedMenuItems.forEach((index) => {
       const item = menuItems[index]
       if (!item) return
-      
+
       const meal: MealLog = {
         id: generateId(),
         date,
@@ -241,7 +238,7 @@ export function MealAnalysis() {
       }
       addMealToLog(date, meal)
     })
-    
+
     toast.success(`${selectedMenuItems.size} ${t('meals', lang).toLowerCase()} ${t('logged', lang)}`)
     // Reset
     setImagePreview(null)
@@ -256,18 +253,18 @@ export function MealAnalysis() {
       toast.error(t('pleaseEnterMealName', lang))
       return
     }
-    
+
     // Validate numeric values
     const calories = parseInt(mealForm.calories) || 0
     const protein = parseInt(mealForm.protein) || 0
     const carbs = parseInt(mealForm.carbs) || 0
     const fat = parseInt(mealForm.fat) || 0
-    
+
     if (calories < 0 || protein < 0 || carbs < 0 || fat < 0) {
       toast.error(t('negativeValuesError', lang))
       return
     }
-    
+
     const now = new Date()
     const meal: MealLog = {
       id: generateId(),
@@ -312,47 +309,7 @@ export function MealAnalysis() {
     toast.success(t('mealRemoved', lang))
   }
 
-  function updateWater(amount: number) {
-    const updated = {
-      ...dailyLog,
-      waterIntake: Math.max(0, dailyLog.waterIntake + amount),
-    }
-    saveDailyLog(updated)
-    setDailyLog(updated)
-  }
 
-  function updateSteps(value: string) {
-    const updated = {
-      ...dailyLog,
-      steps: parseInt(value) || 0,
-    }
-    saveDailyLog(updated)
-    setDailyLog(updated)
-  }
-
-  function updateActivity(
-    level: "sedentary" | "light" | "moderate" | "active"
-  ) {
-    const updated = {
-      ...dailyLog,
-      activityLevel: level,
-    }
-    saveDailyLog(updated)
-    setDailyLog(updated)
-  }
-
-  function updateNotes(notes: string) {
-    const updated = {
-      ...dailyLog,
-      activityNotes: notes,
-    }
-    saveDailyLog(updated)
-    setDailyLog(updated)
-  }
-
-  const waterPercent = profile
-    ? Math.min(100, (dailyLog.waterIntake / profile.waterTarget) * 100)
-    : 0
 
   return (
     <div className="flex flex-col gap-6 px-4 pb-24 pt-4">
@@ -431,206 +388,206 @@ export function MealAnalysis() {
                 {t('captureOrUpload', lang)}
               </p>
               <div className="flex gap-3">
-              <Button
-                onClick={() => mealFileInputRef.current?.click()}
-                className="bg-primary text-primary-foreground hover:bg-primary/90"
-              >
-                <Camera className="mr-2 h-4 w-4" />
-                {t('camera', lang)}
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => mealFileInputRef.current?.click()}
-                className="border-primary text-primary hover:bg-primary/5"
-              >
-                <Upload className="mr-2 h-4 w-4" />
-                {t('uploadPhoto', lang)}
-              </Button>
-            </div>
-            <input
-              ref={mealFileInputRef}
-              type="file"
-              accept="image/*"
-              capture="environment"
-              onChange={handleFileSelect}
-              className="hidden"
-              aria-label="Upload meal photo"
-            />
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="flex flex-col gap-4">
-          {/* Image Preview */}
-          <Card className="overflow-hidden border-0 shadow-sm">
-            <div className="relative aspect-video w-full">
-              <img
-                src={imagePreview}
-                alt="Meal photo preview"
-                className="h-full w-full object-cover"
+                <Button
+                  onClick={() => mealFileInputRef.current?.click()}
+                  className="bg-primary text-primary-foreground hover:bg-primary/90"
+                >
+                  <Camera className="mr-2 h-4 w-4" />
+                  {t('camera', lang)}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => mealFileInputRef.current?.click()}
+                  className="border-primary text-primary hover:bg-primary/5"
+                >
+                  <Upload className="mr-2 h-4 w-4" />
+                  {t('uploadPhoto', lang)}
+                </Button>
+              </div>
+              <input
+                ref={mealFileInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                onChange={handleFileSelect}
+                className="hidden"
+                aria-label="Upload meal photo"
               />
-            </div>
+            </CardContent>
           </Card>
-
-          {/* Dish Name Input */}
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="dishName" className="text-sm">
-              {t('dishName', lang)} <span className="text-xs text-muted-foreground">{t('dishNameOptional', lang)}</span>
-            </Label>
-            <Input
-              id="dishName"
-              placeholder={t('dishNamePlaceholder', lang)}
-              value={dishName}
-              onChange={(e) => setDishName(e.target.value)}
-              className="text-sm"
-            />
-            {dishName.trim() && (
-              <p className="text-xs text-muted-foreground flex items-center gap-1">
-                <span>✓</span> {t('improvesAccuracy', lang)}
-              </p>
-            )}
-          </div>
-
-          <div className="flex gap-3">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setImagePreview(null)
-                setImageBase64(null)
-                setResult(null)
-                setDishName("")
-              }}
-              className="flex-1"
-            >
-              {t('retake', lang)}
-            </Button>
-            <Button
-              onClick={analyzePhoto}
-              disabled={analyzing}
-              className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
-            >
-              {analyzing ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  {t('analyzing', lang)}
-                </>
-              ) : (
-                t('analyzeMeal', lang)
-              )}
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* Analysis Result */}
-      {result && (
-        <Card className="border-0 bg-card shadow-sm">
-          <CardContent className="p-4">
-            <h3 className="mb-3 text-base font-semibold text-foreground">
-              {result.name}
-            </h3>
-
-            {/* Allergen Warnings */}
-            {result.allergenWarnings.length > 0 && (
-              <div className="mb-3 rounded-lg border border-destructive/30 bg-destructive/5 p-3">
-                <div className="flex items-center gap-2">
-                  <AlertTriangle className="h-4 w-4 text-destructive" />
-                  <span className="text-xs font-medium text-destructive">
-                    {t('allergenWarning', lang)}
-                  </span>
-                </div>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {t('contains', lang)}: {result.allergenWarnings.join(", ")}
-                </p>
-              </div>
-            )}
-
-            {/* Macros */}
-            <div className="grid grid-cols-4 gap-2 mb-4">
-              <div className="rounded-lg bg-muted p-2.5 text-center">
-                <p className="text-lg font-bold text-foreground">
-                  {result.calories}
-                </p>
-                <p className="text-[10px] text-muted-foreground">kcal</p>
-              </div>
-              <div className="rounded-lg bg-muted p-2.5 text-center">
-                <p className="text-lg font-bold text-foreground">
-                  {result.protein}g
-                </p>
-                <p className="text-[10px] text-muted-foreground">{t('protein', lang)}</p>
-              </div>
-              <div className="rounded-lg bg-muted p-2.5 text-center">
-                <p className="text-lg font-bold text-foreground">
-                  {result.carbs}g
-                </p>
-                <p className="text-[10px] text-muted-foreground">{t('carbs', lang)}</p>
-              </div>
-              <div className="rounded-lg bg-muted p-2.5 text-center">
-                <p className="text-lg font-bold text-foreground">
-                  {result.fat}g
-                </p>
-                <p className="text-[10px] text-muted-foreground">{t('fat', lang)}</p>
-              </div>
-            </div>
-
-            {/* Ingredients */}
-            {result.ingredients.length > 0 && (
-              <div className="mb-4">
-                <p className="mb-1.5 text-xs font-medium text-muted-foreground">
-                  {t('detectedIngredients', lang)}
-                </p>
-                <div className="flex flex-wrap gap-1">
-                  {result.ingredients.map((ing) => (
-                    <span
-                      key={ing}
-                      className="rounded-full bg-muted px-2 py-0.5 text-xs text-foreground whitespace-nowrap"
-                    >
-                      {ing}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Confidence */}
-            <div className="mb-4 flex items-center gap-2">
-              <div className="h-1.5 flex-1 rounded-full bg-muted overflow-hidden">
-                <div
-                  className="h-full rounded-full bg-primary transition-all"
-                  style={{ width: `${(result.confidence || 0.8) * 100}%` }}
+        ) : (
+          <div className="flex flex-col gap-4">
+            {/* Image Preview */}
+            <Card className="overflow-hidden border-0 shadow-sm">
+              <div className="relative aspect-video w-full">
+                <img
+                  src={imagePreview}
+                  alt="Meal photo preview"
+                  className="h-full w-full object-cover"
                 />
               </div>
-              <span className="text-xs text-muted-foreground">
-                {Math.round((result.confidence || 0.8) * 100)}% {t('confidence', lang)}
-              </span>
+            </Card>
+
+            {/* Dish Name Input */}
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="dishName" className="text-sm">
+                {t('dishName', lang)} <span className="text-xs text-muted-foreground">{t('dishNameOptional', lang)}</span>
+              </Label>
+              <Input
+                id="dishName"
+                placeholder={t('dishNamePlaceholder', lang)}
+                value={dishName}
+                onChange={(e) => setDishName(e.target.value)}
+                className="text-sm"
+              />
+              {dishName.trim() && (
+                <p className="text-xs text-muted-foreground flex items-center gap-1">
+                  <span>✓</span> {t('improvesAccuracy', lang)}
+                </p>
+              )}
             </div>
 
-            {/* Log Action */}
-            <div className="flex flex-col gap-3">
-              <div className="flex flex-col gap-1.5">
-                <Label>{t('mealType', lang)}</Label>
-                <Select value={mealType} onValueChange={(v) => setMealType(v as typeof mealType)}>
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="breakfast">{t('breakfast', lang)}</SelectItem>
-                    <SelectItem value="lunch">{t('lunch', lang)}</SelectItem>
-                    <SelectItem value="dinner">{t('dinner', lang)}</SelectItem>
-                    <SelectItem value="snack">{t('snack', lang)}</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="flex gap-3">
               <Button
-                onClick={logMealFromAnalysis}
-                className="bg-primary text-primary-foreground hover:bg-primary/90"
+                variant="outline"
+                onClick={() => {
+                  setImagePreview(null)
+                  setImageBase64(null)
+                  setResult(null)
+                  setDishName("")
+                }}
+                className="flex-1"
               >
-                <Plus className="mr-2 h-4 w-4" />
-                {t('logThisMeal', lang)}
+                {t('retake', lang)}
+              </Button>
+              <Button
+                onClick={analyzePhoto}
+                disabled={analyzing}
+                className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
+              >
+                {analyzing ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    {t('analyzing', lang)}
+                  </>
+                ) : (
+                  t('analyzeMeal', lang)
+                )}
               </Button>
             </div>
-          </CardContent>
-        </Card>
-      )}
+          </div>
+        )}
+
+        {/* Analysis Result */}
+        {result && (
+          <Card className="border-0 bg-card shadow-sm">
+            <CardContent className="p-4">
+              <h3 className="mb-3 text-base font-semibold text-foreground">
+                {result.name}
+              </h3>
+
+              {/* Allergen Warnings */}
+              {result.allergenWarnings.length > 0 && (
+                <div className="mb-3 rounded-lg border border-destructive/30 bg-destructive/5 p-3">
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="h-4 w-4 text-destructive" />
+                    <span className="text-xs font-medium text-destructive">
+                      {t('allergenWarning', lang)}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {t('contains', lang)}: {result.allergenWarnings.join(", ")}
+                  </p>
+                </div>
+              )}
+
+              {/* Macros */}
+              <div className="grid grid-cols-4 gap-2 mb-4">
+                <div className="rounded-lg bg-muted p-2.5 text-center">
+                  <p className="text-lg font-bold text-foreground">
+                    {result.calories}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">kcal</p>
+                </div>
+                <div className="rounded-lg bg-muted p-2.5 text-center">
+                  <p className="text-lg font-bold text-foreground">
+                    {result.protein}g
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">{t('protein', lang)}</p>
+                </div>
+                <div className="rounded-lg bg-muted p-2.5 text-center">
+                  <p className="text-lg font-bold text-foreground">
+                    {result.carbs}g
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">{t('carbs', lang)}</p>
+                </div>
+                <div className="rounded-lg bg-muted p-2.5 text-center">
+                  <p className="text-lg font-bold text-foreground">
+                    {result.fat}g
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">{t('fat', lang)}</p>
+                </div>
+              </div>
+
+              {/* Ingredients */}
+              {result.ingredients.length > 0 && (
+                <div className="mb-4">
+                  <p className="mb-1.5 text-xs font-medium text-muted-foreground">
+                    {t('detectedIngredients', lang)}
+                  </p>
+                  <div className="flex flex-wrap gap-1">
+                    {result.ingredients.map((ing) => (
+                      <span
+                        key={ing}
+                        className="rounded-full bg-muted px-2 py-0.5 text-xs text-foreground whitespace-nowrap"
+                      >
+                        {ing}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Confidence */}
+              <div className="mb-4 flex items-center gap-2">
+                <div className="h-1.5 flex-1 rounded-full bg-muted overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-primary transition-all"
+                    style={{ width: `${(result.confidence || 0.8) * 100}%` }}
+                  />
+                </div>
+                <span className="text-xs text-muted-foreground">
+                  {Math.round((result.confidence || 0.8) * 100)}% {t('confidence', lang)}
+                </span>
+              </div>
+
+              {/* Log Action */}
+              <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-1.5">
+                  <Label>{t('mealType', lang)}</Label>
+                  <Select value={mealType} onValueChange={(v) => setMealType(v as typeof mealType)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="breakfast">{t('breakfast', lang)}</SelectItem>
+                      <SelectItem value="lunch">{t('lunch', lang)}</SelectItem>
+                      <SelectItem value="dinner">{t('dinner', lang)}</SelectItem>
+                      <SelectItem value="snack">{t('snack', lang)}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button
+                  onClick={logMealFromAnalysis}
+                  className="bg-primary text-primary-foreground hover:bg-primary/90"
+                >
+                  <Plus className="mr-2 h-4 w-4" />
+                  {t('logThisMeal', lang)}
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </>
     )
   }
@@ -736,11 +693,10 @@ export function MealAnalysis() {
                 {menuItems.map((item, index) => (
                   <Card
                     key={index}
-                    className={`cursor-pointer transition-all ${
-                      selectedMenuItems.has(index)
-                        ? "border-primary bg-primary/5"
-                        : "border-muted hover:border-primary/50"
-                    }`}
+                    className={`cursor-pointer transition-all ${selectedMenuItems.has(index)
+                      ? "border-primary bg-primary/5"
+                      : "border-muted hover:border-primary/50"
+                      }`}
                     onClick={() => {
                       const newSelected = new Set(selectedMenuItems)
                       if (newSelected.has(index)) {
@@ -760,7 +716,7 @@ export function MealAnalysis() {
                               <CheckCircle className="h-4 w-4 text-primary" />
                             )}
                           </h4>
-                          
+
                           {/* Allergen Warnings */}
                           {item.allergenWarnings.length > 0 && (
                             <div className="mt-1 flex items-center gap-1">
@@ -772,7 +728,7 @@ export function MealAnalysis() {
                           )}
                         </div>
                       </div>
-                      
+
                       {/* Macros */}
                       <div className="grid grid-cols-4 gap-1.5 mt-2">
                         <div className="rounded bg-muted p-1.5 text-center">
@@ -831,312 +787,170 @@ export function MealAnalysis() {
 
   function renderManualEntry() {
     return (
-      <Tabs defaultValue="meals" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 bg-muted">
-          <TabsTrigger value="meals" className="data-[state=active]:bg-card data-[state=active]:text-foreground">{t('meals', lang)}</TabsTrigger>
-          <TabsTrigger value="water" className="data-[state=active]:bg-card data-[state=active]:text-foreground">{t('water', lang)}</TabsTrigger>
-          <TabsTrigger value="activity" className="data-[state=active]:bg-card data-[state=active]:text-foreground">{t('activity', lang)}</TabsTrigger>
-        </TabsList>
-
-        {/* Meals Tab */}
-        <TabsContent value="meals" className="mt-4 flex flex-col gap-4">
-          {/* Logged Meals */}
-          {dailyLog.meals.length > 0 && (
-            <div className="flex flex-col gap-2">
-              {dailyLog.meals.map((meal) => (
-                <Card key={meal.id} className="border-0 bg-card shadow-sm">
-                  <CardContent className="flex items-center justify-between p-3">
-                    <div className="flex flex-col gap-0.5">
-                      <span className="text-sm font-medium text-foreground">
-                        {meal.name}
-                      </span>
-                      <span className="text-xs capitalize text-muted-foreground">
-                        {meal.type} - {meal.time}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {meal.calories} kcal | P: {meal.protein}g | C:{" "}
-                        {meal.carbs}g | F: {meal.fat}g
-                      </span>
-                    </div>
-                    <button
-                      onClick={() => removeMeal(meal.id)}
-                      className="rounded-lg p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
-                      aria-label={`Remove ${meal.name}`}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-
-          {/* Add Meal Form */}
-          {showMealForm ? (
-            <Card className="border border-primary/20 bg-card shadow-sm">
-              <CardContent className="flex flex-col gap-3 p-4">
-                <h3 className="text-base font-semibold text-foreground">
-                  {t('addManualMeal', lang)}
-                </h3>
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="meal-name">{t('mealName', lang)}</Label>
-                  <Input
-                    id="meal-name"
-                    placeholder="e.g. Grilled Chicken Salad"
-                    value={mealForm.name}
-                    onChange={(e) =>
-                      setMealForm({ ...mealForm, name: e.target.value })
-                    }
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <Label>{t('mealType', lang)}</Label>
-                  <Select
-                    value={mealForm.type}
-                    onValueChange={(v) =>
-                      setMealForm({
-                        ...mealForm,
-                        type: v as typeof mealForm.type,
-                      })
-                    }
+      <div className="flex flex-col gap-4">
+        {/* Logged Meals */}
+        {dailyLog.meals.length > 0 && (
+          <div className="flex flex-col gap-2">
+            {dailyLog.meals.map((meal) => (
+              <Card key={meal.id} className="border-0 bg-card shadow-sm">
+                <CardContent className="flex items-center justify-between p-3">
+                  <div className="flex flex-col gap-0.5">
+                    <span className="text-sm font-medium text-foreground">
+                      {meal.name}
+                    </span>
+                    <span className="text-xs capitalize text-muted-foreground">
+                      {meal.type} - {meal.time}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {meal.calories} kcal | P: {meal.protein}g | C:{" "}
+                      {meal.carbs}g | F: {meal.fat}g
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => removeMeal(meal.id)}
+                    className="rounded-lg p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
+                    aria-label={`Remove ${meal.name}`}
                   >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="breakfast">{t('breakfast', lang)}</SelectItem>
-                      <SelectItem value="lunch">{t('lunch', lang)}</SelectItem>
-                      <SelectItem value="dinner">{t('dinner', lang)}</SelectItem>
-                      <SelectItem value="snack">{t('snack', lang)}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="meal-cal">{t('calories', lang)}</Label>
-                    <Input
-                      id="meal-cal"
-                      type="number"
-                      placeholder="kcal"
-                      value={mealForm.calories}
-                      onChange={(e) =>
-                        setMealForm({ ...mealForm, calories: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="meal-prot">{t('protein', lang)} (g)</Label>
-                    <Input
-                      id="meal-prot"
-                      type="number"
-                      placeholder="g"
-                      value={mealForm.protein}
-                      onChange={(e) =>
-                        setMealForm({ ...mealForm, protein: e.target.value })
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="meal-carbs">{t('carbs', lang)} (g)</Label>
-                    <Input
-                      id="meal-carbs"
-                      type="number"
-                      placeholder="g"
-                      value={mealForm.carbs}
-                      onChange={(e) =>
-                        setMealForm({ ...mealForm, carbs: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="meal-fat">{t('fat', lang)} (g)</Label>
-                    <Input
-                      id="meal-fat"
-                      type="number"
-                      placeholder="g"
-                      value={mealForm.fat}
-                      onChange={(e) =>
-                        setMealForm({ ...mealForm, fat: e.target.value })
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="meal-notes">{t('notes', lang)}</Label>
-                  <Textarea
-                    id="meal-notes"
-                    placeholder="Any notes about this meal"
-                    value={mealForm.notes}
-                    onChange={(e) =>
-                      setMealForm({ ...mealForm, notes: e.target.value })
-                    }
-                    className="min-h-[60px]"
-                  />
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => setShowMealForm(false)}
-                    className="flex-1"
-                  >
-                    {t('cancel', lang)}
-                  </Button>
-                  <Button
-                    onClick={handleAddMeal}
-                    className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
-                  >
-                    {t('addMeal', lang)}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
-            <Button
-              onClick={() => setShowMealForm(true)}
-              variant="outline"
-              className="border-dashed border-primary/30 text-primary hover:bg-primary/5"
-            >
-              <Plus className="mr-2 h-4 w-4" />
-              {t('addMealManually', lang)}
-            </Button>
-          )}
-        </TabsContent>
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
 
-        {/* Water Tab */}
-        <TabsContent value="water" className="mt-4 flex flex-col gap-4">
-          <Card className="border-0 bg-card shadow-sm">
-            <CardContent className="flex flex-col items-center gap-4 p-6">
-              <Droplets className="h-12 w-12 text-secondary" />
-              <div className="text-center">
-                <p className="text-3xl font-bold text-foreground">
-                  {dailyLog.waterIntake}
-                  <span className="text-base font-normal text-muted-foreground">
-                    ml
-                  </span>
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {t('water', lang)}: {profile?.waterTarget || 2500}ml {t('ofTarget', lang)}
-                </p>
+        {/* Add Meal Form */}
+        {showMealForm ? (
+          <Card className="border border-primary/20 bg-card shadow-sm">
+            <CardContent className="flex flex-col gap-3 p-4">
+              <h3 className="text-base font-semibold text-foreground">
+                {t('addManualMeal', lang)}
+              </h3>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="meal-name">{t('mealName', lang)}</Label>
+                <Input
+                  id="meal-name"
+                  placeholder="e.g. Grilled Chicken Salad"
+                  value={mealForm.name}
+                  onChange={(e) =>
+                    setMealForm({ ...mealForm, name: e.target.value })
+                  }
+                />
               </div>
-              {/* Progress bar */}
-              <div className="h-3 w-full overflow-hidden rounded-full bg-muted">
-                <div
-                  className="h-full rounded-full bg-secondary transition-all duration-300"
-                  style={{ width: `${waterPercent}%` }}
+              <div className="flex flex-col gap-1.5">
+                <Label>{t('mealType', lang)}</Label>
+                <Select
+                  value={mealForm.type}
+                  onValueChange={(v) =>
+                    setMealForm({
+                      ...mealForm,
+                      type: v as typeof mealForm.type,
+                    })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="breakfast">{t('breakfast', lang)}</SelectItem>
+                    <SelectItem value="lunch">{t('lunch', lang)}</SelectItem>
+                    <SelectItem value="dinner">{t('dinner', lang)}</SelectItem>
+                    <SelectItem value="snack">{t('snack', lang)}</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="meal-cal">{t('calories', lang)}</Label>
+                  <Input
+                    id="meal-cal"
+                    type="number"
+                    placeholder="kcal"
+                    value={mealForm.calories}
+                    onChange={(e) =>
+                      setMealForm({ ...mealForm, calories: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="meal-prot">{t('protein', lang)} (g)</Label>
+                  <Input
+                    id="meal-prot"
+                    type="number"
+                    placeholder="g"
+                    value={mealForm.protein}
+                    onChange={(e) =>
+                      setMealForm({ ...mealForm, protein: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="meal-carbs">{t('carbs', lang)} (g)</Label>
+                  <Input
+                    id="meal-carbs"
+                    type="number"
+                    placeholder="g"
+                    value={mealForm.carbs}
+                    onChange={(e) =>
+                      setMealForm({ ...mealForm, carbs: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="flex flex-col gap-1.5">
+                  <Label htmlFor="meal-fat">{t('fat', lang)} (g)</Label>
+                  <Input
+                    id="meal-fat"
+                    type="number"
+                    placeholder="g"
+                    value={mealForm.fat}
+                    onChange={(e) =>
+                      setMealForm({ ...mealForm, fat: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="meal-notes">{t('notes', lang)}</Label>
+                <Textarea
+                  id="meal-notes"
+                  placeholder="Any notes about this meal"
+                  value={mealForm.notes}
+                  onChange={(e) =>
+                    setMealForm({ ...mealForm, notes: e.target.value })
+                  }
+                  className="min-h-[60px]"
                 />
               </div>
               <div className="flex gap-2">
                 <Button
                   variant="outline"
-                  size="sm"
-                  onClick={() => updateWater(-250)}
-                  disabled={dailyLog.waterIntake <= 0}
+                  onClick={() => setShowMealForm(false)}
+                  className="flex-1"
                 >
-                  <Minus className="mr-1 h-3 w-3" />
-                  250ml
+                  {t('cancel', lang)}
                 </Button>
                 <Button
-                  onClick={() => updateWater(250)}
-                  size="sm"
-                  className="bg-secondary text-secondary-foreground hover:bg-secondary/90"
+                  onClick={handleAddMeal}
+                  className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
                 >
-                  <Plus className="mr-1 h-3 w-3" />
-                  250ml
-                </Button>
-                <Button
-                  onClick={() => updateWater(500)}
-                  size="sm"
-                  className="bg-secondary text-secondary-foreground hover:bg-secondary/90"
-                >
-                  <Plus className="mr-1 h-3 w-3" />
-                  500ml
+                  {t('addMeal', lang)}
                 </Button>
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
-
-        {/* Activity Tab */}
-        <TabsContent value="activity" className="mt-4 flex flex-col gap-4">
-          <Card className="border-0 bg-card shadow-sm">
-            <CardContent className="flex flex-col gap-4 p-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-                  <Footprints className="h-5 w-5 text-primary" />
-                </div>
-                <div className="flex-1">
-                  <Label htmlFor="steps">{t('stepCount', lang)}</Label>
-                  <Input
-                    id="steps"
-                    type="number"
-                    placeholder="0"
-                    value={dailyLog.steps || ""}
-                    onChange={(e) => updateSteps(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label className="mb-2 block">{t('activityLevel', lang)}</Label>
-                <div className="grid grid-cols-2 gap-2">
-                  {([
-                      {
-                        key: "sedentary",
-                        label: t('sedentary', lang),
-                        desc: t('deskWork', lang),
-                      },
-                      {
-                        key: "light",
-                        label: t('lightActivity', lang),
-                        desc: t('walkingTours', lang),
-                      },
-                      {
-                        key: "moderate",
-                        label: t('moderate', lang),
-                        desc: t('hikingCycling', lang),
-                      },
-                      {
-                        key: "active",
-                        label: t('activeLevel', lang),
-                        desc: t('sportsIntense', lang),
-                      },
-                    ] as const
-                  ).map((level) => (
-                    <button
-                      key={level.key}
-                      onClick={() => updateActivity(level.key)}
-                      className={cn(
-                        "flex flex-col items-start gap-0.5 rounded-lg border p-3 text-left transition-colors",
-                        dailyLog.activityLevel === level.key
-                          ? "border-primary bg-primary/5 text-foreground"
-                          : "border-border bg-card text-muted-foreground hover:border-primary/50"
-                      )}
-                    >
-                      <span className="text-sm font-medium">
-                        {level.label}
-                      </span>
-                      <span className="text-[10px]">{level.desc}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="activity-notes">{t('activityNotes', lang)}</Label>
-                <Textarea
-                  id="activity-notes"
-                  placeholder="Walked around the temple district..."
-                  value={dailyLog.activityNotes}
-                  onChange={(e) => updateNotes(e.target.value)}
-                  className="min-h-[80px]"
-                />
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+        ) : (
+          <Button
+            onClick={() => setShowMealForm(true)}
+            variant="outline"
+            className="border-dashed border-primary/30 text-primary hover:bg-primary/5"
+          >
+            <Plus className="mr-2 h-4 w-4" />
+            {t('addMealManually', lang)}
+          </Button>
+        )}
+      </div>
     )
   }
 }

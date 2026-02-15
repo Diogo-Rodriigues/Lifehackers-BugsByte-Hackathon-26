@@ -62,7 +62,7 @@ export function TripPlanning({ onOpenTripReview }: TripPlanningProps) {
         </div>
 
         <CardContent className="p-4 pt-2">
-          <div className="grid grid-cols-3 gap-3 py-4">
+          <div className="grid grid-cols-2 gap-3 py-4">
             <div className="flex flex-col gap-1 rounded-lg bg-muted/50 p-3">
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <MapPin className="h-3.5 w-3.5" />
@@ -76,16 +76,6 @@ export function TripPlanning({ onOpenTripReview }: TripPlanningProps) {
                 {t("destinationCountry", lang)}
               </div>
               <span className="font-medium text-foreground">{existingTrip.destination}</span>
-            </div>
-            <div className="flex flex-col gap-1 rounded-lg bg-muted/50 p-3">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <Clock className="h-3.5 w-3.5" />
-                {t("timezone", lang)}
-              </div>
-              <span className="font-medium text-foreground">
-                {existingTrip.timezoneShift > 0 ? "+" : ""}
-                {existingTrip.timezoneShift}h (UTC)
-              </span>
             </div>
           </div>
 
