@@ -346,11 +346,6 @@ We're grateful to these amazing technologies and partners:
 
 ### Get Help
 - 📧 Contact the LifeHackers team
-- 🐛 Report issues on GitHub
-- 💡 Request features via GitHub Issues
-
-### Contributing
-We welcome contributions! See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for guidelines.
 
 ### Documentation
 - [API Documentation](docs/API.md)
