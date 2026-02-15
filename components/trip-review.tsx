@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils"
 import { clearActiveTrip, getActiveTrip, getDailyLogs, getDailyLogsInRange, saveTrip, resetDailyLog, todayString } from "@/lib/store"
 import type { PageId } from "@/components/bottom-nav"
 import type { Trip, TripDietAnalysis, UserProfile, DailyLog, NutriumSyncStatus } from "@/lib/types"
-import { getLanguage, t } from "@/lib/language"
+import { getLanguage, t, type Language } from "@/lib/language"
 import Image from "next/image"
 import { DESTINATION_IMAGES } from "@/lib/constants"
 
@@ -173,7 +173,21 @@ export function TripReview({ profile, onNavigate }: TripReviewProps) {
   const [sendMessage, setSendMessage] = useState("")
   const [syncId, setSyncId] = useState("")
   const [finishing, setFinishing] = useState(false)
-  const lang = getLanguage()
+  const [lang, setLang] = useState<Language>(getLanguage())
+
+  useEffect(() => {
+    // Listen for language changes
+    const handleLanguageChange = (event: Event) => {
+      const customEvent = event as CustomEvent<Language>
+      setLang(customEvent.detail)
+    }
+
+    window.addEventListener('languageChanged', handleLanguageChange)
+
+    return () => {
+      window.removeEventListener('languageChanged', handleLanguageChange)
+    }
+  }, [])
 
   const analysis = useMemo(() => {
     if (!trip) return null

@@ -1,11 +1,12 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { getActiveTrip, getDailyLog, todayString } from "@/lib/store"
 import { MapPin, Clock, ShieldCheck, Utensils, Wine, CalendarDays, Plane } from "lucide-react"
-import { getLanguage, t } from "@/lib/language"
+import { getLanguage, t, type Language } from "@/lib/language"
 import { DESTINATION_IMAGES } from "@/lib/constants"
 import type { PageId } from "@/components/bottom-nav"
 
@@ -15,8 +16,22 @@ interface TripPlanningProps {
 
 export function TripPlanning({ onOpenTripReview }: TripPlanningProps) {
   const existingTrip = getActiveTrip()
-  const lang = getLanguage()
+  const [lang, setLang] = useState<Language>(getLanguage())
   const todayLog = getDailyLog(todayString())
+
+  useEffect(() => {
+    // Listen for language changes
+    const handleLanguageChange = (event: Event) => {
+      const customEvent = event as CustomEvent<Language>
+      setLang(customEvent.detail)
+    }
+
+    window.addEventListener('languageChanged', handleLanguageChange)
+
+    return () => {
+      window.removeEventListener('languageChanged', handleLanguageChange)
+    }
+  }, [])
 
   if (!existingTrip) {
     return (

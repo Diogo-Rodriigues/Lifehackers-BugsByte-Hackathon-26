@@ -8,7 +8,7 @@ import type { DailyLog, UserProfile } from "@/lib/types"
 import type { PageId } from "@/components/bottom-nav"
 import { Droplets, Footprints, Flame, TrendingUp } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { getLanguage, t } from "@/lib/language"
+import { getLanguage, t, type Language } from "@/lib/language"
 import { apiFetch } from "@/lib/api"
 
 const DESTINATION_FLAGS: Record<string, string> = {
@@ -38,7 +38,7 @@ export function Dashboard({ profile, onNavigate }: DashboardProps) {
   const today = todayString()
   const [dailyLog, setDailyLog] = useState<DailyLog>(getDailyLog(today))
   const activeTrip = getActiveTrip()
-  const lang = getLanguage()
+  const [lang, setLang] = useState<Language>(getLanguage())
 
   const adjustedWaterTarget = dailyLog.dynamicTargets?.adjustedWaterTarget || profile.waterTarget
   const adjustedCalorieTarget = dailyLog.dynamicTargets?.adjustedCalorieTarget || profile.dailyCalorieTarget
@@ -46,6 +46,20 @@ export function Dashboard({ profile, onNavigate }: DashboardProps) {
   useEffect(() => {
     setDailyLog(getDailyLog(today))
   }, [today])
+
+  useEffect(() => {
+    // Listen for language changes
+    const handleLanguageChange = (event: Event) => {
+      const customEvent = event as CustomEvent<Language>
+      setLang(customEvent.detail)
+    }
+
+    window.addEventListener('languageChanged', handleLanguageChange)
+
+    return () => {
+      window.removeEventListener('languageChanged', handleLanguageChange)
+    }
+  }, [])
 
   useEffect(() => {
     async function refreshDynamicTargets() {

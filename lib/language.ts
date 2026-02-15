@@ -20,6 +20,8 @@ export function getLanguage(): Language {
 export function setLanguage(lang: Language) {
   if (typeof window === 'undefined') return
   localStorage.setItem('language', lang)
+  // Dispatch custom event to notify components of language change
+  window.dispatchEvent(new CustomEvent('languageChanged', { detail: lang }))
 }
 
 export const translations = {
