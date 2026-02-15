@@ -1,233 +1,121 @@
 "use client"
 
-import { useState, useRef, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { useState, useEffect } from "react"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from "@/components/ui/select"
-import { Upload, ArrowRight, Globe } from "lucide-react"
-import { saveProfile, saveApiKey } from "@/lib/store"
-import type { UserProfile } from "@/lib/types"
-import { toast } from "sonner"
+import { saveApiKey, getApiKey } from "@/lib/store"
 import { getLanguage, setLanguage, t, type Language, LANGUAGES } from "@/lib/language"
+import { Key, ChevronRight, Sparkles } from "lucide-react"
+import Image from "next/image"
 
-interface WelcomeScreenProps {
-  onStartFresh: () => void
-  onPlanImported: () => void
+interface WelcomePageProps {
+    onStart: () => void
 }
 
-export function WelcomeScreen({ onStartFresh, onPlanImported }: WelcomeScreenProps) {
-  const [isUploading, setIsUploading] = useState(false)
-  const [language, setLanguageState] = useState<Language>(getLanguage())
-  const fileInputRef = useRef<HTMLInputElement>(null)
+export function WelcomePage({ onStart }: WelcomePageProps) {
+    const [language, setLanguageState] = useState<Language>("en")
+    const [apiKey, setApiKey_] = useState("")
 
-  useEffect(() => {
-    setLanguageState(getLanguage())
+    useEffect(() => {
+        setLanguageState(getLanguage())
+        setApiKey_(getApiKey() || "")
+    }, [])
 
-    // Listen for language changes
-    const handleLanguageChange = (event: Event) => {
-      const customEvent = event as CustomEvent<Language>
-      setLanguageState(customEvent.detail)
-    }
-
-    window.addEventListener('languageChanged', handleLanguageChange)
-
-    return () => {
-      window.removeEventListener('languageChanged', handleLanguageChange)
-    }
-  }, [])
-
-  function handleLanguageChange(lang: Language) {
-    setLanguage(lang)
-    setLanguageState(lang)
-  }
-
-  function handleFileUpload(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0]
-    if (!file) return
-
-    setIsUploading(true)
-    const reader = new FileReader()
-
-    reader.onload = (e) => {
-      try {
-        const content = e.target?.result as string
-        const data = JSON.parse(content)
-
-        // Validate that it has the required profile structure
-        if (!data.name || !data.age) {
-          toast.error("Invalid plan format. Please check your file.")
-          setIsUploading(false)
-          return
+    function handleStart() {
+        if (apiKey.trim()) {
+            saveApiKey(apiKey.trim())
         }
-
-        // Create a complete profile with the imported data
-        // Note: Don't set onboardingComplete: true yet, as we need to complete trip details
-        const profile: UserProfile = {
-          name: data.name,
-          age: data.age,
-          sex: data.sex || "other",
-          height: data.height || 170,
-          weight: data.weight || 70,
-          goal: data.goal || "maintain",
-          allergies: data.allergies || [],
-          dietaryPreferences: data.dietaryPreferences || [],
-          dailyCalorieTarget: data.dailyCalorieTarget || 2200,
-          macros: data.macros || { protein: 150, carbs: 200, fat: 65 },
-          waterTarget: data.waterTarget || 2500,
-          onboardingComplete: false, // Will be set to true after completing trip details
-        }
-
-        // Save the profile data
-        saveProfile(profile)
-        
-        // Save API key if provided in the plan
-        if (data.apiKey) {
-          saveApiKey(data.apiKey)
-        }
-        
-        toast.success("Plan imported successfully!")
-        
-        // Small delay to show success message before transitioning
-        setTimeout(() => {
-          onPlanImported()
-        }, 500)
-      } catch (error) {
-        console.error("Error parsing plan file:", error)
-        toast.error("Failed to read plan file. Please ensure it's a valid JSON file.")
-      } finally {
-        setIsUploading(false)
-      }
+        onStart()
     }
 
-    reader.onerror = () => {
-      toast.error("Failed to read file.")
-      setIsUploading(false)
-    }
-
-    reader.readAsText(file)
-  }
-
-  return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-primary/10 via-background to-primary/5 px-4">
-      {/* Language Selector */}
-      <div className="absolute top-6 right-6">
-        <Select value={language} onValueChange={(value) => handleLanguageChange(value as Language)}>
-          <SelectTrigger className="w-[140px] bg-background/80 backdrop-blur-sm border-primary/20">
-            <Globe className="h-4 w-4 mr-2 text-primary" />
-            <SelectValue className="text-sm">
-              <span className="flex items-center gap-1.5">
-                {LANGUAGES.find(l => l.code === language)?.flag} {language.toUpperCase()}
-              </span>
-            </SelectValue>
-          </SelectTrigger>
-          <SelectContent className="bg-background/95 backdrop-blur-sm min-w-[140px]">
-            {LANGUAGES.map((lang) => (
-              <SelectItem 
-                key={lang.code} 
-                value={lang.code}
-                className="hover:bg-primary/10 text-sm data-[highlighted]:bg-primary/10 focus:bg-primary/10 !pl-2 [&>span:first-child]:hidden"
-                style={{ padding: '4px 8px', minHeight: '28px', lineHeight: '20px' }}
-              >
-                <span className="inline-flex items-center gap-2">
-                  {lang.flag} {lang.name}
-                </span>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="w-full max-w-md space-y-8">
-        {/* Header */}
-        <div className="text-center space-y-2">
-          <h1 className="font-display text-4xl text-[#38b6ff]">{t('welcome', language)}</h1>
-          <p className="text-base text-muted-foreground">
-            {t('howWouldYouLikeToBegin', language)}
-          </p>
-        </div>
-
-        {/* Options */}
-        <div className="space-y-4">
-          {/* Start Fresh */}
-          <Card className="border-2 border-primary/20 bg-card hover:border-primary/40 transition-all duration-200 hover:shadow-lg cursor-pointer">
-            <CardContent className="p-6">
-              <button
-                onClick={onStartFresh}
-                className="w-full text-left"
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 space-y-2">
-                    <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
-                      {t('startFresh', language)}
-                      <ArrowRight className="h-5 w-5 text-primary" />
-                    </h2>
-                    <p className="text-sm text-muted-foreground">
-                      {t('setUpProfile', language)}
-                    </p>
-                  </div>
-                </div>
-              </button>
-            </CardContent>
-          </Card>
-
-          {/* Import Plan */}
-          <Card className="border-2 border-primary/20 bg-card hover:border-primary/40 transition-all duration-200 hover:shadow-lg">
-            <CardContent className="p-6">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
-                    <Upload className="h-5 w-5 text-primary" />
-                    {t('haveNutritionistPlan', language)}
-                  </h2>
-                  <p className="text-sm text-muted-foreground">
-                    {t('uploadPlanDescription', language)}
-                  </p>
-                </div>
-                
-                <Button
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isUploading}
-                  className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
+    return (
+        <div className="flex min-h-screen flex-col bg-gradient-to-b from-background via-primary/[0.03] to-primary/[0.08] relative">
+            {/* Language Selector - Top Right */}
+            <div className="absolute top-6 right-6 z-10">
+                <Select
+                    value={language}
+                    onValueChange={(value) => {
+                        setLanguage(value as Language)
+                        setLanguageState(value as Language)
+                    }}
                 >
-                  {isUploading ? t('uploading', language) : t('uploadPlan', language)}
-                </Button>
-                
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".json"
-                  onChange={handleFileUpload}
-                  className="hidden"
-                />
-                
-                <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground text-center">
-                    {t('acceptsJsonFormat', language)}
-                  </p>
-                  <a
-                    href="/sample-nutritionist-plan.json"
-                    download
-                    className="block text-xs text-primary hover:underline text-center"
-                  >
-                    {t('downloadSampleFormat', language)}
-                  </a>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+                    <SelectTrigger className="w-[90px] h-8 text-xs border-0 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm font-semibold">
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {LANGUAGES.map((lang) => (
+                            <SelectItem key={lang.code} value={lang.code} className="cursor-pointer text-xs">
+                                {lang.code.toUpperCase()}
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
 
-        {/* Footer hint */}
-        <p className="text-center text-xs text-muted-foreground">
-          {t('dontWorryAdjustLater', language)}
-        </p>
-      </div>
-    </div>
-  )
+            {/* Content */}
+            <div className="flex flex-1 flex-col items-center justify-center px-6 py-12">
+                {/* Logo */}
+                <Image src="/logo.png" alt="NutriFuel" width={140} height={140} priority className="mb-6" />
+
+                {/* Welcome Title */}
+                <h1 className="font-display text-4xl sm:text-5xl font-bold text-primary mb-2 tracking-tight italic">
+                    {t("welcome", language)}
+                </h1>
+                <p className="text-base text-muted-foreground font-medium text-center mb-10">
+                    {t("howToBegin", language)}
+                </p>
+
+                {/* Cards Section */}
+                <div className="w-full max-w-sm flex flex-col gap-5">
+                    {/* API Key Card */}
+                    <div className="rounded-2xl border border-border/60 bg-card/80 backdrop-blur-sm p-5 shadow-sm">
+                        <Label htmlFor="api-key-welcome" className="flex items-center gap-2 text-sm font-semibold mb-2.5">
+                            <Key className="h-4 w-4 text-primary" />
+                            {t("apiKey", language)}
+                        </Label>
+                        <Input
+                            id="api-key-welcome"
+                            type="password"
+                            placeholder={t("apiKeyPlaceholder", language)}
+                            value={apiKey}
+                            onChange={(e) => setApiKey_(e.target.value)}
+                            className="h-11 mb-2"
+                        />
+                        <p className="text-xs text-muted-foreground leading-relaxed">
+                            {t("apiKeyDescription", language)}
+                        </p>
+                    </div>
+
+                    {/* Start Onboarding Card */}
+                    <button
+                        onClick={handleStart}
+                        className="group w-full rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/[0.06] to-primary/[0.12] hover:from-primary/[0.10] hover:to-primary/[0.18] p-5 shadow-sm hover:shadow-md transition-all duration-300 text-left cursor-pointer"
+                    >
+                        <div className="flex items-center gap-2 mb-1.5">
+                            <Sparkles className="h-5 w-5 text-primary" />
+                            <span className="text-lg font-bold text-foreground">
+                                {t("startOnboarding", language)}
+                            </span>
+                            <ChevronRight className="h-5 w-5 text-primary ml-auto opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
+                        </div>
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                            {t("startOnboardingDesc", language)}
+                        </p>
+                    </button>
+                </div>
+
+                {/* Footer Note */}
+                <p className="mt-10 text-xs text-muted-foreground/70 text-center max-w-xs leading-relaxed">
+                    {t("welcomeFooter", language)}
+                </p>
+            </div>
+        </div>
+    )
 }
