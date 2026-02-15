@@ -7,7 +7,6 @@ import { getActiveTrip, getDailyLog, todayString } from "@/lib/store"
 import { MapPin, Clock, ShieldCheck, Utensils, Wine, CalendarDays, Plane } from "lucide-react"
 import { getLanguage, t } from "@/lib/language"
 import { DESTINATION_IMAGES } from "@/lib/constants"
-import Image from "next/image"
 import type { PageId } from "@/components/bottom-nav"
 
 interface TripPlanningProps {
@@ -46,30 +45,30 @@ export function TripPlanning({ onOpenTripReview }: TripPlanningProps) {
     <div className="flex flex-col gap-6 px-4 pb-24 pt-4">
       <div className="flex items-center justify-between">
         <h1 className="font-display text-2xl text-[#38b6ff]">{t("yourTrip", lang)}</h1>
-        <Badge variant="outline" className="border-primary/20 bg-primary/5 text-primary">
+        <Badge variant="outline" className="border-primary/20 bg-primary/5 text-primary whitespace-nowrap">
           {t("activeBadge", lang)}
         </Badge>
       </div>
 
       <Card className="overflow-hidden border-0 bg-card shadow-sm">
-        <div className="relative h-32 overflow-hidden">
-          {DESTINATION_IMAGES[existingTrip.destination] && (
-            <Image
-              src={DESTINATION_IMAGES[existingTrip.destination]}
-              alt={existingTrip.destination}
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, 600px"
-            />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+        <div 
+          className="relative h-40 overflow-hidden bg-gradient-to-br from-primary/20 via-primary/10 to-primary/5"
+          style={{ 
+            backgroundImage: DESTINATION_IMAGES[existingTrip.destination] ? `url('${DESTINATION_IMAGES[existingTrip.destination]}')` : undefined,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center'
+          }}
+        >
+          <div className="absolute inset-0 bg-gradient-to-t from-background/95 via-background/70 to-background/30" />
+          <div className="absolute inset-0 backdrop-blur-[2px]" />
           <div className="absolute bottom-4 left-4 z-10">
-            <div className="inline-block px-3 py-1.5 rounded-md bg-white/95 backdrop-blur-md shadow-lg">
-              <h2 className="text-2xl font-bold text-gray-900 mb-0.5">{existingTrip.destination}</h2>
-              <div className="flex items-center gap-2 text-xs text-gray-600 font-medium">
-                <CalendarDays className="h-3.5 w-3.5" />
-                <span>{dateRange}</span>
-              </div>
+            <div className="flex items-center gap-2 mb-1">
+              <Plane className="h-5 w-5 text-primary" />
+              <h2 className="text-2xl font-bold text-foreground">{existingTrip.destination}</h2>
+            </div>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <CalendarDays className="h-3.5 w-3.5" />
+              <span>{dateRange}</span>
             </div>
           </div>
         </div>
@@ -103,7 +102,7 @@ export function TripPlanning({ onOpenTripReview }: TripPlanningProps) {
                   <Badge
                     key={d.name}
                     variant="secondary"
-                    className="bg-accent text-accent-foreground hover:bg-accent/80"
+                    className="bg-accent text-accent-foreground hover:bg-accent/80 whitespace-nowrap"
                   >
                     {d.name}
                   </Badge>
@@ -125,7 +124,7 @@ export function TripPlanning({ onOpenTripReview }: TripPlanningProps) {
                   <Badge
                     key={b.name}
                     variant="secondary"
-                    className="bg-accent text-accent-foreground hover:bg-accent/80"
+                    className="bg-accent text-accent-foreground hover:bg-accent/80 whitespace-nowrap"
                   >
                     {b.name}
                   </Badge>
@@ -143,7 +142,7 @@ export function TripPlanning({ onOpenTripReview }: TripPlanningProps) {
                   <ShieldCheck className="h-4 w-4 text-primary" />
                   {t("dailyMealPlan", lang)}
                 </h3>
-                <Badge variant="outline" className="border-primary/20 text-[10px] capitalize text-primary">
+                <Badge variant="outline" className="border-primary/20 text-[10px] capitalize text-primary whitespace-nowrap">
                   {existingTrip.mealPlan.status.replace("-", " ")}
                 </Badge>
               </div>

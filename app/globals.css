@@ -137,3 +137,11 @@
 .safe-bottom {
   padding-bottom: max(env(safe-area-inset-bottom), 1rem);
 }
+
+/* Match native date input placeholder to standard placeholder color */
+input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+  color: inherit;
+}
+input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0.5;
+}

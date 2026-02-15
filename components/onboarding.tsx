@@ -13,6 +13,8 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Card, CardContent } from "@/components/ui/card"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Calendar } from "@/components/ui/calendar"
 import { saveProfile } from "@/lib/store"
 import type { UserProfile } from "@/lib/types"
 import {
@@ -28,13 +30,14 @@ import {
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 
-import { generateId, saveTrip, setActiveTrip, saveApiKey, getApiKey, getAllergyOptions, saveAllergyOptions, getDietOptions, saveDietOptions } from "@/lib/store"
+import { generateId, saveTrip, setActiveTrip, getAllergyOptions, saveAllergyOptions, getDietOptions, saveDietOptions } from "@/lib/store"
+import { TIMEZONE_OFFSETS } from "@/lib/constants"
 import { apiFetch } from "@/lib/api"
 import type { Trip, LocalDish, LocalBeverage, MealPlan, CaffeineRecommendation } from "@/lib/types"
 import { getLanguage, setLanguage, t, type Language, LANGUAGES } from "@/lib/language"
 import {
   Plane,
-  Calendar,
+  Calendar as CalendarIcon,
   Loader2,
   AlertTriangle,
   ShieldCheck,
@@ -78,10 +81,11 @@ interface NutritionistProfile {
 
 const DEFAULT_NUTRITIONIST: NutritionistProfile = {
   name: "Local Nutrition Specialist",
-  photoUrl: "/nutritionists/default.png",
+  photoUrl: "/nutritionists/portugal.png",
 }
 
 const NUTRITIONIST_BY_DESTINATION: Record<string, NutritionistProfile> = {
+  Portugal: { name: "Dr. Maria Silva", photoUrl: "/nutritionists/portugal.png" },
   Japan: { name: "Dr. Aiko Tanaka", photoUrl: "/nutritionists/japan.png" },
   Thailand: { name: "Dr. Naree Suksawat", photoUrl: "/nutritionists/thailand.png" },
   Mexico: { name: "Dr. Valeria Soto", photoUrl: "/nutritionists/mexico.png" },
@@ -97,6 +101,221 @@ const NUTRITIONIST_BY_DESTINATION: Record<string, NutritionistProfile> = {
   Greece: { name: "Dr. Eleni Papadopoulou", photoUrl: "/nutritionists/greece.png" },
   Brazil: { name: "Dr. Marina Costa", photoUrl: "/nutritionists/brazil.png" },
   Colombia: { name: "Dr. Sofia Ramirez", photoUrl: "/nutritionists/colombia.png" },
+  Germany: { name: "Dr. Anna Schmidt", photoUrl: "/nutritionists/germany.png" },
+  China: { name: "Dr. Li Wei", photoUrl: "/nutritionists/china.png" },
+  "United States": { name: "Dr. Sarah Johnson", photoUrl: "/nutritionists/usa.png" },
+  "United Arab Emirates": { name: "Dr. Fatima Al Mansouri", photoUrl: "/nutritionists/uae.png" },
+  Indonesia: { name: "Dr. Siti Nurhaliza", photoUrl: "/nutritionists/indonesia.png" },
+  Argentina: { name: "Dr. Isabel Fernández", photoUrl: "/nutritionists/argentina.png" },
+  Egypt: { name: "Dr. Nour Hassan", photoUrl: "/nutritionists/egypt.png" },
+  Australia: { name: "Dr. Emma Wilson", photoUrl: "/nutritionists/australia.png" },
+  Netherlands: { name: "Dr. Sophie van Berg", photoUrl: "/nutritionists/netherlands.png" },
+}
+
+function DatePicker({ value, onChange, language }: { value: string | undefined; onChange: (val: string) => void; language: Language }) {
+  const selectedDate = value ? new Date(value + 'T00:00:00') : undefined
+
+  const formatDate = (date: Date | undefined) => {
+    if (!date) return ''
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const day = date.getDate().toString().padStart(2, '0')
+    const year = date.getFullYear()
+    
+    // Format based on language
+    if (language === 'zh' || language === 'ja') {
+      return `${year}/${month}/${day}` // YYYY/MM/DD
+    } else if (language === 'de') {
+      return `${day}.${month}.${year}` // DD.MM.YYYY
+    } else if (language === 'en') {
+      return `${month}/${day}/${year}` // MM/DD/YYYY
+    } else {
+      return `${day}/${month}/${year}` // DD/MM/YYYY for pt-PT, pt-BR, es, fr, it
+    }
+  }
+
+  const handleSelect = (date: Date | undefined) => {
+    if (!date) {
+      onChange('')
+      return
+    }
+    const year = date.getFullYear()
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const day = date.getDate().toString().padStart(2, '0')
+    onChange(`${year}-${month}-${day}`)
+  }
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <div className="relative cursor-pointer">
+          <Input
+            readOnly
+            value={value ? formatDate(selectedDate) : ''}
+            placeholder={t('datePlaceholder', language)}
+            className="cursor-pointer pr-9"
+          />
+          <CalendarIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
+        </div>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0" align="start">
+        <Calendar
+          mode="single"
+          selected={selectedDate}
+          onSelect={handleSelect}
+          initialFocus
+        />
+      </PopoverContent>
+    </Popover>
+  )
+}
+
+function TimePicker({ value, onChange, language }: { value: string | undefined; onChange: (val: string) => void; language: Language }) {
+  const [view, setView] = useState<'hours' | 'minutes'>('hours')
+
+  const h24 = parseInt(value?.split(':')[0] || '0', 10)
+  const min = value?.split(':')[1] || '00'
+  const isPM = h24 >= 12
+  const h12 = h24 === 0 ? 12 : h24 > 12 ? h24 - 12 : h24
+
+  const displayTime = value ? `${h12}:${min} ${isPM ? 'PM' : 'AM'}` : t('timePlaceholder', language)
+
+  const to24 = (hour12: number, pm: boolean) =>
+    pm ? (hour12 === 12 ? 12 : hour12 + 12) : (hour12 === 12 ? 0 : hour12)
+
+  const setHour = (hour12: number) => {
+    const newH24 = to24(hour12, isPM)
+    onChange(`${newH24.toString().padStart(2, '0')}:${min}`)
+    setView('minutes')
+  }
+
+  const setMinute = (m: string) => {
+    const h = value?.split(':')[0] || '00'
+    onChange(`${h}:${m}`)
+  }
+
+  const togglePeriod = (period: 'AM' | 'PM') => {
+    const newH24 = to24(h12, period === 'PM')
+    onChange(`${newH24.toString().padStart(2, '0')}:${min}`)
+  }
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <div className="relative cursor-pointer">
+          <Input
+            readOnly
+            value={value ? displayTime : ''}
+            placeholder={t('timePlaceholder', language)}
+            className="cursor-pointer pr-9"
+          />
+          <Clock className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
+        </div>
+      </PopoverTrigger>
+      <PopoverContent className="w-[220px] p-0" align="start">
+        <div className="p-3 space-y-3">
+          {/* Header — selected time display */}
+          <div className="flex items-center justify-center">
+            <div className="inline-flex items-center rounded-full border px-3 py-1 text-sm font-medium">
+              <button
+                type="button"
+                onClick={() => setView('hours')}
+                className={cn("transition-colors", view === 'hours' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground')}
+              >
+                {value ? h12.toString() : '--'}
+              </button>
+              <span className="text-muted-foreground mx-0.5">:</span>
+              <button
+                type="button"
+                onClick={() => setView('minutes')}
+                className={cn("transition-colors", view === 'minutes' ? 'text-foreground' : 'text-muted-foreground hover:text-foreground')}
+              >
+                {value ? min : '--'}
+              </button>
+              <span className="ml-1.5 text-xs text-muted-foreground">{value ? (isPM ? 'PM' : 'AM') : ''}</span>
+            </div>
+          </div>
+
+          {/* Grid */}
+          {view === 'hours' ? (
+            <div className="grid grid-cols-4 gap-1">
+              {Array.from({ length: 12 }, (_, i) => {
+                const hour = i + 1
+                const selected = value && h12 === hour
+                return (
+                  <button
+                    key={hour}
+                    type="button"
+                    onClick={() => setHour(hour)}
+                    className={cn(
+                      "h-9 w-full rounded-md text-sm font-medium transition-colors",
+                      selected
+                        ? "bg-primary text-primary-foreground"
+                        : "hover:bg-accent hover:text-accent-foreground"
+                    )}
+                  >
+                    {hour}
+                  </button>
+                )
+              })}
+            </div>
+          ) : (
+            <div className="grid grid-cols-4 gap-1">
+              {Array.from({ length: 12 }, (_, i) => {
+                const m = (i * 5).toString().padStart(2, '0')
+                const selected = value && min === m
+                return (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => setMinute(m)}
+                    className={cn(
+                      "h-9 w-full rounded-md text-sm font-medium transition-colors",
+                      selected
+                        ? "bg-primary text-primary-foreground"
+                        : "hover:bg-accent hover:text-accent-foreground"
+                    )}
+                  >
+                    {m}
+                  </button>
+                )
+              })}
+            </div>
+          )}
+
+          {/* AM / PM toggle */}
+          <div className="flex gap-1">
+            {(['AM', 'PM'] as const).map((period) => {
+              const selected = value && (period === 'AM' ? !isPM : isPM)
+              return (
+                <button
+                  key={period}
+                  type="button"
+                  onClick={() => togglePeriod(period)}
+                  className={cn(
+                    "flex-1 h-8 rounded-md text-sm font-medium transition-colors",
+                    selected
+                      ? "bg-primary text-primary-foreground"
+                      : "hover:bg-accent hover:text-accent-foreground"
+                  )}
+                >
+                  {period}
+                </button>
+              )
+            })}
+          </div>
+
+          {/* Clear */}
+          <button
+            type="button"
+            onClick={() => { onChange(''); setView('hours') }}
+            className="w-full h-8 rounded-md border text-sm font-medium text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+          >
+            Clear
+          </button>
+        </div>
+      </PopoverContent>
+    </Popover>
+  )
 }
 
 interface OnboardingProps {
@@ -109,7 +328,6 @@ interface OnboardingProps {
 export function Onboarding({ onComplete, onBack, startAtStep = 0, initialProfile }: OnboardingProps) {
   const [step, setStep] = useState(startAtStep)
   const [language, setLanguageState] = useState<Language>('en')
-  const [apiKey, setApiKey] = useState("")
   const [allergyOptions, setAllergyOptions] = useState(ALLERGY_OPTIONS)
   const [dietOptions, setDietOptions] = useState(DIET_OPTIONS)
   const [customAllergy, setCustomAllergy] = useState("")
@@ -168,9 +386,8 @@ export function Onboarding({ onComplete, onBack, startAtStep = 0, initialProfile
     saveDietOptions(dietOptions)
   }, [dietOptions])
 
-  // Load existing API key if available
+  // Load language
   useEffect(() => {
-    setApiKey(getApiKey() || "")
     setLanguageState(getLanguage())
   }, [])
 
@@ -564,21 +781,21 @@ export function Onboarding({ onComplete, onBack, startAtStep = 0, initialProfile
       
       {/* Header */}
       <div className="flex flex-col items-center gap-3 px-6 pt-16 pb-8">
-        <h1 className="font-display text-4xl text-[#38b6ff] mb-2">NutriFuel</h1>
+        <h1 className="font-display text-2xl text-[#38b6ff] mb-2">NutriFuel</h1>
         <p className="text-base text-muted-foreground font-medium text-center">
           {t('setupProfile', language)}
         </p>
 
         {/* Step Indicator */}
-        <div className="flex items-center justify-center gap-1 sm:gap-2 w-full px-4 mt-4">
+        <div className="flex items-center w-full mt-4">
           {steps.map((s, i) => (
-            <div key={s.title} className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+            <div key={s.title} className="flex items-center flex-1 last:flex-none">
               <div
                 className={cn(
-                  "flex h-7 w-7 sm:h-9 sm:w-9 items-center justify-center rounded-full text-xs sm:text-sm font-semibold transition-all duration-300 flex-shrink-0 shadow-sm",
+                  "flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full text-xs sm:text-sm font-semibold transition-all duration-300 shadow-sm flex-shrink-0",
                   i <= step
                     ? "bg-primary text-primary-foreground ring-2 ring-primary/20"
-                    : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    : "bg-muted text-muted-foreground"
                 )}
               >
                 {i + 1}
@@ -586,7 +803,7 @@ export function Onboarding({ onComplete, onBack, startAtStep = 0, initialProfile
               {i < steps.length - 1 && (
                 <div
                   className={cn(
-                    "h-0.5 w-3 sm:w-6 rounded-full transition-all duration-300 flex-shrink-0",
+                    "h-0.5 flex-1 rounded-full transition-all duration-300 mx-1 sm:mx-2",
                     i < step ? "bg-primary" : "bg-muted"
                   )}
                 />
@@ -719,8 +936,8 @@ export function Onboarding({ onComplete, onBack, startAtStep = 0, initialProfile
                           className="group w-full rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/[0.06] to-teal-600/[0.12] hover:from-emerald-500/[0.12] hover:to-teal-600/[0.20] p-5 shadow-sm hover:shadow-md transition-all duration-300 text-left cursor-pointer"
                         >
                           <div className="flex items-center gap-3 mb-2">
-                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-teal-700 flex-shrink-0">
-                              <Wifi className="h-5 w-5 text-white" />
+                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/80 flex-shrink-0">
+                              <Wifi className="h-5 w-5 text-primary-foreground" />
                             </div>
                             <div className="flex-1">
                               <h3 className="text-base font-bold text-foreground">
@@ -1024,52 +1241,57 @@ export function Onboarding({ onComplete, onBack, startAtStep = 0, initialProfile
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="arr-date">{t('arrivalAtDest', language) || 'Arrival at Destination'}</Label>
-                    <Input
-                      id="arr-date"
-                      type="date"
+                    <Label>{t('arrivalAtDest', language) || 'Arrival at Destination'}</Label>
+                    <DatePicker
                       value={trip.arrivalDate}
-                      onChange={(e) =>
-                        setTrip({ ...trip, arrivalDate: e.target.value })
-                      }
+                      onChange={(val) => setTrip({ ...trip, arrivalDate: val })}
+                      language={language}
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="arr-time">{t('arrivalTimeAtDest', language) || 'Arrival Time'}</Label>
-                    <Input
-                      id="arr-time"
-                      type="time"
+                    <Label>{t('arrivalTimeAtDest', language) || 'Arrival Time'}</Label>
+                    <TimePicker
                       value={trip.arrivalTime}
-                      onChange={(e) =>
-                        setTrip({ ...trip, arrivalTime: e.target.value })
-                      }
+                      onChange={(val) => setTrip({ ...trip, arrivalTime: val })}
+                      language={language}
                     />
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="ret-date">{t('departureFromDest', language) || 'Departure from Destination'}</Label>
-                    <Input
-                      id="ret-date"
-                      type="date"
+                    <Label>{t('departureFromDest', language) || 'Departure from Destination'}</Label>
+                    <DatePicker
                       value={trip.returnDate}
-                      onChange={(e) =>
-                        setTrip({ ...trip, returnDate: e.target.value })
-                      }
+                      onChange={(val) => setTrip({ ...trip, returnDate: val })}
+                      language={language}
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="ret-time">{t('departureTimeFromDest', language) || 'Departure Time'}</Label>
-                    <Input
-                      id="ret-time"
-                      type="time"
+                    <Label>{t('departureTimeFromDest', language) || 'Departure Time'}</Label>
+                    <TimePicker
                       value={trip.returnTime}
-                      onChange={(e) =>
-                        setTrip({ ...trip, returnTime: e.target.value })
-                      }
+                      onChange={(val) => setTrip({ ...trip, returnTime: val })}
+                      language={language}
                     />
                   </div>
                 </div>
+                {trip.destination && TIMEZONE_OFFSETS[trip.destination] !== undefined && (
+                  <Card className="border border-secondary/30 bg-accent/50 shadow-none">
+                    <CardContent className="flex items-center gap-3 p-3">
+                      <Clock className="h-5 w-5 text-secondary" />
+                      <div>
+                        <p className="text-sm font-medium text-foreground">
+                          {t('timezoneShift', language)}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {trip.destination} {t('timezoneDesc', language)}
+                          {TIMEZONE_OFFSETS[trip.destination] > 0 ? "+" : ""}
+                          {TIMEZONE_OFFSETS[trip.destination]}{t('mealTimesAdjusted', language)}
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
             )}
 

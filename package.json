@@ -1,6 +1,9 @@
 {
-  "name": "my-project",
-  "version": "0.1.0",
+  "name": "nutrifuel",
+  "version": "1.0.0",
+  "description": "AI-powered nutrition companion for travelers - helping you stay on track with your health goals while exploring the world",
+  "author": "Lifehackers Team",
+  "license": "MIT",
   "private": true,
   "scripts": {
     "dev": "next dev --turbo",

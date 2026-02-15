@@ -128,8 +128,10 @@ export function addMealToLog(date: string, meal: MealLog) {
 }
 
 // API Key
+import { DEFAULT_API_KEY } from "./constants"
+
 export function getApiKey(): string {
-  return getItem<string>(STORAGE_KEYS.API_KEY, "")
+  return getItem<string>(STORAGE_KEYS.API_KEY, "") || DEFAULT_API_KEY
 }
 
 export function saveApiKey(key: string) {
