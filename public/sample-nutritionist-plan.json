@@ -13,5 +13,6 @@
     "carbs": 220,
     "fat": 73
   },
-  "waterTarget": 2500
+  "waterTarget": 2500,
+  "apiKey": "sk-your-openai-api-key-here"
 }

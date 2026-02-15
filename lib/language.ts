@@ -1059,6 +1059,19 @@ export const translations = {
     addEntry: "Añadir Entrada",
     addEntryDesc: "Añadir comidas, agua y actividad usando fotos o entrada manual",
     dailySummary: "Resumen Diario",
+    
+    // Welcome Screen
+    welcome: "¡Bienvenido!",
+    howWouldYouLikeToBegin: "¿Cómo te gustaría empezar?",
+    startFresh: "Empezar de Cero",
+    setUpProfile: "Configura tu perfil y preferencias desde cero. Perfecto para nuevos usuarios.",
+    haveNutritionistPlan: "Tengo un Plan de Nutricionista",
+    uploadPlanDescription: "Sube tu plan alimentario personalizado de tu nutricionista para empezar rápidamente.",
+    uploading: "Importando...",
+    uploadPlan: "Subir Plan (JSON)",
+    acceptsJsonFormat: "Acepta formato JSON con datos de perfil y plan alimentario",
+    downloadSampleFormat: "Descargar formato ejemplo",
+    dontWorryAdjustLater: "No te preocupes, siempre puedes ajustar tus preferencias más tarde en Configuración",
   },
   fr: {
     setupProfile: "Configurons votre profil nutritionnel",

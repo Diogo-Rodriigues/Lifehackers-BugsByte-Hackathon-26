@@ -27,7 +27,7 @@ import {
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 import { DESTINATIONS, TIMEZONE_OFFSETS } from "@/lib/constants"
-import { generateId, saveTrip, setActiveTrip, saveApiKey, getApiKey, getAllergyOptions, saveAllergyOptions, getDietOptions, saveDietOptions } from "@/lib/store"
+import { generateId, saveTrip, setActiveTrip, saveApiKey, getApiKey, getAllergyOptions, saveAllergyOptions, getDietOptions, saveDietOptions, getProfile } from "@/lib/store"
 import { apiFetch } from "@/lib/api"
 import type { Trip, LocalDish, LocalBeverage, MealPlan } from "@/lib/types"
 import { getLanguage, setLanguage, t, type Language, LANGUAGES } from "@/lib/language"
@@ -166,7 +166,28 @@ export function Onboarding({ onComplete, onBack, initialStep = 0 }: OnboardingPr
   useEffect(() => {
     setApiKey(getApiKey() || "")
     setLanguageState(getLanguage())
-  }, [])
+    
+    // If starting from a step > 0, it means a plan was imported
+    // Load the existing profile data
+    if (initialStep > 0) {
+      const existingProfile = getProfile()
+      if (existingProfile) {
+        setProfile({
+          name: existingProfile.name,
+          age: existingProfile.age,
+          sex: existingProfile.sex,
+          height: existingProfile.height,
+          weight: existingProfile.weight,
+          goal: existingProfile.goal,
+          allergies: existingProfile.allergies,
+          dietaryPreferences: existingProfile.dietaryPreferences,
+          dailyCalorieTarget: existingProfile.dailyCalorieTarget,
+          macros: existingProfile.macros,
+          waterTarget: existingProfile.waterTarget,
+        })
+      }
+    }
+  }, [initialStep])
 
   const steps = [
     { title: t('aboutYou', language), icon: User },

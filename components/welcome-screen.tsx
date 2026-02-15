@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Upload, ArrowRight, Globe } from "lucide-react"
-import { saveProfile } from "@/lib/store"
+import { saveProfile, saveApiKey } from "@/lib/store"
 import type { UserProfile } from "@/lib/types"
 import { toast } from "sonner"
 import { getLanguage, setLanguage, t, type Language, LANGUAGES } from "@/lib/language"
@@ -60,13 +60,14 @@ export function WelcomeScreen({ onStartFresh, onPlanImported }: WelcomeScreenPro
         const data = JSON.parse(content)
 
         // Validate that it has the required profile structure
-        if (!data.name || !data.age || !data.dailyCalorieTarget) {
+        if (!data.name || !data.age) {
           toast.error("Invalid plan format. Please check your file.")
           setIsUploading(false)
           return
         }
 
-        // Create a complete profile with defaults for missing fields
+        // Create a complete profile with the imported data
+        // Note: Don't set onboardingComplete: true yet, as we need to complete trip details
         const profile: UserProfile = {
           name: data.name,
           age: data.age,
@@ -76,13 +77,20 @@ export function WelcomeScreen({ onStartFresh, onPlanImported }: WelcomeScreenPro
           goal: data.goal || "maintain",
           allergies: data.allergies || [],
           dietaryPreferences: data.dietaryPreferences || [],
-          dailyCalorieTarget: data.dailyCalorieTarget,
+          dailyCalorieTarget: data.dailyCalorieTarget || 2200,
           macros: data.macros || { protein: 150, carbs: 200, fat: 65 },
-          waterTarget: data.waterTarget || 2000,
-          onboardingComplete: true,
+          waterTarget: data.waterTarget || 2500,
+          onboardingComplete: false, // Will be set to true after completing trip details
         }
 
+        // Save the profile data
         saveProfile(profile)
+        
+        // Save API key if provided in the plan
+        if (data.apiKey) {
+          saveApiKey(data.apiKey)
+        }
+        
         toast.success("Plan imported successfully!")
         
         // Small delay to show success message before transitioning
@@ -123,7 +131,7 @@ export function WelcomeScreen({ onStartFresh, onPlanImported }: WelcomeScreenPro
               <SelectItem 
                 key={lang.code} 
                 value={lang.code}
-                className="hover:bg-primary/10 text-sm data-[highlighted]:bg-primary/10 focus:bg-primary/10"
+                className="hover:bg-primary/10 text-sm data-[highlighted]:bg-primary/10 focus:bg-primary/10 !pl-2 [&>span:first-child]:hidden"
                 style={{ padding: '4px 8px', minHeight: '28px', lineHeight: '20px' }}
               >
                 <span className="inline-flex items-center gap-2">
