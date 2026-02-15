@@ -1,15 +1,16 @@
 "use client"
 
-import { useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { ProgressRing } from "@/components/progress-ring"
-import { getDailyLog, todayString, getActiveTrip } from "@/lib/store"
-import type { UserProfile } from "@/lib/types"
+import { getDailyLog, todayString, getActiveTrip, saveDailyLog } from "@/lib/store"
+import type { DailyLog, UserProfile } from "@/lib/types"
 import type { PageId } from "@/components/bottom-nav"
 import { Droplets, Footprints, Flame, TrendingUp } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
 import { getLanguage, t } from "@/lib/language"
+import { apiFetch } from "@/lib/api"
 
 const DESTINATION_FLAGS: Record<string, string> = {
   Japan: "🇯🇵",
@@ -36,9 +37,46 @@ interface DashboardProps {
 
 export function Dashboard({ profile, onNavigate }: DashboardProps) {
   const today = todayString()
-  const dailyLog = getDailyLog(today)
+  const [dailyLog, setDailyLog] = useState<DailyLog>(getDailyLog(today))
   const activeTrip = getActiveTrip()
   const lang = getLanguage()
+
+  const adjustedWaterTarget = dailyLog.dynamicTargets?.adjustedWaterTarget || profile.waterTarget
+  const adjustedCalorieTarget = dailyLog.dynamicTargets?.adjustedCalorieTarget || profile.dailyCalorieTarget
+
+  useEffect(() => {
+    setDailyLog(getDailyLog(today))
+  }, [today])
+
+  useEffect(() => {
+    async function refreshDynamicTargets() {
+      if (!activeTrip?.destination) return
+      const currentLog = getDailyLog(today)
+      try {
+        const res = await apiFetch("/api/dynamic-targets", {
+          destination: activeTrip.destination,
+          tripDate: activeTrip.departureDate,
+          profile,
+          dailyLog: currentLog,
+          selectedDishes: activeTrip.selectedDishes || [],
+        })
+        if (!res.ok) return
+        const data = await res.json()
+        const latestLog = getDailyLog(today)
+        const updated: DailyLog = {
+          ...latestLog,
+          weather: data.weather,
+          dynamicTargets: data.dynamicTargets,
+        }
+        saveDailyLog(updated)
+        setDailyLog(updated)
+      } catch {
+        // Silent fallback to persisted/base values
+      }
+    }
+
+    refreshDynamicTargets()
+  }, [today, activeTrip?.destination, profile])
 
   const totals = useMemo(() => {
     return dailyLog.meals.reduce(
@@ -54,11 +92,36 @@ export function Dashboard({ profile, onNavigate }: DashboardProps) {
 
   const caloriesRemaining = Math.max(
     0,
-    profile.dailyCalorieTarget - totals.calories
+    adjustedCalorieTarget - totals.calories
   )
 
   const mealCount = dailyLog.meals.length
   const hasOffPlanMeal = dailyLog.meals.some((m) => m.isOffPlan)
+
+  function quickLogWater() {
+    const updated: DailyLog = {
+      ...dailyLog,
+      waterIntake: dailyLog.waterIntake + 250,
+    }
+    saveDailyLog(updated)
+    setDailyLog(updated)
+  }
+
+  const shouldShowHydrationNotice = Boolean(
+    dailyLog.dynamicTargets?.needsHydrationAlert &&
+      dailyLog.dynamicTargets.adjustedWaterTarget > dailyLog.dynamicTargets.baseWaterTarget &&
+      dailyLog.waterIntake < dailyLog.dynamicTargets.adjustedWaterTarget
+  )
+
+  const hydrationMessage = (() => {
+    const kind = dailyLog.dynamicTargets?.hydrationAlertKind
+    const seasonal = dailyLog.dynamicTargets?.hydrationAlertSeasonal
+    if (kind === "heat") return t('hydrationAlertByHeat', lang)
+    if (kind === "activity") return t('hydrationAlertByActivity', lang)
+    if (kind === "mixed" && seasonal) return t('hydrationAlertBySeasonActivity', lang)
+    if (kind === "mixed") return t('hydrationAlertByMixed', lang)
+    return t('hydrationAlertGeneric', lang)
+  })()
 
   return (
     <div className="flex flex-col gap-6 px-4 pb-24 pt-4">
@@ -85,12 +148,12 @@ export function Dashboard({ profile, onNavigate }: DashboardProps) {
         <CardContent className="flex flex-col items-center gap-4 p-6">
           <ProgressRing
             value={totals.calories}
-            max={profile.dailyCalorieTarget}
+            max={adjustedCalorieTarget}
             size={160}
             strokeWidth={12}
             color="hsl(var(--primary))"
             label={`${totals.calories}`}
-            sublabel={`/ ${profile.dailyCalorieTarget} kcal`}
+            sublabel={`/ ${adjustedCalorieTarget} kcal`}
           />
           <div className="flex items-center gap-2 text-sm">
             <Flame className="h-4 w-4 text-primary" />
@@ -138,9 +201,14 @@ export function Dashboard({ profile, onNavigate }: DashboardProps) {
               <p className="text-lg font-semibold text-foreground">
                 {dailyLog.waterIntake}
                 <span className="text-xs text-muted-foreground font-normal">
-                  /{profile.waterTarget}ml
+                  /{adjustedWaterTarget}ml
                 </span>
               </p>
+              {dailyLog.dynamicTargets && (
+                <p className="text-[10px] text-muted-foreground">
+                  {t('adjustedWaterTargetLabel', lang)}
+                </p>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -158,6 +226,26 @@ export function Dashboard({ profile, onNavigate }: DashboardProps) {
           </CardContent>
         </Card>
       </div>
+
+      {shouldShowHydrationNotice && (
+        <Card className="border border-secondary/40 bg-secondary/10 shadow-none">
+          <CardContent className="p-4">
+            <p className="text-sm font-semibold text-foreground">{t('hydrationAlertTitle', lang)}</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {hydrationMessage}
+            </p>
+            <p className="mt-1 text-xs text-foreground">
+              {t('adjustedWaterTargetLabel', lang)} {adjustedWaterTarget}ml
+            </p>
+            <button
+              onClick={quickLogWater}
+              className="mt-3 rounded-md bg-primary px-3 py-2 text-xs font-medium text-primary-foreground hover:bg-primary/90"
+            >
+              {t('log250ml', lang)}
+            </button>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Today's Meals */}
       <div>
@@ -235,6 +323,7 @@ export function Dashboard({ profile, onNavigate }: DashboardProps) {
           </CardContent>
         </Card>
       )}
+
     </div>
   )
 }

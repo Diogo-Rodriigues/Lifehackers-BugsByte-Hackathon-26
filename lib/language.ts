@@ -246,6 +246,20 @@ export const translations = {
     
     // Common
     save: "Save",
+    hydrationAlertTitle: "Hydration Alert",
+    hydrationAlertHotWeather: "It's hotter today.",
+    log250ml: "Log 250ml",
+    remindMeLater: "Remind me later",
+    adjustedWaterTargetLabel: "Adjusted hydration target based on weather and activity.",
+    drinkMoreThanUsual: "You need to drink more water than usual.",
+    hydrationAlertByHeat: "Hot weather is increasing your hydration needs today.",
+    hydrationAlertByActivity: "Your high activity today is increasing your hydration needs.",
+    hydrationAlertByMixed: "Heat and activity are increasing your hydration needs today.",
+    hydrationAlertBySeasonActivity: "Summer conditions and your activity are increasing your hydration needs today.",
+    hydrationAlertGeneric: "Your hydration target is higher today. Drink water regularly.",
+    extraMealSuggestionTitle: "Optional Traditional Extra",
+    extraMealSuggestionReason: "Optional recommendation only. It will not be added automatically.",
+    estimatedCaloriesLabel: "Estimated calories",
   },
   "pt-PT": {
     // Onboarding
@@ -470,6 +484,20 @@ export const translations = {
     
     // Common
     save: "Guardar",
+    hydrationAlertTitle: "Alerta de Hidratação",
+    hydrationAlertHotWeather: "Está mais calor hoje.",
+    log250ml: "Registar 250ml",
+    remindMeLater: "Lembrar depois",
+    adjustedWaterTargetLabel: "Meta de hidratação ajustada por clima e atividade.",
+    drinkMoreThanUsual: "Precisa de beber mais água do que o habitual.",
+    hydrationAlertByHeat: "O calor de hoje aumentou as suas necessidades de hidratação.",
+    hydrationAlertByActivity: "A sua atividade elevada de hoje aumentou as necessidades de hidratação.",
+    hydrationAlertByMixed: "O calor e a atividade aumentaram as suas necessidades de hidratação hoje.",
+    hydrationAlertBySeasonActivity: "As condições de verão e a sua atividade aumentaram as necessidades de hidratação hoje.",
+    hydrationAlertGeneric: "A sua meta de hidratação está mais alta hoje. Beba água regularmente.",
+    extraMealSuggestionTitle: "Extra Tradicional Opcional",
+    extraMealSuggestionReason: "Sugestão opcional. Não será adicionada automaticamente.",
+    estimatedCaloriesLabel: "Calorias estimadas",
   },
   "pt-BR": {
     // Onboarding
@@ -694,6 +722,20 @@ export const translations = {
     
     // Common
     save: "Salvar",
+    hydrationAlertTitle: "Alerta de Hidratação",
+    hydrationAlertHotWeather: "Está mais calor hoje.",
+    log250ml: "Registrar 250ml",
+    remindMeLater: "Lembrar depois",
+    adjustedWaterTargetLabel: "Meta de hidratação ajustada por clima e atividade.",
+    drinkMoreThanUsual: "Você precisa beber mais água do que o habitual.",
+    hydrationAlertByHeat: "O calor de hoje aumentou sua necessidade de hidratação.",
+    hydrationAlertByActivity: "Sua atividade elevada hoje aumentou sua necessidade de hidratação.",
+    hydrationAlertByMixed: "Calor e atividade aumentaram sua necessidade de hidratação hoje.",
+    hydrationAlertBySeasonActivity: "As condições de verão e sua atividade aumentaram sua necessidade de hidratação hoje.",
+    hydrationAlertGeneric: "Sua meta de hidratação está maior hoje. Beba água com regularidade.",
+    extraMealSuggestionTitle: "Extra Tradicional Opcional",
+    extraMealSuggestionReason: "Sugestão opcional. Não será adicionada automaticamente.",
+    estimatedCaloriesLabel: "Calorias estimadas",
   },
   es: {
     setupProfile: "Configuremos tu perfil nutricional",
@@ -904,6 +946,9 @@ export const translations = {
     allDataCleared: "Todos los datos borrados. Actualizando...",
     
     save: "Guardar",
+    extraMealSuggestionTitle: "Extra Tradicional Opcional",
+    extraMealSuggestionReason: "Sugerencia opcional. No se añadirá automáticamente.",
+    estimatedCaloriesLabel: "Calorías estimadas",
   },
   fr: {
     setupProfile: "Configurons votre profil nutritionnel",
@@ -1114,6 +1159,9 @@ export const translations = {
     allDataCleared: "Toutes les données effacées. Actualisation...",
     
     save: "Enregistrer",
+    extraMealSuggestionTitle: "Extra Traditionnel Optionnel",
+    extraMealSuggestionReason: "Suggestion optionnelle. Elle ne sera pas ajoutée automatiquement.",
+    estimatedCaloriesLabel: "Calories estimées",
   },
   de: {
     setupProfile: "Lass uns dein Ernährungsprofil einrichten",
@@ -1324,6 +1372,9 @@ export const translations = {
     allDataCleared: "Alle Daten gelöscht. Aktualisierung...",
     
     save: "Speichern",
+    extraMealSuggestionTitle: "Optionales Traditionelles Extra",
+    extraMealSuggestionReason: "Optionale Empfehlung. Wird nicht automatisch hinzugefügt.",
+    estimatedCaloriesLabel: "Geschätzte Kalorien",
   },
   it: {
     setupProfile: "Configuriamo il tuo profilo nutrizionale",
@@ -1534,6 +1585,9 @@ export const translations = {
     allDataCleared: "Tutti i dati cancellati. Aggiornamento...",
     
     save: "Salva",
+    extraMealSuggestionTitle: "Extra Tradizionale Opzionale",
+    extraMealSuggestionReason: "Suggerimento opzionale. Non verrà aggiunto automaticamente.",
+    estimatedCaloriesLabel: "Calorie stimate",
   },
   zh: {
     setupProfile: "让我们设置您的营养档案",
@@ -1743,6 +1797,9 @@ export const translations = {
     allDataCleared: "所有数据已清除。正在刷新...",
     
     save: "保存",
+    extraMealSuggestionTitle: "可选传统加餐",
+    extraMealSuggestionReason: "仅为可选建议，不会自动加入计划。",
+    estimatedCaloriesLabel: "预估热量",
   },
   ja: {
     setupProfile: "栄養プロフィールを設定しましょう",
@@ -1953,10 +2010,14 @@ export const translations = {
     allDataCleared: "すべてのデータが消去されました。更新中...",
     
     save: "保存",
+    extraMealSuggestionTitle: "追加の郷土料理（任意）",
+    extraMealSuggestionReason: "任意の提案であり、自動追加はされません。",
+    estimatedCaloriesLabel: "推定カロリー",
   }
 }
 
 export function t(key: keyof typeof translations.en, lang?: Language): string {
   const language = lang || getLanguage()
-  return translations[language][key] || translations.en[key]
+  const localized = translations[language] as Partial<typeof translations.en>
+  return localized[key] || translations.en[key]
 }

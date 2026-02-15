@@ -2,7 +2,7 @@
 
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { getActiveTrip } from "@/lib/store"
+import { getActiveTrip, getDailyLog, todayString } from "@/lib/store"
 import {
     MapPin,
     Clock,
@@ -17,6 +17,7 @@ import { getLanguage, t } from "@/lib/language"
 export function TripPlanning() {
     const existingTrip = getActiveTrip()
     const lang = getLanguage()
+    const todayLog = getDailyLog(todayString())
 
     if (!existingTrip) {
         return (
@@ -187,6 +188,25 @@ export function TripPlanning() {
                                     </Card>
                                 ))}
                             </div>
+
+                            {todayLog.dynamicTargets?.extraMealSuggestion && (
+                                <Card className="mt-3 border border-primary/30 bg-primary/5 shadow-none">
+                                    <CardContent className="p-3">
+                                        <p className="text-xs font-semibold text-foreground">
+                                            {t('extraMealSuggestionTitle', lang)}
+                                        </p>
+                                        <p className="mt-1 text-sm font-medium text-foreground">
+                                            {todayLog.dynamicTargets.extraMealSuggestion.title}
+                                        </p>
+                                        <p className="mt-1 text-xs text-muted-foreground">
+                                            {todayLog.dynamicTargets.extraMealSuggestion.reason}
+                                        </p>
+                                        <p className="mt-2 text-[11px] text-primary">
+                                            {t('estimatedCaloriesLabel', lang)}: {todayLog.dynamicTargets.extraMealSuggestion.estimatedCalories} kcal
+                                        </p>
+                                    </CardContent>
+                                </Card>
+                            )}
                         </div>
                     )}
                 </CardContent>

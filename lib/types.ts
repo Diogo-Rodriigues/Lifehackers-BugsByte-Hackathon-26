@@ -95,6 +95,45 @@ export interface DailyLog {
   steps: number
   activityLevel: "sedentary" | "light" | "moderate" | "active"
   activityNotes: string
+  weather?: WeatherSnapshot
+  dynamicTargets?: DynamicTargets
+  hydrationReminder?: {
+    lastShownAt?: string
+    shownCountToday?: number
+  }
+}
+
+export interface WeatherSnapshot {
+  temperatureC: number
+  apparentTemperatureC?: number
+  humidity?: number
+  weatherCode?: number
+  fetchedAt: string
+}
+
+export interface DynamicTargets {
+  baseWaterTarget: number
+  adjustedWaterTarget: number
+  baseCalorieTarget: number
+  adjustedCalorieTarget: number
+  waterDelta: number
+  calorieDelta: number
+  stepDeltaWater: number
+  stepDeltaCalories: number
+  weatherDeltaWater: number
+  weatherDeltaCalories: number
+  remainingCalories: number
+  needsHydrationAlert: boolean
+  hydrationAlertKind?: "heat" | "activity" | "mixed" | "none"
+  hydrationAlertSeasonal?: boolean
+  hydrationAlertReason?: string
+  strongAlert: boolean
+  extraMealSuggestion?: {
+    title: string
+    reason: string
+    estimatedCalories: number
+  }
+  lastUpdatedAt: string
 }
 
 export interface AnalysisResult {

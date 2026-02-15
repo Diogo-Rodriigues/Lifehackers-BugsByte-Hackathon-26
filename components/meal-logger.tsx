@@ -21,6 +21,7 @@ import {
   todayString,
   generateId,
   getProfile,
+  getActiveTrip,
 } from "@/lib/store"
 import type { DailyLog, MealLog } from "@/lib/types"
 import {
@@ -34,10 +35,12 @@ import {
 import { cn } from "@/lib/utils"
 import { toast } from "sonner"
 import { getLanguage, t } from "@/lib/language"
+import { apiFetch } from "@/lib/api"
 
 export function MealLogger() {
   const today = todayString()
   const profile = getProfile()
+  const activeTrip = getActiveTrip()
   const lang = getLanguage()
   const [dailyLog, setDailyLog] = useState<DailyLog>(getDailyLog(today))
   const [showMealForm, setShowMealForm] = useState(false)
@@ -55,6 +58,35 @@ export function MealLogger() {
   useEffect(() => {
     setDailyLog(getDailyLog(today))
   }, [today])
+
+  useEffect(() => {
+    async function refreshDynamicTargets() {
+      if (!profile || !activeTrip?.destination) return
+      const currentLog = getDailyLog(today)
+      try {
+        const res = await apiFetch("/api/dynamic-targets", {
+          destination: activeTrip.destination,
+          tripDate: activeTrip.departureDate,
+          profile,
+          dailyLog: currentLog,
+          selectedDishes: activeTrip.selectedDishes || [],
+        })
+        if (!res.ok) return
+        const data = await res.json()
+        const latestLog = getDailyLog(today)
+        const updated: DailyLog = {
+          ...latestLog,
+          weather: data.weather,
+          dynamicTargets: data.dynamicTargets,
+        }
+        saveDailyLog(updated)
+        setDailyLog(updated)
+      } catch {
+        // Keep existing values if fetch fails
+      }
+    }
+    refreshDynamicTargets()
+  }, [today, profile, activeTrip?.destination, dailyLog.steps])
 
   function handleAddMeal() {
     if (!mealForm.name) {
@@ -144,8 +176,10 @@ export function MealLogger() {
   }
 
   const waterPercent = profile
-    ? Math.min(100, (dailyLog.waterIntake / profile.waterTarget) * 100)
+    ? Math.min(100, (dailyLog.waterIntake / (dailyLog.dynamicTargets?.adjustedWaterTarget || profile.waterTarget)) * 100)
     : 0
+
+  const effectiveWaterTarget = dailyLog.dynamicTargets?.adjustedWaterTarget || profile?.waterTarget || 2500
 
   return (
     <div className="flex flex-col gap-6 px-4 pb-24 pt-4">
@@ -337,8 +371,13 @@ export function MealLogger() {
                   </span>
                 </p>
                 <p className="text-sm text-muted-foreground">
-                  {t('water', lang)}: {profile?.waterTarget || 2500}ml {t('ofTarget', lang)}
+                  {t('water', lang)}: {effectiveWaterTarget}ml {t('ofTarget', lang)}
                 </p>
+                {dailyLog.dynamicTargets && (
+                  <p className="text-xs text-muted-foreground">
+                    {t('adjustedWaterTargetLabel', lang)}
+                  </p>
+                )}
               </div>
               {/* Progress bar */}
               <div className="h-3 w-full overflow-hidden rounded-full bg-muted">
