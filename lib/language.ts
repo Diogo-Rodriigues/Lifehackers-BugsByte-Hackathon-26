@@ -233,6 +233,8 @@ export const translations = {
     activeLevel: "Active",
     sportsIntense: "Sports, intense",
     activityNotes: "Activity Notes",
+    today: "Today",
+    waterIntakeToday: "Water intake today",
 
     // Meal Analysis
     analyzeMeal: "Analyze Meal",
@@ -549,6 +551,8 @@ export const translations = {
     activeLevel: "Ativo",
     sportsIntense: "Desportos, intenso",
     activityNotes: "Notas de Atividade",
+    today: "Hoje",
+    waterIntakeToday: "Consumo de água hoje",
 
     // Meal Analysis
     analyzeMeal: "Analisar Refeição",
@@ -835,6 +839,8 @@ export const translations = {
     activeLevel: "Ativo",
     sportsIntense: "Esportes, intenso",
     activityNotes: "Notas de Atividade",
+    today: "Hoje",
+    waterIntakeToday: "Consumo de água hoje",
 
     // Meal Analysis
     analyzeMeal: "Analisar Refeição",
@@ -1156,6 +1162,8 @@ export const translations = {
     extraMealSuggestionTitle: "Extra Tradicional Opcional",
     extraMealSuggestionReason: "Sugerencia opcional. No se añadirá automáticamente.",
     estimatedCaloriesLabel: "Calorías estimadas",
+    today: "Hoy",
+    waterIntakeToday: "Consumo de agua hoy",
   },
   fr: {
     setupProfile: "Configurons votre profil nutritionnel",
@@ -1401,6 +1409,8 @@ export const translations = {
     extraMealSuggestionTitle: "Extra Traditionnel Optionnel",
     extraMealSuggestionReason: "Suggestion optionnelle. Elle ne sera pas ajoutée automatiquement.",
     estimatedCaloriesLabel: "Calories estimées",
+    today: "Aujourd'hui",
+    waterIntakeToday: "Consommation d'eau aujourd'hui",
   },
   de: {
     setupProfile: "Lass uns dein Ernährungsprofil einrichten",
@@ -1646,6 +1656,8 @@ export const translations = {
     extraMealSuggestionTitle: "Optionales Traditionelles Extra",
     extraMealSuggestionReason: "Optionale Empfehlung. Wird nicht automatisch hinzugefügt.",
     estimatedCaloriesLabel: "Geschätzte Kalorien",
+    today: "Heute",
+    waterIntakeToday: "Wasseraufnahme heute",
   },
   it: {
     setupProfile: "Configuriamo il tuo profilo nutrizionale",
@@ -1891,6 +1903,8 @@ export const translations = {
     extraMealSuggestionTitle: "Extra Tradizionale Opzionale",
     extraMealSuggestionReason: "Suggerimento opzionale. Non verrà aggiunto automaticamente.",
     estimatedCaloriesLabel: "Calorie stimate",
+    today: "Oggi",
+    waterIntakeToday: "Assunzione di acqua oggi",
   },
   zh: {
     setupProfile: "让我们设置您的营养档案",
@@ -2135,6 +2149,8 @@ export const translations = {
     extraMealSuggestionTitle: "可选传统加餐",
     extraMealSuggestionReason: "仅为可选建议，不会自动加入计划。",
     estimatedCaloriesLabel: "预估热量",
+    today: "今天",
+    waterIntakeToday: "今日饮水量",
   },
   ja: {
     setupProfile: "栄養プロフィールを設定しましょう",
@@ -2375,6 +2391,8 @@ export const translations = {
     extraMealSuggestionTitle: "追加の郷土料理（任意）",
     extraMealSuggestionReason: "任意の提案であり、自動追加はされません。",
     estimatedCaloriesLabel: "推定カロリー",
+    today: "今日",
+    waterIntakeToday: "今日の水分摂取量",
   }
 }
 

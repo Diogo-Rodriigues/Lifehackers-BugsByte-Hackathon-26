@@ -44,7 +44,7 @@ export function MealLogger() {
         <h1 className="font-display text-2xl text-[#38b6ff]">{t('dailyLog', lang)}</h1>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Calendar className="h-4 w-4" />
-          {selectedDate === todayString() ? "Today" : selectedDate}
+          {selectedDate === todayString() ? t('today', lang) : selectedDate}
         </div>
       </div>
 
@@ -171,7 +171,7 @@ export function MealLogger() {
                   {dailyLog.waterIntake}
                   <span className="text-sm font-normal text-muted-foreground"> ml</span>
                 </p>
-                <p className="text-xs text-muted-foreground">Water intake today</p>
+                <p className="text-xs text-muted-foreground">{t('waterIntakeToday', lang)}</p>
               </div>
               <Droplets className="h-8 w-8 text-secondary/30" />
             </div>
