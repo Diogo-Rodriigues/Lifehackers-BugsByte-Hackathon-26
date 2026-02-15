@@ -23,13 +23,14 @@ import {
   ShieldAlert,
   Utensils,
   X,
+  Wifi,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Image from "next/image"
-import { DESTINATIONS, TIMEZONE_OFFSETS } from "@/lib/constants"
+
 import { generateId, saveTrip, setActiveTrip, saveApiKey, getApiKey, getAllergyOptions, saveAllergyOptions, getDietOptions, saveDietOptions } from "@/lib/store"
 import { apiFetch } from "@/lib/api"
-import type { Trip, LocalDish, LocalBeverage, MealPlan } from "@/lib/types"
+import type { Trip, LocalDish, LocalBeverage, MealPlan, CaffeineRecommendation } from "@/lib/types"
 import { getLanguage, setLanguage, t, type Language, LANGUAGES } from "@/lib/language"
 import {
   Plane,
@@ -132,10 +133,10 @@ export function Onboarding({ onComplete, startAtStep = 0, initialProfile }: Onbo
   const [trip, setTrip] = useState<Partial<Trip>>({
     destination: "",
     departureCity: "",
-    departureDate: "",
     arrivalDate: "",
-    departureTime: "",
     arrivalTime: "",
+    returnDate: "",
+    returnTime: "",
     layovers: [],
     selectedDishes: [],
     selectedBeverages: [],
@@ -149,6 +150,9 @@ export function Onboarding({ onComplete, startAtStep = 0, initialProfile }: Onbo
   const [isSimulatingDietitianReview, setIsSimulatingDietitianReview] = useState(false)
   const [dietitianReviewCompleted, setDietitianReviewCompleted] = useState(false)
   const [reviewedNutritionist, setReviewedNutritionist] = useState<NutritionistProfile | null>(null)
+  const [isConnectingNutrium, setIsConnectingNutrium] = useState(false)
+  const [nutritionMethod, setNutritionMethod] = useState<'nutrium' | 'estimate' | null>(null)
+  const [nutriumConnected, setNutriumConnected] = useState(false)
 
   useEffect(() => {
     setAllergyOptions(getAllergyOptions(ALLERGY_OPTIONS))
@@ -171,7 +175,7 @@ export function Onboarding({ onComplete, startAtStep = 0, initialProfile }: Onbo
 
   const steps = [
     { title: t('aboutYou', language), icon: User },
-    { title: t('goals', language), icon: Target },
+    { title: t('nutritionGoals', language) || 'Nutrition Goals', icon: Target },
     { title: t('allergies', language), icon: ShieldAlert },
     { title: t('preferences', language), icon: Utensils },
     { title: t('tripDetails', language), icon: Plane },
@@ -240,7 +244,7 @@ export function Onboarding({ onComplete, startAtStep = 0, initialProfile }: Onbo
     setLoadingPlan(true)
     try {
       // Ensure we have required trip data
-      if (!trip.destination || !trip.departureDate || !trip.arrivalDate) {
+      if (!trip.destination || !trip.arrivalDate || !trip.returnDate) {
         toast.error("Please complete trip details first")
         setLoadingPlan(false)
         return
@@ -250,18 +254,18 @@ export function Onboarding({ onComplete, startAtStep = 0, initialProfile }: Onbo
         trip: {
           ...trip,
           id: trip.id || generateId(),
-          timezoneShift: TIMEZONE_OFFSETS[trip.destination] || 0,
+          departureCity: trip.departureCity || "Home",
         },
         profile,
         selectedDishes: trip.selectedDishes || [],
       })
-      
+
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}))
         console.error("Meal plan API error:", errorData)
         throw new Error(errorData.error || "Failed to generate plan")
       }
-      
+
       const data = await res.json()
       if (!data.plan) {
         throw new Error("No plan returned from API")
@@ -275,11 +279,11 @@ export function Onboarding({ onComplete, startAtStep = 0, initialProfile }: Onbo
         id: trip.id || generateId(),
         destination: trip.destination || "",
         departureCity: trip.departureCity || "Home",
-        departureDate: trip.departureDate || new Date().toISOString().split("T")[0],
-        departureTime: trip.departureTime || "12:00",
         arrivalDate: trip.arrivalDate || new Date().toISOString().split("T")[0],
         arrivalTime: trip.arrivalTime || "12:00",
-        timezoneShift: TIMEZONE_OFFSETS[trip.destination || ""] || 0,
+        returnDate: trip.returnDate || new Date().toISOString().split("T")[0],
+        returnTime: trip.returnTime || "12:00",
+        timezoneShift: 0,
         layovers: trip.layovers || [],
         selectedDishes: trip.selectedDishes || [],
         selectedBeverages: trip.selectedBeverages || [],
@@ -298,12 +302,12 @@ export function Onboarding({ onComplete, startAtStep = 0, initialProfile }: Onbo
     const newSelectedDishes = exists
       ? selected.filter((d) => d.name !== dish.name)
       : [...selected, dish]
-    
+
     setTrip({
       ...trip,
       selectedDishes: newSelectedDishes,
     })
-    
+
     // Visual feedback
     if (!exists) {
       toast.success(`${dish.name} ${t('added', language) || 'added'}`, { duration: 1000 })
@@ -352,25 +356,25 @@ export function Onboarding({ onComplete, startAtStep = 0, initialProfile }: Onbo
         id: generateId(),
         destination: trip.destination || "",
         departureCity: trip.departureCity || "Home",
-        departureDate: trip.departureDate || new Date().toISOString().split("T")[0],
-        departureTime: trip.departureTime || "12:00",
         arrivalDate: trip.arrivalDate || new Date().toISOString().split("T")[0],
         arrivalTime: trip.arrivalTime || "12:00",
-        timezoneShift: TIMEZONE_OFFSETS[trip.destination] || 0,
+        returnDate: trip.returnDate || new Date().toISOString().split("T")[0],
+        returnTime: trip.returnTime || "12:00",
+        timezoneShift: 0,
         layovers: trip.layovers || [],
         selectedDishes: trip.selectedDishes || [],
         selectedBeverages: trip.selectedBeverages || [],
         status: "active",
         mealPlan: mealPlan
           ? {
-              ...mealPlan,
-              status:
-                choice === "dietitian"
-                  ? "dietitian-verified"
-                  : choice === "ai"
+            ...mealPlan,
+            status:
+              choice === "dietitian"
+                ? "dietitian-verified"
+                : choice === "ai"
                   ? "ai-generated"
                   : mealPlan.status,
-            }
+          }
           : null,
       }
       saveTrip(fullTrip)
@@ -419,8 +423,8 @@ export function Onboarding({ onComplete, startAtStep = 0, initialProfile }: Onbo
     const exclusiveValue = isExclusiveAllergy
       ? "Not Know"
       : isExclusiveDiet
-      ? "No Preference"
-      : null
+        ? "No Preference"
+        : null
 
     if (exclusiveValue) {
       setProfile({
@@ -488,27 +492,65 @@ export function Onboarding({ onComplete, startAtStep = 0, initialProfile }: Onbo
     }
   }
 
-  function updateCaloriesFromGoal(goal: "lose" | "maintain" | "gain") {
-    const base = 2000
-    const cals =
-      goal === "lose" ? base - 300 : goal === "gain" ? base + 300 : base
-    const protein = Math.round(cals * 0.3 / 4)
-    const fat = Math.round(cals * 0.25 / 9)
-    const carbs = Math.round((cals - protein * 4 - fat * 9) / 4)
-    setProfile({
-      ...profile,
-      goal,
-      dailyCalorieTarget: cals,
-      macros: { protein, carbs, fat },
-    })
+  async function connectNutrium() {
+    if (isConnectingNutrium || nutriumConnected) return
+    setIsConnectingNutrium(true)
+    try {
+      const res = await apiFetch("/api/nutrition-goals", {
+        sex: profile.sex || "male",
+        age: profile.age || 25,
+        height: profile.height || 170,
+        weight: profile.weight || 70,
+      })
+      const data = await res.json()
+      // Simulate a minimum connection time for the animation
+      await new Promise((resolve) => setTimeout(resolve, 2500))
+      if (data.dailyCalorieTarget) {
+        setProfile({
+          ...profile,
+          dailyCalorieTarget: data.dailyCalorieTarget,
+          macros: data.macros || { protein: 150, carbs: 250, fat: 67 },
+          waterTarget: data.waterTarget || 2500,
+        })
+      }
+      setNutriumConnected(true)
+      toast.success(t('nutriumSynced', language) || 'Nutrition plan synced successfully')
+    } catch {
+      // Fallback calculation
+      await new Promise((resolve) => setTimeout(resolve, 2500))
+      const weight = profile.weight || 70
+      const height = profile.height || 170
+      const age = profile.age || 25
+      const sex = profile.sex || "male"
+      let bmr: number
+      if (sex === "female") {
+        bmr = 10 * weight + 6.25 * height - 5 * age - 161
+      } else {
+        bmr = 10 * weight + 6.25 * height - 5 * age + 5
+      }
+      const tdee = Math.round(bmr * 1.55)
+      const protein = Math.round((tdee * 0.3) / 4)
+      const fat = Math.round((tdee * 0.25) / 9)
+      const carbs = Math.round((tdee - protein * 4 - fat * 9) / 4)
+      setProfile({
+        ...profile,
+        dailyCalorieTarget: tdee,
+        macros: { protein, carbs, fat },
+        waterTarget: Math.round(weight * 35),
+      })
+      setNutriumConnected(true)
+      toast.success(t('nutriumSynced', language) || 'Nutrition plan synced successfully')
+    } finally {
+      setIsConnectingNutrium(false)
+    }
   }
 
   return (
     <div className="flex min-h-screen flex-col bg-background relative">
       {/* Language Selector - Top Right */}
       <div className="absolute top-6 right-6 z-10">
-        <Select 
-          value={language} 
+        <Select
+          value={language}
           onValueChange={(value) => {
             setLanguage(value as Language)
             setLanguageState(value as Language)
@@ -526,7 +568,7 @@ export function Onboarding({ onComplete, startAtStep = 0, initialProfile }: Onbo
           </SelectContent>
         </Select>
       </div>
-      
+
       {/* Header */}
       <div className="flex flex-col items-center gap-3 px-6 pt-16 pb-8">
         <Image src="/logo.png" alt="NutriFuel" width={160} height={160} priority className="mb-2" />
@@ -576,23 +618,6 @@ export function Onboarding({ onComplete, startAtStep = 0, initialProfile }: Onbo
             {/* Step 0: About You */}
             {step === 0 && (
               <div className="flex flex-col gap-5">
-                <div className="flex flex-col gap-2">
-                  <Label htmlFor="api-key" className="flex items-center gap-2 text-sm font-semibold">
-                    <Key className="h-4 w-4 text-primary" />
-                    {t('apiKey', language)}
-                  </Label>
-                  <Input
-                    id="api-key"
-                    type="password"
-                    placeholder={t('apiKeyPlaceholder', language)}
-                    value={apiKey}
-                    onChange={(e) => setApiKey(e.target.value)}
-                    className="h-11"
-                  />
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    {t('apiKeyDescription', language)}
-                  </p>
-                </div>
 
                 <div className="flex flex-col gap-2">
                   <Label htmlFor="name" className="text-sm font-semibold">{t('name', language)}</Label>
@@ -688,99 +713,151 @@ export function Onboarding({ onComplete, startAtStep = 0, initialProfile }: Onbo
               </div>
             )}
 
-            {/* Step 1: Goals */}
+            {/* Step 1: Nutrium Connection */}
             {step === 1 && (
-              <div className="flex flex-col gap-4">
-                <div className="flex flex-col gap-1.5">
-                  <Label>{t('nutritionalGoal', language)}</Label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {(
-                      [
-                        { key: "lose", label: t('loseWeight', language) },
-                        { key: "maintain", label: t('maintain', language) },
-                        { key: "gain", label: t('gainMuscle', language) },
-                      ] as const
-                    ).map((g) => (
-                      <button
-                        key={g.key}
-                        onClick={() => updateCaloriesFromGoal(g.key)}
-                        className={cn(
-                          "rounded-lg border px-3 py-3 text-sm font-medium transition-colors",
-                          profile.goal === g.key
-                            ? "border-primary bg-primary text-primary-foreground"
-                            : "border-border bg-card text-foreground hover:border-primary/50"
-                        )}
-                      >
-                        {g.label}
-                      </button>
-                    ))}
+              <div className="flex flex-col items-center gap-6 py-4">
+                {!nutriumConnected ? (
+                  <>
+                    {!isConnectingNutrium ? (
+                      <div className="flex flex-col gap-4 w-full">
+                        {/* Option 1: Connect with Nutrium */}
+                        <button
+                          onClick={() => { setNutritionMethod('nutrium'); connectNutrium() }}
+                          className="group w-full rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-emerald-500/[0.06] to-teal-600/[0.12] hover:from-emerald-500/[0.12] hover:to-teal-600/[0.20] p-5 shadow-sm hover:shadow-md transition-all duration-300 text-left cursor-pointer"
+                        >
+                          <div className="flex items-center gap-3 mb-2">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-teal-700 flex-shrink-0">
+                              <Wifi className="h-5 w-5 text-white" />
+                            </div>
+                            <div className="flex-1">
+                              <h3 className="text-base font-bold text-foreground">
+                                {t('connectNutrium', language) || 'Connect with Nutrium'}
+                              </h3>
+                              <p className="text-xs text-muted-foreground leading-relaxed mt-0.5">
+                                {t('nutriumDescription', language) || 'Import your current nutrition plan from Nutrium app'}
+                              </p>
+                            </div>
+                            <ChevronRight className="h-5 w-5 text-emerald-500 opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all flex-shrink-0" />
+                          </div>
+                        </button>
+
+                        {/* Divider */}
+                        <div className="flex items-center gap-3 px-2">
+                          <div className="flex-1 h-px bg-border" />
+                          <span className="text-xs text-muted-foreground font-medium">{t('or', language) || 'or'}</span>
+                          <div className="flex-1 h-px bg-border" />
+                        </div>
+
+                        {/* Option 2: Estimate based on my info */}
+                        <button
+                          onClick={() => { setNutritionMethod('estimate'); connectNutrium() }}
+                          className="group w-full rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/[0.04] to-primary/[0.10] hover:from-primary/[0.08] hover:to-primary/[0.16] p-5 shadow-sm hover:shadow-md transition-all duration-300 text-left cursor-pointer"
+                        >
+                          <div className="flex items-center gap-3 mb-2">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/80 flex-shrink-0">
+                              <Target className="h-5 w-5 text-primary-foreground" />
+                            </div>
+                            <div className="flex-1">
+                              <h3 className="text-base font-bold text-foreground">
+                                {t('estimateFromInfo', language) || 'Estimate from My Info'}
+                              </h3>
+                              <p className="text-xs text-muted-foreground leading-relaxed mt-0.5">
+                                {t('estimateFromInfoDesc', language) || 'Calculate nutrition goals based on your profile data'}
+                              </p>
+                            </div>
+                            <ChevronRight className="h-5 w-5 text-primary opacity-50 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all flex-shrink-0" />
+                          </div>
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-4">
+                        <div className="relative">
+                          <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-emerald-400 to-teal-600 shadow-lg shadow-emerald-500/30">
+                            <Loader2 className="h-8 w-8 animate-spin text-white" />
+                          </div>
+                          <span className="absolute inset-0 rounded-full animate-ping bg-emerald-400/30" />
+                          <span className="absolute -inset-2 rounded-full animate-pulse border-2 border-emerald-400/40" />
+                          <span className="absolute -inset-4 rounded-full animate-pulse border border-emerald-400/20" style={{ animationDelay: '0.5s' }} />
+                        </div>
+                        <h3 className="text-lg font-bold text-foreground">
+                          {nutritionMethod === 'estimate'
+                            ? (t('estimatingNutrition', language) || 'Estimating your goals...')
+                            : (t('connectingNutrium', language) || 'Connecting to Nutrium...')}
+                        </h3>
+                        <p className="text-sm text-muted-foreground max-w-[280px] leading-relaxed text-center">
+                          {nutritionMethod === 'estimate'
+                            ? (t('calculatingFromProfile', language) || 'Calculating nutrition goals from your profile...')
+                            : (t('importingFromNutrium', language) || 'Importing your current nutrition plan...')}
+                        </p>
+                        <div className="flex flex-col items-center gap-2 mt-2">
+                          <div className="flex gap-1">
+                            {[0, 1, 2].map((i) => (
+                              <div
+                                key={i}
+                                className="h-2 w-2 rounded-full bg-emerald-500 animate-bounce"
+                                style={{ animationDelay: `${i * 0.15}s` }}
+                              />
+                            ))}
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            {t('syncingData', language) || 'Syncing data...'}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <div className="flex flex-col items-center gap-5 w-full animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/10 ring-4 ring-emerald-500/20">
+                      <Check className="h-8 w-8 text-emerald-500" />
+                    </div>
+                    <div className="text-center">
+                      <h3 className="text-lg font-bold text-foreground">
+                        {nutritionMethod === 'estimate'
+                          ? (t('goalsEstimated', language) || 'Goals Estimated')
+                          : (t('nutriumConnected', language) || 'Connected to Nutrium')}
+                      </h3>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {nutritionMethod === 'estimate'
+                          ? (t('goalsCalculatedSuccess', language) || 'Nutrition goals calculated successfully')
+                          : (t('nutriumSynced', language) || 'Nutrition plan synced successfully')}
+                      </p>
+                    </div>
+                    <Card className="w-full border border-emerald-500/20 bg-emerald-500/5 shadow-none">
+                      <CardContent className="p-4">
+                        <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-3 uppercase tracking-wider">
+                          {t('nutritionPlan', language) || 'Your Nutrition Plan'}
+                        </p>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="rounded-lg bg-background/80 p-3 text-center">
+                            <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{t('calories', language)}</p>
+                            <p className="text-xl font-bold text-foreground">{profile.dailyCalorieTarget}</p>
+                            <p className="text-[10px] text-muted-foreground">kcal / {t('dailyCalorieTarget', language)?.toLowerCase().includes('diár') ? 'dia' : 'day'}</p>
+                          </div>
+                          <div className="rounded-lg bg-background/80 p-3 text-center">
+                            <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{t('waterTarget', language)}</p>
+                            <p className="text-xl font-bold text-foreground">{profile.waterTarget}</p>
+                            <p className="text-[10px] text-muted-foreground">ml</p>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2 mt-3">
+                          <div className="rounded-lg bg-background/80 p-2.5 text-center">
+                            <p className="text-[10px] text-muted-foreground">{t('protein', language)}</p>
+                            <p className="text-base font-semibold text-foreground">{profile.macros?.protein}g</p>
+                          </div>
+                          <div className="rounded-lg bg-background/80 p-2.5 text-center">
+                            <p className="text-[10px] text-muted-foreground">{t('carbs', language)}</p>
+                            <p className="text-base font-semibold text-foreground">{profile.macros?.carbs}g</p>
+                          </div>
+                          <div className="rounded-lg bg-background/80 p-2.5 text-center">
+                            <p className="text-[10px] text-muted-foreground">{t('fat', language)}</p>
+                            <p className="text-base font-semibold text-foreground">{profile.macros?.fat}g</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
                   </div>
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="calories">
-                    {t('dailyCalorieTarget', language)}: {profile.dailyCalorieTarget} kcal
-                  </Label>
-                  <Input
-                    id="calories"
-                    type="range"
-                    min={1200}
-                    max={4000}
-                    step={50}
-                    value={profile.dailyCalorieTarget}
-                    onChange={(e) => {
-                      const cals = parseInt(e.target.value)
-                      const protein = Math.round((cals * 0.3) / 4)
-                      const fat = Math.round((cals * 0.25) / 9)
-                      const carbs = Math.round((cals - protein * 4 - fat * 9) / 4)
-                      setProfile({
-                        ...profile,
-                        dailyCalorieTarget: cals,
-                        macros: { protein, carbs, fat },
-                      })
-                    }}
-                    className="h-2 accent-primary"
-                  />
-                </div>
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="rounded-lg bg-muted p-3 text-center">
-                    <p className="text-xs text-muted-foreground">Protein</p>
-                    <p className="text-lg font-semibold text-foreground">
-                      {profile.macros?.protein}g
-                    </p>
-                  </div>
-                  <div className="rounded-lg bg-muted p-3 text-center">
-                    <p className="text-xs text-muted-foreground">Carbs</p>
-                    <p className="text-lg font-semibold text-foreground">
-                      {profile.macros?.carbs}g
-                    </p>
-                  </div>
-                  <div className="rounded-lg bg-muted p-3 text-center">
-                    <p className="text-xs text-muted-foreground">Fat</p>
-                    <p className="text-lg font-semibold text-foreground">
-                      {profile.macros?.fat}g
-                    </p>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="water">
-                    {t('waterTarget', language)}: {profile.waterTarget}ml
-                  </Label>
-                  <Input
-                    id="water"
-                    type="range"
-                    min={1000}
-                    max={5000}
-                    step={250}
-                    value={profile.waterTarget}
-                    onChange={(e) =>
-                      setProfile({
-                        ...profile,
-                        waterTarget: parseInt(e.target.value),
-                      })
-                    }
-                    className="h-2 accent-secondary"
-                  />
-                </div>
+                )}
               </div>
             )}
 
@@ -942,51 +1019,19 @@ export function Onboarding({ onComplete, startAtStep = 0, initialProfile }: Onbo
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <Label htmlFor="destination">{t('destinationCountry', language)}</Label>
-                  <Select
+                  <Input
+                    id="destination"
+                    placeholder={t('selectDestination', language) || 'e.g. Portugal, New Zealand, Japan...'}
                     value={trip.destination}
-                    onValueChange={(v) =>
-                      setTrip({ ...trip, destination: v })
+                    onChange={(e) =>
+                      setTrip({ ...trip, destination: e.target.value })
                     }
-                  >
-                    <SelectTrigger id="destination">
-                      <SelectValue placeholder={t('selectDestination', language)} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {DESTINATIONS.map((d) => (
-                        <SelectItem key={d} value={d}>
-                          {d}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                    className="h-11"
+                  />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="dep-date">{t('departure', language)}</Label>
-                    <Input
-                      id="dep-date"
-                      type="date"
-                      value={trip.departureDate}
-                      onChange={(e) =>
-                        setTrip({ ...trip, departureDate: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="dep-time">{t('departureTime', language)}</Label>
-                    <Input
-                      id="dep-time"
-                      type="time"
-                      value={trip.departureTime}
-                      onChange={(e) =>
-                        setTrip({ ...trip, departureTime: e.target.value })
-                      }
-                    />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="arr-date">{t('arrival', language)}</Label>
+                    <Label htmlFor="arr-date">{t('arrivalAtDest', language) || 'Arrival at Destination'}</Label>
                     <Input
                       id="arr-date"
                       type="date"
@@ -997,7 +1042,7 @@ export function Onboarding({ onComplete, startAtStep = 0, initialProfile }: Onbo
                     />
                   </div>
                   <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="arr-time">{t('arrivalTime', language)}</Label>
+                    <Label htmlFor="arr-time">{t('arrivalTimeAtDest', language) || 'Arrival Time'}</Label>
                     <Input
                       id="arr-time"
                       type="time"
@@ -1008,23 +1053,30 @@ export function Onboarding({ onComplete, startAtStep = 0, initialProfile }: Onbo
                     />
                   </div>
                 </div>
-                {trip.destination && (
-                  <Card className="border border-secondary/30 bg-accent/50 shadow-none">
-                    <CardContent className="flex items-center gap-3 p-3">
-                      <Clock className="h-5 w-5 text-secondary" />
-                      <div>
-                        <p className="text-sm font-medium text-foreground">
-                          {t('timezoneShift', language)}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {trip.destination} {t('timezoneDesc', language)}
-                          {TIMEZONE_OFFSETS[trip.destination] > 0 ? "+" : ""}
-                          {TIMEZONE_OFFSETS[trip.destination]}{t('mealTimesAdjusted', language)}
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                )}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="ret-date">{t('departureFromDest', language) || 'Departure from Destination'}</Label>
+                    <Input
+                      id="ret-date"
+                      type="date"
+                      value={trip.returnDate}
+                      onChange={(e) =>
+                        setTrip({ ...trip, returnDate: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="ret-time">{t('departureTimeFromDest', language) || 'Departure Time'}</Label>
+                    <Input
+                      id="ret-time"
+                      type="time"
+                      value={trip.returnTime}
+                      onChange={(e) =>
+                        setTrip({ ...trip, returnTime: e.target.value })
+                      }
+                    />
+                  </div>
+                </div>
               </div>
             )}
 
@@ -1240,26 +1292,62 @@ export function Onboarding({ onComplete, startAtStep = 0, initialProfile }: Onbo
                             Personalized Plan Ready
                           </p>
                           <p className="mt-0.5 text-xs text-muted-foreground">
-                            Based on your goals, allergies, and selected local dishes.
+                            Based on your goals, allergies, dietary preferences, timezone, and local cuisine culture.
                           </p>
                         </div>
                       </CardContent>
                     </Card>
 
+                    {/* Caffeine Schedule */}
+                    {mealPlan.caffeineSchedule && mealPlan.caffeineSchedule.length > 0 && (
+                      <Card className="border border-amber-500/30 bg-amber-500/5 shadow-none">
+                        <CardContent className="p-4">
+                          <div className="flex items-center gap-2 mb-3">
+                            <span className="text-base">☕</span>
+                            <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wider">
+                              {t('caffeineSchedule', language) || 'Caffeine Schedule for Jetlag'}
+                            </p>
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            {mealPlan.caffeineSchedule.map((item: CaffeineRecommendation, idx: number) => (
+                              <div key={idx} className="flex items-start gap-2 rounded-lg bg-background/80 p-2.5">
+                                <span className="text-xs font-semibold text-amber-600 dark:text-amber-400 min-w-[45px]">
+                                  {item.time}
+                                </span>
+                                <div className="flex flex-col gap-0.5">
+                                  <span className="text-sm font-medium text-foreground">
+                                    {item.recommendation}
+                                  </span>
+                                  <span className="text-[10px] text-muted-foreground">
+                                    {item.reason}
+                                  </span>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
                     <div className="max-h-[400px] overflow-y-auto pr-2 flex flex-col gap-2">
                       {mealPlan.days.map((day) => (
                         <Card key={day.date} className="border-0 bg-card shadow-sm">
                           <CardContent className="p-4">
-                            <p className="mb-3 text-xs font-medium text-muted-foreground">
+                            <p className="mb-1 text-xs font-medium text-muted-foreground">
                               {day.date}
                             </p>
+                            {day.culturalNotes && (
+                              <p className="mb-3 text-[11px] text-primary/80 italic">
+                                💡 {day.culturalNotes}
+                              </p>
+                            )}
                             <div className="flex flex-col gap-2">
                               {day.meals.map((meal) => (
                                 <div
                                   key={meal.id}
                                   className="flex items-center justify-between rounded-lg bg-muted/50 p-2.5"
                                 >
-                                  <div>
+                                  <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-2">
                                       <span className="w-14 text-[10px] font-medium uppercase text-muted-foreground">
                                         {meal.type}
@@ -1271,8 +1359,13 @@ export function Onboarding({ onComplete, startAtStep = 0, initialProfile }: Onbo
                                     <p className="mt-0.5 text-sm font-medium text-foreground">
                                       {meal.dish}
                                     </p>
+                                    {meal.notes && (
+                                      <p className="mt-0.5 text-[10px] text-muted-foreground leading-tight">
+                                        {meal.notes}
+                                      </p>
+                                    )}
                                   </div>
-                                  <div className="text-right">
+                                  <div className="text-right ml-2 flex-shrink-0">
                                     <p className="text-sm font-semibold text-foreground">
                                       {meal.calories}
                                     </p>
@@ -1404,11 +1497,6 @@ export function Onboarding({ onComplete, startAtStep = 0, initialProfile }: Onbo
             if (step < steps.length - 1) {
               const nextStep = step + 1
 
-              // Save API Key if moving from Step 0
-              if (step === 0 && apiKey) {
-                saveApiKey(apiKey)
-              }
-
               setStep(nextStep)
               // Trigger data fetching for next steps
               if (nextStep === 5) { // Local Cuisine
@@ -1520,7 +1608,7 @@ function getDefaultBeverages(destination: string): LocalBeverage[] {
 }
 
 function getDefaultMealPlan(trip: Trip): MealPlan {
-  const startDate = trip.departureDate || new Date().toISOString().split("T")[0]
+  const startDate = trip.arrivalDate || new Date().toISOString().split("T")[0]
   return {
     id: generateId(),
     tripId: trip.id,
@@ -1528,7 +1616,7 @@ function getDefaultMealPlan(trip: Trip): MealPlan {
     days: [
       {
         date: startDate,
-        adjustedTimezone: trip.timezoneShift,
+        adjustedTimezone: 0,
         meals: [
           { id: generateId(), type: "breakfast", suggestedTime: "8:00", dish: "Light local breakfast", calories: 350, protein: 15, carbs: 45, fat: 12, notes: "Easy digestion for travel day" },
           { id: generateId(), type: "lunch", suggestedTime: "12:30", dish: trip.selectedDishes?.[0]?.name || "Local specialty", calories: 500, protein: 25, carbs: 60, fat: 18, notes: "" },

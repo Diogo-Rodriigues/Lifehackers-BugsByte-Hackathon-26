@@ -17,16 +17,18 @@ export interface Trip {
   id: string
   destination: string
   departureCity: string
-  departureDate: string
-  arrivalDate: string
-  departureTime: string
-  arrivalTime: string
+  departureDate?: string   // legacy: departure from home
+  departureTime?: string   // legacy: departure time from home
+  arrivalDate: string      // arrival at destination
+  arrivalTime: string      // arrival time at destination
+  returnDate: string       // departure from destination
+  returnTime: string       // departure time from destination
   timezoneShift: number // hours
   layovers: string[]
   selectedDishes: LocalDish[]
   selectedBeverages: LocalBeverage[]
   mealPlan: MealPlan | null
-  status: "active" | "completed"
+  status?: "active" | "completed"
   completedAt?: string
   postTripAnalysis?: TripDietAnalysis
   nutriumSync?: NutriumSyncStatus
@@ -49,9 +51,9 @@ export interface TripDietAnalysis {
 export interface NutriumSyncStatus {
   status: "not-sent" | "sending" | "sent" | "failed"
   lastAttemptAt?: string
-  lastSentAt: string
-  syncId: string
-  message: string
+  lastSentAt?: string
+  syncId?: string
+  message?: string
 }
 
 export interface LocalDish {
@@ -72,17 +74,25 @@ export interface LocalBeverage {
   whyWorthTrying: string
 }
 
+export interface CaffeineRecommendation {
+  time: string
+  recommendation: string
+  reason: string
+}
+
 export interface MealPlan {
   id: string
   tripId: string
   days: DayPlan[]
   status: "ai-generated" | "dietitian-verified" | "active"
+  caffeineSchedule?: CaffeineRecommendation[]
 }
 
 export interface DayPlan {
   date: string
   meals: PlannedMeal[]
   adjustedTimezone: number
+  culturalNotes?: string
 }
 
 export interface PlannedMeal {

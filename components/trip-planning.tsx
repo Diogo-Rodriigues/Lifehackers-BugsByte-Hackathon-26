@@ -35,6 +35,11 @@ export function TripPlanning({ onOpenTripReview }: TripPlanningProps) {
     )
   }
 
+  const maybeReturnDate = (existingTrip as { returnDate?: string }).returnDate
+  const dateRange = maybeReturnDate
+    ? `${existingTrip.arrivalDate} - ${maybeReturnDate}`
+    : `${existingTrip.departureDate} - ${existingTrip.arrivalDate}`
+
   return (
     <div className="flex flex-col gap-6 px-4 pb-24 pt-4">
       <div className="flex items-center justify-between">
@@ -51,21 +56,26 @@ export function TripPlanning({ onOpenTripReview }: TripPlanningProps) {
             <h2 className="text-2xl font-bold text-foreground">{existingTrip.destination}</h2>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <CalendarDays className="h-3.5 w-3.5" />
-              <span>
-                {existingTrip.departureDate} - {existingTrip.arrivalDate}
-              </span>
+              <span>{dateRange}</span>
             </div>
           </div>
         </div>
 
         <CardContent className="p-4 pt-2">
-          <div className="grid grid-cols-2 gap-4 py-4">
+          <div className="grid grid-cols-3 gap-3 py-4">
             <div className="flex flex-col gap-1 rounded-lg bg-muted/50 p-3">
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <MapPin className="h-3.5 w-3.5" />
                 {t("origin", lang)}
               </div>
               <span className="font-medium text-foreground">{existingTrip.departureCity}</span>
+            </div>
+            <div className="flex flex-col gap-1 rounded-lg bg-muted/50 p-3">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <MapPin className="h-3.5 w-3.5" />
+                {t("destinationCountry", lang)}
+              </div>
+              <span className="font-medium text-foreground">{existingTrip.destination}</span>
             </div>
             <div className="flex flex-col gap-1 rounded-lg bg-muted/50 p-3">
               <div className="flex items-center gap-2 text-xs text-muted-foreground">

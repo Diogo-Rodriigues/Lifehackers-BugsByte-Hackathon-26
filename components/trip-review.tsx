@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, CheckCircle2, CircleDashed, Loader2, Send, Sparkles } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { clearActiveTrip, getActiveTrip, getDailyLogsInRange, saveTrip } from "@/lib/store"
+import { clearActiveTrip, getActiveTrip, getDailyLogs, getDailyLogsInRange, saveTrip } from "@/lib/store"
 import type { PageId } from "@/components/bottom-nav"
 import type { Trip, TripDietAnalysis, UserProfile, DailyLog, NutriumSyncStatus } from "@/lib/types"
 import { getLanguage, t } from "@/lib/language"
@@ -40,9 +40,26 @@ function round(value: number) {
   return Math.round(value)
 }
 
+function hasMeaningfulData(log: DailyLog) {
+  return (
+    (log.meals?.length || 0) > 0 ||
+    Number(log.waterIntake || 0) > 0 ||
+    Number(log.steps || 0) > 0
+  )
+}
+
 function buildTripAnalysis(trip: Trip, profile: UserProfile, lang: ReturnType<typeof getLanguage>): TripDietAnalysis {
-  const allDates = enumerateDates(trip.departureDate, trip.arrivalDate)
-  const logs = getDailyLogsInRange(trip.departureDate, trip.arrivalDate)
+  const rangeStart = trip.arrivalDate || trip.departureDate || new Date().toISOString().split("T")[0]
+  const rangeEnd = trip.returnDate || trip.arrivalDate || rangeStart
+  const inRangeDates = enumerateDates(rangeStart, rangeEnd)
+  const inRangeLogs = getDailyLogsInRange(rangeStart, rangeEnd)
+  const inRangeMeaningful = inRangeLogs.filter(hasMeaningfulData)
+  const fallbackLogs = getDailyLogs().filter(hasMeaningfulData)
+  const useInRange = inRangeMeaningful.length > 0
+  const logs = useInRange ? inRangeLogs : fallbackLogs
+  const allDates = useInRange
+    ? inRangeDates
+    : logs.map((log) => log.date).sort((a, b) => a.localeCompare(b))
   const logsByDate = new Map<string, DailyLog>(logs.map((log) => [log.date, log]))
   const isPt = lang === "pt-PT" || lang === "pt-BR"
 
@@ -77,7 +94,7 @@ function buildTripAnalysis(trip: Trip, profile: UserProfile, lang: ReturnType<ty
     if (dayCalories > calorieTarget * 1.15) excessCalorieDays += 1
   }
 
-  const daysAnalyzed = Math.max(1, allDates.length)
+  const daysAnalyzed = Math.max(1, allDates.length || logs.length)
   const avgCaloriesPerDay = round(totalCalories / daysAnalyzed)
   const avgWaterPerDay = round(totalWater / daysAnalyzed)
   const avgStepsPerDay = round(totalSteps / daysAnalyzed)

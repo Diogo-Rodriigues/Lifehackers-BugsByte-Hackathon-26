@@ -66,7 +66,7 @@ export function MealLogger() {
       try {
         const res = await apiFetch("/api/dynamic-targets", {
           destination: activeTrip.destination,
-          tripDate: activeTrip.departureDate,
+          tripDate: activeTrip.arrivalDate || activeTrip.departureDate,
           profile,
           dailyLog: currentLog,
           selectedDishes: activeTrip.selectedDishes || [],

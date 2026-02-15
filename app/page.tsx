@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { getProfile } from "@/lib/store"
 import type { UserProfile } from "@/lib/types"
+import { WelcomePage } from "@/components/welcome-page"
 import { Onboarding } from "@/components/onboarding"
 import { Dashboard } from "@/components/dashboard"
 import { TripPlanning } from "@/components/trip-planning"
@@ -16,6 +17,7 @@ export default function Page() {
   const [currentPage, setCurrentPage] = useState<PageId>("dashboard")
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [mounted, setMounted] = useState(false)
+  const [showWelcome, setShowWelcome] = useState(true)
 
   useEffect(() => {
     setMounted(true)
@@ -49,6 +51,10 @@ export default function Page() {
         </div>
       </div>
     )
+  }
+
+  if (!profile && showWelcome) {
+    return <WelcomePage onStart={() => setShowWelcome(false)} />
   }
 
   if (!profile) {
