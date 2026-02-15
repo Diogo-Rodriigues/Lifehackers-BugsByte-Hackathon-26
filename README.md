@@ -19,18 +19,23 @@
 
 NutriFuel is an intelligent nutrition tracking application designed specifically for travelers. Whether you're exploring Tokyo's ramen shops, sampling tapas in Barcelona, or enjoying street food in Bangkok, NutriFuel helps you maintain your health goals while experiencing authentic local cuisine.
 
+**The Challenge**: Traveling often means sacrificing your nutrition goals or missing out on local culinary experiences. Traditional nutrition apps don't understand local cuisines or account for timezone changes.
+
+**Our Solution**: NutriFuel combines AI-powered meal analysis with cultural food knowledge across 28 countries and 9 languages. Get personalized meal plans that embrace local dishes while keeping you on track with your health goals.
+
 ### ✨ Key Features
 
 - **🎯 Smart Onboarding**: Personalized nutrition goals based on your profile, dietary restrictions, and preferences
-- **🌐 Multi-Language Support**: English, Portuguese, and expanding
-- **🍽️ Local Cuisine Discovery**: AI-powered recommendations for local dishes that match your dietary needs
-- **📊 Real-Time Nutrition Tracking**: Monitor calories, macros, and water intake
-- **✈️ Trip Planning**: Plan meals ahead with timezone-aware nutrition adjustments
-- **📸 Meal Analysis**: Snap photos of your meals for instant nutrition analysis
-- **🥗 Menu Scanner**: Analyze restaurant menus to find suitable options
-- **🔄 Nutrium Integration**: Connect with Nutrium for professional nutrition plan sync
-- **💧 Hydration Tracking**: Stay hydrated with smart water intake reminders
-- **🌙 Dark Mode**: Beautiful light and dark themes
+- **🌐 Multi-Language Support**: Full support for 9 languages with localized date/time formats
+- **🍽️ Local Cuisine Discovery**: AI-powered recommendations for local dishes across 28 countries
+- **📊 Real-Time Nutrition Tracking**: Monitor calories, macros, and water intake with visual progress rings
+- **✈️ Trip Planning**: Plan meals ahead with timezone-aware nutrition adjustments and local nutritionist insights
+- **📸 Meal Analysis**: Snap photos of your meals for instant AI-powered nutrition breakdown
+- **🥗 Menu Scanner**: Analyze restaurant menus to find suitable options with allergen warnings
+- **🔄 Nutrium Integration**: Connect with Nutrium for professional nutrition plan synchronization
+- **💧 Hydration Tracking**: Stay hydrated with smart water intake tracking and reminders
+- **🌙 Dark Mode**: Beautiful light and dark themes with seamless switching
+- **🔒 Privacy-First**: All data stored locally on your device - no cloud accounts required
 
 ---
 
@@ -38,16 +43,18 @@ NutriFuel is an intelligent nutrition tracking application designed specifically
 
 ### Prerequisites
 
-- **Node.js**: 18.0 or higher
-- **pnpm**: 8.0 or higher (recommended) or npm/yarn
-- **OpenAI API Key**: For AI-powered features
+- **Node.js**: 18.0 or higher ([Download](https://nodejs.org/))
+- **pnpm**: 8.0 or higher (recommended) - Install with `npm install -g pnpm`
+  - Alternatively: npm or yarn
+- **OpenAI API Key**: Get yours at [platform.openai.com](https://platform.openai.com/api-keys)
+  - Can be configured later during app setup
 
 ### Installation
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/nutrifuel.git
-   cd nutrifuel
+   git clone https://github.com/Diogo-Rodriigues/Lifehackers-BugsByte-Hackathon-26.git
+   cd NutriFuel
    ```
 
 2. **Install dependencies**
@@ -55,12 +62,14 @@ NutriFuel is an intelligent nutrition tracking application designed specifically
    pnpm install
    ```
 
-3. **Set up environment variables**
+3. **(Optional) Set up environment variables**
    
-   Create a `.env.local` file in the root directory:
+   Create a `.env.local` file in the root directory to set a default API key:
    ```env
    NEXT_PUBLIC_DEFAULT_API_KEY=your_openai_api_key_here
    ```
+   
+   *Note: You can also configure your API key later during the app's onboarding process.*
 
 4. **Run the development server**
    ```bash
@@ -152,10 +161,14 @@ nutrifuel/
 ## 🎨 Features in Detail
 
 ### 1. Onboarding Flow
+- **Language Selection**: Choose from 9 supported languages
 - **Personal Profile**: Age, sex, height, weight, and fitness goals
-- **Allergies & Dietary Preferences**: Comprehensive allergen tracking with safety guardrails
+- **Allergies & Dietary Preferences**: Comprehensive allergen tracking with AI safety guardrails
 - **Nutrition Method**: Choose between AI estimation or Nutrium sync
-- **Trip Details**: Destination, dates, times, with timezone awareness
+- **Trip Details**: Destination, dates, times with localized date/time pickers and timezone awareness
+- **Cuisine Discovery**: Browse and select local dishes you want to try
+- **Meal Plan Generation**: AI creates a personalized itinerary for your trip
+- **Nutritionist Review**: Optional local nutritionist verification
 
 ### 2. Trip Planning
 - **Local Cuisine Discovery**: AI-curated local dishes filtered by your dietary needs
@@ -175,19 +188,32 @@ nutrifuel/
 - **Manual Entry**: Traditional food diary with autocomplete
 
 ### 5. Multi-Language Support
-Currently supported:
-- 🇺🇸 English
-- 🇵🇹 Portuguese
 
-More languages coming soon!
+**9 Languages Fully Supported:**
+- 🇬🇧 English (EN)
+- 🇵🇹 Portuguese - Portugal (PT-PT)
+- 🇧🇷 Portuguese - Brazil (PT-BR)
+- 🇪🇸 Spanish (ES)
+- 🇫🇷 French (FR)
+- 🇩🇪 German (DE)
+- 🇮🇹 Italian (IT)
+- 🇨🇳 Chinese (ZH)
+- 🇯🇵 Japanese (JA)
+
+**Localized Features:**
+- Translated UI and messaging
+- Language-specific date formats (MM/DD/YYYY, DD/MM/YYYY, YYYY/MM/DD, etc.)
+- Localized time pickers with appropriate AM/PM indicators
+- Cultural meal naming and descriptions
+- Proper abbreviations and punctuation per language
 
 ---
 
 ## 🌐 Supported Destinations
 
-NutriFuel currently supports nutrition guidance for 15 countries:
+NutriFuel currently supports nutrition guidance for **28 countries**:
 
-🇯🇵 Japan | 🇹🇭 Thailand | 🇲🇽 Mexico | 🇮🇹 Italy | 🇮🇳 India | 🇫🇷 France | 🇲🇦 Morocco | 🇵🇪 Peru | 🇰🇷 South Korea | 🇪🇸 Spain | 🇹🇷 Turkey | 🇻🇳 Vietnam | 🇬🇷 Greece | 🇧🇷 Brazil | 🇨🇴 Colombia
+🇵🇹 Portugal | 🇯🇵 Japan | 🇹🇭 Thailand | 🇲🇽 Mexico | 🇮🇹 Italy | 🇮🇳 India | 🇫🇷 France | 🇲🇦 Morocco | 🇵🇪 Peru | 🇰🇷 South Korea | 🇪🇸 Spain | 🇹🇷 Turkey | 🇻🇳 Vietnam | 🇬🇷 Greece | 🇧🇷 Brazil | 🇨🇴 Colombia | 🇩🇪 Germany | 🇨🇳 China | 🇺🇸 United States | 🇦🇪 UAE | 🇮🇩 Indonesia | 🇦🇷 Argentina | 🇪🇬 Egypt | 🇦🇺 Australia | 🇳🇱 Netherlands | 🇨🇦 Canada | 🇱🇺 Luxembourg | 🇨🇭 Switzerland
 
 Each destination includes:
 - Local nutritionist profiles
@@ -199,9 +225,16 @@ Each destination includes:
 
 ## 🔐 Environment Variables
 
+The app requires an OpenAI API key for AI-powered features. You can either:
+
+1. **Configure during onboarding** (recommended): Enter your API key in the app's onboarding flow
+2. **Set a default key**: Create a `.env.local` file with:
+
 | Variable | Description | Required |
 |----------|-------------|----------|
-| `NEXT_PUBLIC_DEFAULT_API_KEY` | OpenAI API key for AI features | Yes |
+| `NEXT_PUBLIC_DEFAULT_API_KEY` | Default OpenAI API key for AI features | Optional* |
+
+*The app will prompt for an API key during first use if not set.
 
 ---
 
@@ -225,24 +258,39 @@ pnpm lint
 
 ### Code Quality
 
-This project uses:
-- **TypeScript** for type safety
-- **ESLint** for code linting
-- **Prettier** (recommended) for code formatting
+This project follows best practices:
+- **TypeScript**: Strict type checking for reliability
+- **ESLint**: Code linting with Next.js configuration
+- **Modular Architecture**: Clean component separation
+- **Accessibility**: WCAG 2.1 Level AA compliance
+- **Responsive Design**: Mobile-first approach
 
 ---
 
 ## 🗺️ Roadmap
 
-- [ ] Add more destination countries
-- [ ] Implement cloud sync with user accounts
+### Phase 1 - Core Features ✅
+- [x] Multi-language support (9 languages)
+- [x] 28 destination countries
+- [x] AI meal analysis and planning
+- [x] Localized date/time formats
+- [x] Local nutritionist profiles
+- [x] Privacy-first local storage
+
+### Phase 2 - Enhancements
+- [ ] Implement cloud sync with optional user accounts
 - [ ] Add social features (share meals, trips)
-- [ ] Integrate with fitness trackers
-- [ ] Add recipe suggestions
-- [ ] Expand language support
+- [ ] Integrate with fitness trackers (Apple Health, Google Fit)
+- [ ] Add recipe suggestions based on local ingredients
+- [ ] Expand to 50+ destination countries
+- [ ] Add more language support (Arabic, Hindi, Korean)
+
+### Phase 3 - Platform Expansion
 - [ ] Mobile app (React Native)
-- [ ] Offline mode
-- [ ] Export nutrition reports
+- [ ] Progressive Web App (PWA) with offline mode
+- [ ] Browser extension for quick menu scanning
+- [ ] Export nutrition reports (PDF, CSV)
+- [ ] Integration with travel apps
 
 ---
 
@@ -262,10 +310,20 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 📞 Support
+## 📞 Support & Contributing
 
-For support, questions, or feedback:
-- Contact the LifeHackers team
+### Get Help
+- 📧 Contact the LifeHackers team
+- 🐛 Report issues on GitHub
+- 💡 Request features via GitHub Issues
+
+### Contributing
+We welcome contributions! See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for guidelines.
+
+### Documentation
+- [API Documentation](docs/API.md)
+- [Component Guide](docs/COMPONENTS.md)
+- [Deployment Guide](docs/DEPLOYMENT.md)
 
 ---
 
