@@ -16,6 +16,38 @@ export const DESTINATIONS = [
     "Colombia",
 ]
 
+export const DESTINATION_IMAGES: Record<string, string> = {
+    Japan: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&q=80",
+    "Japão": "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?w=800&q=80",
+    Thailand: "https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=800&q=80",
+    "Tailândia": "https://images.unsplash.com/photo-1552465011-b4e21bf6e79a?w=800&q=80",
+    Mexico: "https://images.unsplash.com/photo-1518638150340-f706e86654de?w=800&q=80",
+    "México": "https://images.unsplash.com/photo-1518638150340-f706e86654de?w=800&q=80",
+    Italy: "https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?w=800&q=80",
+    "Itália": "https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?w=800&q=80",
+    India: "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=800&q=80",
+    "Índia": "https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=800&q=80",
+    France: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=80",
+    "França": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&q=80",
+    Morocco: "https://images.unsplash.com/photo-1597212618440-806262de4f6b?w=800&q=80",
+    "Marrocos": "https://images.unsplash.com/photo-1597212618440-806262de4f6b?w=800&q=80",
+    Peru: "https://images.unsplash.com/photo-1526392060635-9d6019884377?w=800&q=80",
+    "South Korea": "https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=800&q=80",
+    "Coreia do Sul": "https://images.unsplash.com/photo-1517154421773-0529f29ea451?w=800&q=80",
+    Spain: "https://images.unsplash.com/photo-1543783207-ec64e4d95325?w=800&q=80",
+    "Espanha": "https://images.unsplash.com/photo-1543783207-ec64e4d95325?w=800&q=80",
+    Turkey: "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=800&q=80",
+    "Turquia": "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?w=800&q=80",
+    Vietnam: "https://images.unsplash.com/photo-1528127269322-539801943592?w=800&q=80",
+    "Vietnã": "https://images.unsplash.com/photo-1528127269322-539801943592?w=800&q=80",
+    Greece: "https://images.unsplash.com/photo-1573783712625-19ac62d08a73?w=800&q=80",
+    "Grécia": "https://images.unsplash.com/photo-1573783712625-19ac62d08a73?w=800&q=80",
+    Brazil: "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=800&q=80",
+    "Brasil": "https://images.unsplash.com/photo-1483729558449-99ef09a8c325?w=800&q=80",
+    Colombia: "https://images.unsplash.com/photo-1568632234157-ce7aecd03d0d?w=800&q=80",
+    "Colômbia": "https://images.unsplash.com/photo-1568632234157-ce7aecd03d0d?w=800&q=80",
+}
+
 export const TIMEZONE_OFFSETS: Record<string, number> = {
     Japan: 9,
     Thailand: 7,

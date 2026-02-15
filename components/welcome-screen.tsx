@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/select"
 import { saveApiKey, getApiKey } from "@/lib/store"
 import { getLanguage, setLanguage, t, type Language, LANGUAGES } from "@/lib/language"
-import { Key, ChevronRight, Sparkles, Upload } from "lucide-react"
+import { Key, ChevronRight, Sparkles, Upload, Globe } from "lucide-react"
 import Image from "next/image"
 
 interface WelcomeScreenProps {
@@ -69,13 +69,25 @@ export function WelcomeScreen({ onStartFresh, onPlanImported }: WelcomeScreenPro
             setLanguageState(value as Language)
           }}
         >
-          <SelectTrigger className="h-8 w-[90px] border-0 bg-primary text-xs font-semibold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90">
-            <SelectValue />
+          <SelectTrigger className="w-[140px] bg-background/80 backdrop-blur-sm border-primary/20">
+            <Globe className="h-4 w-4 mr-2 text-primary" />
+            <SelectValue className="text-sm">
+              <span className="flex items-center gap-1.5">
+                {LANGUAGES.find(l => l.code === language)?.flag} {language.toUpperCase()}
+              </span>
+            </SelectValue>
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-background/95 backdrop-blur-sm min-w-[140px]">
             {LANGUAGES.map((lang) => (
-              <SelectItem key={lang.code} value={lang.code} className="cursor-pointer text-xs">
-                {lang.code.toUpperCase()}
+              <SelectItem
+                key={lang.code}
+                value={lang.code}
+                className="hover:bg-primary/10 text-sm data-[highlighted]:bg-primary/10 focus:bg-primary/10 !pl-2 [&>span:first-child]:hidden"
+                style={{ padding: '4px 8px', minHeight: '28px', lineHeight: '20px' }}
+              >
+                <span className="inline-flex items-center gap-2">
+                  {lang.flag} {lang.name}
+                </span>
               </SelectItem>
             ))}
           </SelectContent>
@@ -83,8 +95,6 @@ export function WelcomeScreen({ onStartFresh, onPlanImported }: WelcomeScreenPro
       </div>
 
       <div className="flex flex-1 flex-col items-center justify-center px-6 py-12">
-        <Image src="/logo.png" alt="NutriFuel" width={140} height={140} priority className="mb-6" />
-
         <h1 className="mb-2 font-display text-4xl font-bold tracking-tight text-primary italic sm:text-5xl">
           {t("welcome", language)}
         </h1>

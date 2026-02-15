@@ -78,34 +78,35 @@ interface NutritionistProfile {
 
 const DEFAULT_NUTRITIONIST: NutritionistProfile = {
   name: "Local Nutrition Specialist",
-  photoUrl: "/nutritionists/default.jpg",
+  photoUrl: "/nutritionists/default.png",
 }
 
 const NUTRITIONIST_BY_DESTINATION: Record<string, NutritionistProfile> = {
-  Japan: { name: "Dr. Aiko Tanaka", photoUrl: "/nutritionists/japan.jpg" },
-  Thailand: { name: "Dr. Naree Suksawat", photoUrl: "/nutritionists/thailand.jpg" },
-  Mexico: { name: "Dr. Valeria Soto", photoUrl: "/nutritionists/mexico.jpg" },
-  Italy: { name: "Dr.ssa Giulia Romano", photoUrl: "/nutritionists/italy.jpg" },
-  India: { name: "Dr. Priya Menon", photoUrl: "/nutritionists/india.jpg" },
-  France: { name: "Dr. Camille Laurent", photoUrl: "/nutritionists/france.jpg" },
-  Morocco: { name: "Dr. Leila Idrissi", photoUrl: "/nutritionists/morocco.jpg" },
-  Peru: { name: "Dr. Luciana Quispe", photoUrl: "/nutritionists/peru.jpg" },
-  "South Korea": { name: "Dr. Minji Park", photoUrl: "/nutritionists/south-korea.jpg" },
-  Spain: { name: "Dr. Elena Navarro", photoUrl: "/nutritionists/spain.jpg" },
-  Turkey: { name: "Dr. Selin Kaya", photoUrl: "/nutritionists/turkey.jpg" },
-  Vietnam: { name: "Dr. Linh Tran", photoUrl: "/nutritionists/vietnam.jpg" },
-  Greece: { name: "Dr. Eleni Papadopoulou", photoUrl: "/nutritionists/greece.jpg" },
-  Brazil: { name: "Dr. Marina Costa", photoUrl: "/nutritionists/brazil.jpg" },
-  Colombia: { name: "Dr. Sofia Ramirez", photoUrl: "/nutritionists/colombia.jpg" },
+  Japan: { name: "Dr. Aiko Tanaka", photoUrl: "/nutritionists/japan.png" },
+  Thailand: { name: "Dr. Naree Suksawat", photoUrl: "/nutritionists/thailand.png" },
+  Mexico: { name: "Dr. Valeria Soto", photoUrl: "/nutritionists/mexico.png" },
+  Italy: { name: "Dr.ssa Giulia Romano", photoUrl: "/nutritionists/italy.png" },
+  India: { name: "Dr. Priya Menon", photoUrl: "/nutritionists/india.png" },
+  France: { name: "Dr. Camille Laurent", photoUrl: "/nutritionists/france.png" },
+  Morocco: { name: "Dr. Leila Idrissi", photoUrl: "/nutritionists/morocco.png" },
+  Peru: { name: "Dr. Luciana Quispe", photoUrl: "/nutritionists/peru.png" },
+  "South Korea": { name: "Dr. Minji Park", photoUrl: "/nutritionists/south-korea.png" },
+  Spain: { name: "Dr. Elena Navarro", photoUrl: "/nutritionists/spain.png" },
+  Turkey: { name: "Dr. Selin Kaya", photoUrl: "/nutritionists/turkey.png" },
+  Vietnam: { name: "Dr. Linh Tran", photoUrl: "/nutritionists/vietnam.png" },
+  Greece: { name: "Dr. Eleni Papadopoulou", photoUrl: "/nutritionists/greece.png" },
+  Brazil: { name: "Dr. Marina Costa", photoUrl: "/nutritionists/brazil.png" },
+  Colombia: { name: "Dr. Sofia Ramirez", photoUrl: "/nutritionists/colombia.png" },
 }
 
 interface OnboardingProps {
   onComplete: () => void
+  onBack?: () => void
   startAtStep?: number
   initialProfile?: Partial<UserProfile>
 }
 
-export function Onboarding({ onComplete, startAtStep = 0, initialProfile }: OnboardingProps) {
+export function Onboarding({ onComplete, onBack, startAtStep = 0, initialProfile }: OnboardingProps) {
   const [step, setStep] = useState(startAtStep)
   const [language, setLanguageState] = useState<Language>('en')
   const [apiKey, setApiKey] = useState("")
@@ -560,31 +561,10 @@ export function Onboarding({ onComplete, startAtStep = 0, initialProfile }: Onbo
 
   return (
     <div className="flex min-h-screen flex-col bg-background relative">
-      {/* Language Selector - Top Right */}
-      <div className="absolute top-6 right-6 z-10">
-        <Select
-          value={language}
-          onValueChange={(value) => {
-            setLanguage(value as Language)
-            setLanguageState(value as Language)
-          }}
-        >
-          <SelectTrigger className="w-[90px] h-8 text-xs border-0 bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm font-semibold">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {LANGUAGES.map((lang) => (
-              <SelectItem key={lang.code} value={lang.code} className="cursor-pointer text-xs">
-                {lang.code.toUpperCase()}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
+      
       {/* Header */}
       <div className="flex flex-col items-center gap-3 px-6 pt-16 pb-8">
-        <Image src="/logo.png" alt="NutriFuel" width={160} height={160} priority className="mb-2" />
+        <h1 className="font-display text-4xl text-[#38b6ff] mb-2">NutriFuel</h1>
         <p className="text-base text-muted-foreground font-medium text-center">
           {t('setupProfile', language)}
         </p>
@@ -1100,7 +1080,7 @@ export function Onboarding({ onComplete, startAtStep = 0, initialProfile }: Onbo
                   <p className="text-sm text-muted-foreground">
                     {t('selectDishes', language)} {trip.destination}.
                   </p>
-                  <span className="text-xs font-medium bg-primary/10 text-primary px-2 py-1 rounded-full">
+                  <span className="text-xs font-medium bg-primary/10 text-primary px-2 py-1 rounded-full whitespace-nowrap">
                     {trip.selectedDishes?.length || 0} {t('selected', language)}
                   </span>
                 </div>
@@ -1486,20 +1466,24 @@ export function Onboarding({ onComplete, startAtStep = 0, initialProfile }: Onbo
 
       {/* Navigation */}
       <div className="flex gap-3 px-6 py-6 pb-8 safe-bottom border-t border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-        {step > 0 && (
+        {(step > 0 || (step === 0 && onBack)) && (
           <Button
             variant="outline"
             onClick={() => {
-              if (step === steps.length - 1) {
-                setReviewChoice(null)
-                setDietitianReviewCompleted(false)
-                setReviewedNutritionist(null)
-                setIsSimulatingDietitianReview(false)
+              if (step === 0 && onBack) {
+                onBack()
+              } else {
+                if (step === steps.length - 1) {
+                  setReviewChoice(null)
+                  setDietitianReviewCompleted(false)
+                  setReviewedNutritionist(null)
+                  setIsSimulatingDietitianReview(false)
+                }
+                setStep(step - 1)
               }
-              setStep(step - 1)
             }}
             disabled={isSimulatingDietitianReview}
-            className="flex-1 h-12 font-semibold shadow-sm hover:shadow transition-all"
+            className="flex-1 h-12 font-semibold shadow-sm hover:shadow transition-all text-sm"
           >
             <ChevronLeft className="mr-1.5 h-5 w-5" />
             {t('back', language)}
@@ -1573,7 +1557,7 @@ export function Onboarding({ onComplete, startAtStep = 0, initialProfile }: Onbo
           ) : step === steps.length - 2 ? (
             t('finish', language)
           ) : step === steps.length - 1 && reviewChoice === "dietitian" && !dietitianReviewCompleted ? (
-            t('requestLocalDietitianReview', language)
+            language === 'pt-PT' || language === 'pt-BR' ? 'Pedir verificação' : t('requestLocalDietitianReview', language)
           ) : step === steps.length - 1 ? (
             t('proceedToApp', language)
           ) : (

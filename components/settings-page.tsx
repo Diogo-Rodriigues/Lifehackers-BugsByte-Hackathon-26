@@ -113,7 +113,7 @@ export function SettingsPage() {
 
   return (
     <div className="flex flex-col gap-6 px-4 pb-24 pt-6">
-      <h1 className="font-display text-2xl font-bold text-[#38b6ff] tracking-tight">{t('settings', language)}</h1>
+      <h1 className="font-display text-2xl text-[#38b6ff]">{t('settings', language)}</h1>
 
       {/* API Key */}
       <Card className="border-0 bg-card shadow-sm hover:shadow-md transition-shadow duration-200">

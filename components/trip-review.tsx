@@ -10,6 +10,8 @@ import { clearActiveTrip, getActiveTrip, getDailyLogs, getDailyLogsInRange, save
 import type { PageId } from "@/components/bottom-nav"
 import type { Trip, TripDietAnalysis, UserProfile, DailyLog, NutriumSyncStatus } from "@/lib/types"
 import { getLanguage, t } from "@/lib/language"
+import Image from "next/image"
+import { DESTINATION_IMAGES } from "@/lib/constants"
 
 interface TripReviewProps {
   profile: UserProfile
@@ -278,14 +280,43 @@ export function TripReview({ profile, onNavigate }: TripReviewProps) {
           {t("back", lang)}
         </button>
 
-        <Card className="border-0 bg-card shadow-sm">
-          <CardContent className="p-5">
-            <h1 className="text-xl font-semibold text-foreground">{t("tripReviewTitle", lang)}</h1>
-            <p className="mt-1 text-sm text-muted-foreground">{t("tripReviewSubtitle", lang)}</p>
-            <Badge variant="outline" className="mt-3 text-primary border-primary/30">
-              {trip.destination}
-            </Badge>
-          </CardContent>
+        <Card className="border-0 bg-card shadow-sm overflow-hidden">
+          {DESTINATION_IMAGES[trip.destination] ? (
+            <>
+              <div className="relative h-32 w-full">
+                <Image
+                  src={DESTINATION_IMAGES[trip.destination]}
+                  alt={trip.destination}
+                  fill
+                  className="object-cover"
+                  priority
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                <div className="absolute bottom-3 left-5">
+                  <div className="inline-block px-3 py-1.5 rounded-md bg-white/95 backdrop-blur-md shadow-lg">
+                    <h1 className="text-2xl font-bold text-gray-900 mb-0.5">
+                      {trip.destination}
+                    </h1>
+                    <p className="text-xs text-gray-600 font-medium">
+                      {trip.arrivalDate || trip.departureDate} - {(trip as any).returnDate || trip.arrivalDate}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <CardContent className="p-5">
+                <h2 className="text-xl font-semibold text-foreground">{t("tripReviewTitle", lang)}</h2>
+                <p className="mt-1 text-sm text-muted-foreground">{t("tripReviewSubtitle", lang)}</p>
+              </CardContent>
+            </>
+          ) : (
+            <CardContent className="p-5">
+              <h1 className="text-xl font-semibold text-foreground">{t("tripReviewTitle", lang)}</h1>
+              <p className="mt-1 text-sm text-muted-foreground">{t("tripReviewSubtitle", lang)}</p>
+              <Badge variant="outline" className="mt-3 text-primary border-primary/30">
+                {trip.destination}
+              </Badge>
+            </CardContent>
+          )}
         </Card>
 
         <Card className="border-0 bg-card shadow-sm">

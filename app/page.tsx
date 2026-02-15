@@ -72,6 +72,10 @@ export default function Page() {
   if (!profile || startOnboardingAtStep !== null) {
     return <Onboarding
       onComplete={handleOnboardingComplete}
+      onBack={() => {
+        setShowWelcome(true)
+        setStartOnboardingAtStep(null)
+      }}
       startAtStep={startOnboardingAtStep || 0}
     />
   }
