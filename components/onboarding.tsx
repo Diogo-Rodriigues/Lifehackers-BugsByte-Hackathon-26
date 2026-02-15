@@ -184,6 +184,19 @@ export function Onboarding({ onComplete, startAtStep = 0, initialProfile }: Onbo
     { title: t('planConfirmation', language), icon: ShieldCheck },
   ]
 
+  const isTripStepValid = Boolean(
+    trip.departureCity?.trim() &&
+    trip.destination?.trim() &&
+    trip.arrivalDate &&
+    trip.arrivalTime &&
+    trip.returnDate &&
+    trip.returnTime
+  )
+
+  const isNutritionGoalsStepValid = Boolean(nutritionMethod && nutriumConnected)
+  const isLocalCuisineStepValid = !loadingDishes && localDishes.length > 0
+  const isMealPlanStepValid = !loadingPlan && Boolean(mealPlan)
+
   function getAllergyLabel(allergy: string): string {
     const map: Record<string, string> = {
       "Gluten": t('gluten', language),
@@ -1495,6 +1508,38 @@ export function Onboarding({ onComplete, startAtStep = 0, initialProfile }: Onbo
         <Button
           onClick={async () => {
             if (step < steps.length - 1) {
+              if (step === 1 && !isNutritionGoalsStepValid) {
+                toast.error(
+                  t('nutritionGoalsChoiceRequiredError', language) ||
+                  "Choose one nutrition goal option and wait for sync before continuing."
+                )
+                return
+              }
+
+              if (step === 4 && !isTripStepValid) {
+                toast.error(
+                  t('tripRequiredFieldsError', language) ||
+                  "Please fill in all trip details before continuing."
+                )
+                return
+              }
+
+              if (step === 5 && !isLocalCuisineStepValid) {
+                toast.error(
+                  t('localCuisineNotReadyError', language) ||
+                  "Wait until local cuisine suggestions are loaded before continuing."
+                )
+                return
+              }
+
+              if (step === 6 && !isMealPlanStepValid) {
+                toast.error(
+                  t('mealPlanNotReadyError', language) ||
+                  "Wait until your meal plan is generated before continuing."
+                )
+                return
+              }
+
               const nextStep = step + 1
 
               setStep(nextStep)
@@ -1511,6 +1556,10 @@ export function Onboarding({ onComplete, startAtStep = 0, initialProfile }: Onbo
           }}
           disabled={
             isSimulatingDietitianReview ||
+            (step === 1 && !isNutritionGoalsStepValid) ||
+            (step === 4 && !isTripStepValid) ||
+            (step === 5 && !isLocalCuisineStepValid) ||
+            (step === 6 && !isMealPlanStepValid) ||
             (step === steps.length - 1 && !reviewChoice)
           }
           className="flex-1 h-12 font-semibold bg-primary text-primary-foreground hover:bg-primary/90 shadow-md hover:shadow-lg transition-all"
